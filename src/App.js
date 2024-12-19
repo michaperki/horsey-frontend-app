@@ -3,16 +3,20 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Login from "./components/Auth/Login";
-import AdminLogin from "./components/Auth/AdminLogin";
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
 import Transfer from "./components/Admin/Transfer";
 import ValidateResult from "./components/Admin/ValidateResult";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Navbar from "./components/Navbar";
 import PlaceBet from "./components/PlaceBet";
+import Register from './components/Auth/Register';
+import UserLogin from './components/Auth/UserLogin';
+import AdminLogin from './components/Auth/AdminLogin';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './components/Profile';
+import Notifications from './components/Notifications';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
@@ -20,13 +24,51 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<UserLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Protected User Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+            path="/place-bet"
+            element={
+                <ProtectedRoute>
+                    <PlaceBet />
+                </ProtectedRoute>
+                }
+        />
+
+
+        {/* Protected Admin Routes */}
         <Route
           path="/admin/mint"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <Mint />
             </ProtectedRoute>
           }
@@ -34,7 +76,7 @@ function App() {
         <Route
           path="/admin/balance"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <Balance />
             </ProtectedRoute>
           }
@@ -42,7 +84,7 @@ function App() {
         <Route
           path="/admin/transfer"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <Transfer />
             </ProtectedRoute>
           }
@@ -50,16 +92,24 @@ function App() {
         <Route
           path="/admin/validate-result"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <ValidateResult />
             </ProtectedRoute>
           }
         />
-        <Route path="/place-bet" element={<PlaceBet />} />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </Router>
   );
 }
 
 export default App;
-

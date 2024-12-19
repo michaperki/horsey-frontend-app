@@ -1,8 +1,8 @@
-// frontend/src/components/Auth/AdminLogin.js
+// frontend/src/components/Auth/UserLogin.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AdminLogin = () => {
+const UserLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ const AdminLogin = () => {
 
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleAdminLogin = async () => {
+  const handleLogin = async () => {
     try {
-      const response = await fetch('/auth/admin/login', {
+      const response = await fetch('/auth/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -23,24 +23,24 @@ const AdminLogin = () => {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        setMessage('Admin login successful.');
-        navigate('/admin/dashboard'); // Redirect to admin dashboard
+        setMessage('Login successful.');
+        navigate('/dashboard'); // Redirect to user dashboard
       } else {
         setMessage(data.error);
       }
     } catch (error) {
-      console.error('Admin login error:', error);
+      console.error('Login error:', error);
       setMessage('An unexpected error occurred.');
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2>Admin Login</h2>
+      <h2>User Login</h2>
       <input
         type="email"
         name="email"
-        placeholder="Admin Email"
+        placeholder="Email"
         value={email}
         onChange={handleChange}
         style={styles.input}
@@ -48,12 +48,12 @@ const AdminLogin = () => {
       <input
         type="password"
         name="password"
-        placeholder="Admin Password"
+        placeholder="Password"
         value={password}
         onChange={handleChange}
         style={styles.input}
       />
-      <button onClick={handleAdminLogin} style={styles.button}>Login as Admin</button>
+      <button onClick={handleLogin} style={styles.button}>Login</button>
       {message && <p>{message}</p>}
     </div>
   );
@@ -79,7 +79,7 @@ const styles = {
   button: {
     width: "100%",
     padding: "10px",
-    backgroundColor: "#007bff",
+    backgroundColor: "#28a745",
     color: "#fff",
     border: "none",
     borderRadius: "4px",
@@ -88,4 +88,4 @@ const styles = {
   },
 };
 
-export default AdminLogin;
+export default UserLogin;
