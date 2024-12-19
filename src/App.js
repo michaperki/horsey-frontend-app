@@ -9,8 +9,10 @@ import AdminLogin from "./components/Auth/AdminLogin";
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
 import Transfer from "./components/Admin/Transfer";
+import ValidateResult from "./components/Admin/ValidateResult";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import PlaceBet from "./components/PlaceBet";
 
 function App() {
   return (
@@ -45,6 +47,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/validate-result"
+          element={
+            <ProtectedRoute>
+              <ValidateResult />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/place-bet" element={<PlaceBet />} />
       </Routes>
     </Router>
   );

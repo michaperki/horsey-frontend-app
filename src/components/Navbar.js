@@ -23,6 +23,9 @@ const Navbar = () => {
           <Link to="/admin/transfer" style={styles.link}>
             Transfer Tokens
           </Link>
+          <Link to="/admin/validate-result" style={styles.link}>
+            Validate Result
+          </Link>
           <Logout />
         </>
       )}
@@ -50,3 +53,4 @@ const styles = {
 };
 
 export default Navbar;
+
