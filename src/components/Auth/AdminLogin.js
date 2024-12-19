@@ -1,3 +1,4 @@
+
 // frontend/src/components/Auth/AdminLogin.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +23,7 @@ const AdminLogin = () => {
 
       if (response.ok) {
         const { token } = data;
-        localStorage.setItem("token", token);
+        localStorage.setItem("token", `Bearer ${token}`); // Store as Bearer token
         setMessage("Login successful!");
         navigate("/admin/mint"); // Redirect to minting page
       } else {
@@ -91,3 +92,4 @@ const styles = {
 };
 
 export default AdminLogin;
+

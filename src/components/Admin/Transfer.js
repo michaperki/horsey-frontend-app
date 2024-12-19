@@ -1,17 +1,15 @@
 
-// frontend/src/components/Admin/Mint.js
+// frontend/src/components/Admin/Transfer.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-const Mint = () => {
+const Transfer = () => {
+  const [fromAddress, setFromAddress] = useState("");
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
-  const handleMint = async () => {
+  const handleTransfer = async () => {
     try {
-      // Retrieve JWT token from localStorage
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -19,45 +17,50 @@ const Mint = () => {
         return;
       }
 
-      // Prepare the request payload
       const payload = {
+        fromAddress,
         toAddress,
         amount,
       };
 
-      // Make the POST request to the backend
-      const response = await fetch("/tokens/mint", {
+      const response = await fetch("/tokens/transfer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // Send JWT token in headers
+          Authorization: token,
         },
         body: JSON.stringify(payload),
       });
 
-      // Parse the JSON response
       const data = await response.json();
 
       if (response.ok) {
         setMessage(`Success! Transaction Hash: ${data.txHash}`);
-        // Optionally, reset the form
+        setFromAddress("");
         setToAddress("");
         setAmount("");
       } else {
         setMessage(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error minting tokens:", error);
+      console.error("Error transferring tokens:", error);
       setMessage("An unexpected error occurred.");
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2>Admin Mint Tokens</h2>
+      <h2>Admin Transfer Tokens</h2>
       <input
         type="text"
-        placeholder="Recipient Address"
+        placeholder="From Address"
+        value={fromAddress}
+        onChange={(e) => setFromAddress(e.target.value)}
+        style={styles.input}
+      />
+      <input
+        type="text"
+        placeholder="To Address"
         value={toAddress}
         onChange={(e) => setToAddress(e.target.value)}
         style={styles.input}
@@ -69,15 +72,14 @@ const Mint = () => {
         onChange={(e) => setAmount(e.target.value)}
         style={styles.input}
       />
-      <button onClick={handleMint} style={styles.button}>
-        Mint Tokens
+      <button onClick={handleTransfer} style={styles.button}>
+        Transfer Tokens
       </button>
       {message && <p>{message}</p>}
     </div>
   );
 };
 
-// Simple inline styles
 const styles = {
   container: {
     padding: "20px",
@@ -99,7 +101,7 @@ const styles = {
   button: {
     width: "100%",
     padding: "10px",
-    backgroundColor: "#007bff",
+    backgroundColor: "#ffc107",
     color: "#fff",
     border: "none",
     borderRadius: "4px",
@@ -108,5 +110,4 @@ const styles = {
   },
 };
 
-export default Mint;
-
+export default Transfer;
