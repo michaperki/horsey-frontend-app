@@ -1,4 +1,3 @@
-// frontend/src/components/Auth/AdminLogin.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,17 +10,24 @@ const AdminLogin = () => {
 
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleAdminLogin = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
     try {
-      const response = await fetch('/auth/admin/login', {
+      const response = await fetch('http://localhost:5000/adminAuth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
+      if (!response.ok) {
+        const error = await response.json();
+        setMessage(error.error || 'Admin login failed.');
+        return;
+      }
+
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.token) {
         localStorage.setItem('token', data.token);
         setMessage('Admin login successful.');
         navigate('/admin/dashboard'); // Redirect to admin dashboard
@@ -37,23 +43,27 @@ const AdminLogin = () => {
   return (
     <div style={styles.container}>
       <h2>Admin Login</h2>
-      <input
-        type="email"
-        name="email"
-        placeholder="Admin Email"
-        value={email}
-        onChange={handleChange}
-        style={styles.input}
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Admin Password"
-        value={password}
-        onChange={handleChange}
-        style={styles.input}
-      />
-      <button onClick={handleAdminLogin} style={styles.button}>Login as Admin</button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          name="email"
+          placeholder="Admin Email"
+          value={email}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Admin Password"
+          value={password}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        />
+        <button type="submit" style={styles.button}>Login as Admin</button>
+      </form>
       {message && <p>{message}</p>}
     </div>
   );
