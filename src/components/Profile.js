@@ -1,7 +1,7 @@
 // components/Profile.js
 //
 import React from 'react';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 
 const Profile = () => {
     const token = localStorage.getItem('token');

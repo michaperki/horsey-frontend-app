@@ -6,8 +6,9 @@
   "dependencies": {
     "cra-template": "1.2.0",
     "jwt-decode": "^4.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1"
   },
   "scripts": {
@@ -35,6 +36,10 @@
     ]
   },
   "devDependencies": {
-    "react-router-dom": "^7.0.2"
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^15.0.7"
   }
 }
