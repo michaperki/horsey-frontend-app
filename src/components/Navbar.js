@@ -2,7 +2,7 @@
 // frontend/src/components/Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { decode as jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const Navbar = () => {
   const token = localStorage.getItem('token');

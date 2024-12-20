@@ -2,7 +2,7 @@
 // src/components/Notifications.js
 
 import React from 'react';
-import { decode as jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const Notifications = () => {
     const token = localStorage.getItem('token');
