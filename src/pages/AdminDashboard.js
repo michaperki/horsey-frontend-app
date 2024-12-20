@@ -7,12 +7,11 @@ import { jwtDecode } from 'jwt-decode';
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
-    let user = null;
 
     useEffect(() => {
         if (token) {
             try {
-                user = jwtDecode(token);
+                const user = jwtDecode(token);
                 if (user.role !== 'admin') {
                     throw new Error('Unauthorized access');
                 }
