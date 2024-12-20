@@ -4,10 +4,13 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
-import jwtDecode from 'jwt-decode';
 
 // Mock jwtDecode to control user roles and token expiration
-jest.mock('jwt-decode', () => jest.fn());
+jest.mock('jwt-decode', () => ({
+  jwtDecode: jest.fn(),
+}));
+
+const { jwtDecode } = require('jwt-decode');
 
 // Define a mock protected component to be rendered when access is granted
 const MockComponent = () => <div>Protected Content</div>;
