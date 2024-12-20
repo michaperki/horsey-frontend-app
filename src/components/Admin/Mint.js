@@ -1,13 +1,13 @@
 
 // frontend/src/components/Admin/Mint.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 
 const Mint = () => {
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const handleMint = async () => {
     try {

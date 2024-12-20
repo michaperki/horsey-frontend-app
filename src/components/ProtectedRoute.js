@@ -1,8 +1,8 @@
 
-// frontend/src/components/ProtectedRoute.js
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const token = localStorage.getItem('token');
@@ -19,7 +19,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     const decoded = jwtDecode(token);
 
     if (requiredRole && decoded.role !== requiredRole) {
-      // Redirect to admin login if the required role is admin but the user isn't admin
       return requiredRole === 'admin' ? (
         <Navigate to="/admin/login" replace />
       ) : (
@@ -27,7 +26,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
       );
     }
 
-    // Check token expiration
     const isTokenExpired = decoded.exp * 1000 < Date.now();
     if (isTokenExpired) {
       return <Navigate to="/login" replace />;
@@ -38,6 +36,11 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     console.error('Token decoding error:', error);
     return <Navigate to="/login" replace />;
   }
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  requiredRole: PropTypes.string,
 };
 
 export default ProtectedRoute;

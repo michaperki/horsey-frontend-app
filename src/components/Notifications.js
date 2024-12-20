@@ -1,5 +1,6 @@
-// components/Notifications.js
-//
+
+// src/components/Notifications.js
+
 import React from 'react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -18,6 +19,11 @@ const Notifications = () => {
     return (
         <div style={styles.container}>
             <h2>Notifications</h2>
+            {user ? (
+                <p>Welcome back, {user.username}!</p> // Display user's name
+            ) : (
+                <p>Please log in to see your notifications.</p>
+            )}
             <p>Notifications will be displayed here.</p>
         </div>
     );
@@ -36,3 +42,4 @@ const styles = {
 };
 
 export default Notifications;
+
