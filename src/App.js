@@ -1,7 +1,7 @@
 
-// frontend/src/App.js
+// App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
@@ -20,16 +20,13 @@ import Navbar from './components/Navbar';
 
 function App() {
   return (
-    <Router>
+    <>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
-
-        {/* Protected User Routes */}
         <Route
           path="/dashboard"
           element={
@@ -55,16 +52,13 @@ function App() {
           }
         />
         <Route
-            path="/place-bet"
-            element={
-                <ProtectedRoute>
-                    <PlaceBet />
-                </ProtectedRoute>
-                }
+          path="/place-bet"
+          element={
+            <ProtectedRoute>
+              <PlaceBet />
+            </ProtectedRoute>
+          }
         />
-
-
-        {/* Protected Admin Routes */}
         <Route
           path="/admin/mint"
           element={
@@ -97,7 +91,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/dashboard"
           element={
@@ -106,9 +99,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
-    </Router>
+    </>
   );
 }
 
