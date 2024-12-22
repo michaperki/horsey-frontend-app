@@ -27,6 +27,8 @@ jobs:
 
       - name: Run Linter
         run: npm run lint
+        env:
+          NODE_ENV: development
 
       - name: Run Tests
         run: npm test -- --watchAll=false
@@ -42,3 +44,4 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
+
