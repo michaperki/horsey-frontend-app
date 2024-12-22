@@ -15,15 +15,25 @@ const Profile = () => {
         }
     }
 
+    if (!user) {
+        return <p>No user data available.</p>;
+    }
+
     return (
         <div style={styles.container}>
             <h2>Profile</h2>
-            <p><strong>Name:</strong> {user?.name}</p>
-            <p><strong>Email:</strong> {user?.email}</p>
-            <p><strong>Role:</strong> {user?.role}</p>
+            <p>
+                <strong>Name:</strong> <span>{user.name || 'N/A'}</span>
+            </p>
+            <p>
+                <strong>Email:</strong> <span>{user.email || 'N/A'}</span>
+            </p>
+            <p>
+                <strong>Role:</strong> <span>{user.role || 'N/A'}</span>
+            </p>
         </div>
     );
-}
+};
 
 const styles = {
     container: {
