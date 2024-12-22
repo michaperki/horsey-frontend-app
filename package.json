@@ -20,7 +20,9 @@
     "test:coverage": "jest --coverage",
     "eject": "react-scripts eject",
     "lint": "eslint src/",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +49,7 @@
     "@babel/preset-react": "^7.26.3",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^15.0.7",
+    "cypress": "^13.17.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",

@@ -42,7 +42,7 @@ const Register = () => {
       <input type="text" name="username" placeholder="Username" value={username} onChange={handleChange} style={styles.input} />
       <input type="email" name="email" placeholder="Email" value={email} onChange={handleChange} style={styles.input} />
       <input type="password" name="password" placeholder="Password" value={password} onChange={handleChange} style={styles.input} />
-      <button onClick={handleRegister} style={styles.button}>Register</button>
+      <button type="submit" onClick={handleRegister} style={styles.button}>Register</button>
       {message && <p>{message}</p>}
     </div>
   );

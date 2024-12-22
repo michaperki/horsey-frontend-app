@@ -9,9 +9,11 @@ const UserLogin = () => {
 
   const { email, password } = formData;
 
-  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => 
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Prevent default form behavior
     try {
       const response = await fetch('/auth/login', {
         method: 'POST',
@@ -26,7 +28,7 @@ const UserLogin = () => {
         setMessage('Login successful.');
         navigate('/dashboard'); // Redirect to user dashboard
       } else {
-        setMessage(data.error);
+        setMessage(data.error || 'Login failed.');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -35,7 +37,7 @@ const UserLogin = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <form onSubmit={handleLogin} style={styles.container}>
       <h2>User Login</h2>
       <input
         type="email"
@@ -44,6 +46,7 @@ const UserLogin = () => {
         value={email}
         onChange={handleChange}
         style={styles.input}
+        required
       />
       <input
         type="password"
@@ -52,39 +55,40 @@ const UserLogin = () => {
         value={password}
         onChange={handleChange}
         style={styles.input}
+        required
       />
-      <button onClick={handleLogin} style={styles.button}>Login</button>
+      <button type="submit" style={styles.button}>Login</button>
       {message && <p>{message}</p>}
-    </div>
+    </form>
   );
 };
 
 const styles = {
   container: {
-    padding: "20px",
-    maxWidth: "400px",
-    margin: "auto",
-    backgroundColor: "#f1f1f1",
-    borderRadius: "8px",
-    marginTop: "50px",
+    padding: '20px',
+    maxWidth: '400px',
+    margin: 'auto',
+    backgroundColor: '#f1f1f1',
+    borderRadius: '8px',
+    marginTop: '50px',
   },
   input: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "15px",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    boxSizing: "border-box",
+    width: '100%',
+    padding: '10px',
+    marginBottom: '15px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    boxSizing: 'border-box',
   },
   button: {
-    width: "100%",
-    padding: "10px",
-    backgroundColor: "#28a745",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "16px",
+    width: '100%',
+    padding: '10px',
+    backgroundColor: '#28a745',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px',
   },
 };
 
