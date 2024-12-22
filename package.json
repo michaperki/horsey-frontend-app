@@ -15,7 +15,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --coverage",
+    "test:coverage": "jest --coverage",
     "eject": "react-scripts eject",
     "lint": "eslint src/",
     "format": "prettier --write src/"
@@ -50,6 +51,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
     "globals": "^15.14.0",
+    "jest-fetch-mock": "^3.0.3",
     "prettier": "^3.4.2"
   }
 }
