@@ -21,4 +21,5 @@ module.exports = {
     "\\.(css|scss)$": "identity-obj-proxy", // Mock CSS imports
     "\\.(svg|png|jpg|jpeg|gif)$": "<rootDir>/__mocks__/fileMock.js", // Mock file imports
   },
+  testPathIgnorePatterns: ['/node_modules/', '/cypress/'],
 };
