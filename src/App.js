@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
+import BetHistory from './components/BetHistory';
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PlaceBet />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bet-history"
+          element={
+            <ProtectedRoute>
+              <BetHistory />
             </ProtectedRoute>
           }
         />
