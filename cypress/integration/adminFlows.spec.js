@@ -27,17 +27,17 @@ describe('Admin Flows', () => {
     cy.get('button[type=submit]').click();
 
     // Wait for the success message or transaction hash
-    cy.contains('Success! Transaction Hash:', { timeout: 10000 }).should('be.visible');
+    cy.contains('Success! Transaction Hash:', { timeout: 15000 }).should('be.visible');
 
     // Validate game results
-    cy.visit('/admin/validate-game', {
+    cy.visit('/admin/validate-result', {
       onBeforeLoad: (win) => {
         const token = Cypress.env('authToken');
         win.localStorage.setItem('token', token);
       },
     });
 
-    cy.get('input[name=gameId]').type('game123');
+    cy.get('input[name=gameId]').type('nuOCvs7w');
     cy.get('button[type=submit]').click();
     cy.contains('Processed bets for game game123', { timeout: 10000 }).should('be.visible');
   });

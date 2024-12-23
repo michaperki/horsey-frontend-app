@@ -46,12 +46,13 @@ const ValidateResult = () => {
       <h2>Validate Lichess Game Result</h2>
       <input
         type="text"
+        name="gameId"
         placeholder="Enter Lichess Game ID"
         value={gameId}
         onChange={(e) => setGameId(e.target.value)}
         style={styles.input}
       />
-      <button onClick={handleValidate} style={styles.button}>
+      <button type="submit" onClick={handleValidate} style={styles.button}>
         Validate Result
       </button>
       {message && <p>{message}</p>}
