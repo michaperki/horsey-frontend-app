@@ -7,10 +7,11 @@ const BetHistory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState('createdAt');
   const [order, setOrder] = useState('desc');
+
+  const limit = 10; // Define limit as a constant
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,7 +50,7 @@ const BetHistory = () => {
     return () => {
       controller.abort();
     };
-  }, [page, limit, sortBy, order]);
+  }, [page, sortBy, order]); // Removed 'limit' from dependencies
 
   const handleSort = (field) => {
     if (sortBy === field) {
