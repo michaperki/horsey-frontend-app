@@ -8,3 +8,25 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('input[name=password]').type(password);
   cy.get('button[type=submit]').click();
 });
+
+Cypress.Commands.add('loginAsAdmin', () => {
+  cy.request('POST', '/auth/admin/login', {
+    email: Cypress.env('adminEmail'),
+    password: Cypress.env('adminPassword'),
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    const token = response.body.token;
+    Cypress.env('authToken', token);
+  });
+});
+
+Cypress.Commands.add('setAuthToken', () => {
+  const token = Cypress.env('authToken');
+  if (!token) {
+    throw new Error('Token not found in Cypress.env');
+  }
+
+  cy.intercept('**', (req) => {
+    req.headers['authorization'] = `Bearer ${token}`;
+  });
+});

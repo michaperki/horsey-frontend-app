@@ -57,6 +57,7 @@ const Mint = () => {
       <h2>Admin Mint Tokens</h2>
       <input
         type="text"
+        name="toAddress"
         placeholder="Recipient Address"
         value={toAddress}
         onChange={(e) => setToAddress(e.target.value)}
@@ -64,12 +65,13 @@ const Mint = () => {
       />
       <input
         type="number"
+        name="amount"
         placeholder="Amount"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         style={styles.input}
       />
-      <button onClick={handleMint} style={styles.button}>
+      <button type="submit" onClick={handleMint} style={styles.button}>
         Mint Tokens
       </button>
       {message && <p>{message}</p>}
