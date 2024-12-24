@@ -68,7 +68,7 @@ describe('BetHistory Component', () => {
     await screen.findByText(/Your Bet History/i);
 
     // Check that the first bet is displayed
-    expect(screen.getByText('game123')).toBeInTheDocument();
+    expect(await screen.findByText('game123')).toBeInTheDocument();
     expect(screen.getByText('white')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
     expect(screen.getByText('won')).toBeInTheDocument();
