@@ -1,7 +1,11 @@
+
 // src/components/PlaceBet.test.js
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PlaceBet from './PlaceBet';
+
+// Mock the fetch API
+global.fetch = jest.fn();
 
 describe('PlaceBet Component', () => {
   beforeEach(() => {
@@ -46,6 +50,11 @@ describe('PlaceBet Component', () => {
 
     render(<PlaceBet />);
 
+    // Wait for the balance to be displayed
+    await waitFor(() => {
+      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
+    });
+
     fireEvent.change(screen.getByPlaceholderText(/Lichess Game ID/i), {
       target: { value: 'abc123' },
     });
@@ -58,6 +67,9 @@ describe('PlaceBet Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/Bet placed successfully!/i)).toBeInTheDocument();
     });
+
+    // Optionally, verify that the balance has been updated
+    expect(screen.getByText(/Your Balance: 900 PTK/i)).toBeInTheDocument();
   });
 
   test('handles bet placement error', async () => {
@@ -77,10 +89,28 @@ describe('PlaceBet Component', () => {
 
     render(<PlaceBet />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
+    // Wait for the balance to be displayed
+    await waitFor(() => {
+      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
+    });
+
+    // Provide valid inputs to enable the "Place Bet" button
+    fireEvent.change(screen.getByPlaceholderText(/Lichess Game ID/i), {
+      target: { value: 'abc123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), {
+      target: { value: '1500' }, // Assuming 1500 > 1000 to trigger the error
+    });
+
+    // Ensure the "Place Bet" button is enabled
+    const placeBetButton = screen.getByRole('button', { name: /Place Bet/i });
+    expect(placeBetButton).not.toBeDisabled();
+
+    fireEvent.click(placeBetButton);
 
     await waitFor(() => {
       expect(screen.getByText(/Error: Insufficient balance/i)).toBeInTheDocument();
     });
   });
 });
+
