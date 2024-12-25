@@ -1,0 +1,19 @@
+
+[
+  {
+    "id": "6769a1afb472b8dec9c23d4a",
+    "creator": "user1@example.com",
+    "creatorBalance": 1000,
+    "wager": 50,
+    "gameType": "Standard",
+    "createdAt": "2024-12-24T04:24:30.893Z"
+  },
+  {
+    "id": "676a377e0bf389fce3b5adce",
+    "creator": "user2@example.com",
+    "creatorBalance": 900,
+    "wager": 100,
+    "gameType": "Standard",
+    "createdAt": "2024-12-24T05:00:00.000Z"
+  }
+]

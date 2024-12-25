@@ -1,6 +1,11 @@
 
 // src/services/api.js
 
+/**
+ * Fetches the authenticated user's token balance.
+ * @param {string} token - JWT token for authentication.
+ * @returns {Promise<number>} - The user's token balance.
+ */
 export const getUserBalance = async (token) => {
   try {
     const response = await fetch('/tokens/balance/user', {
@@ -22,3 +27,33 @@ export const getUserBalance = async (token) => {
     throw error;
   }
 };
+
+/**
+ * Fetches the authenticated user's bets.
+ * @param {string} token - JWT token for authentication.
+ * @param {object} params - Query parameters for pagination and sorting.
+ * @returns {Promise<object>} - An object containing bets data.
+ */
+export const getUserBets = async (token, params = {}) => {
+  try {
+    const query = new URLSearchParams(params).toString();
+    const response = await fetch(`/bets/your-bets?${query}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch your bets');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching user bets:', error);
+    throw error;
+  }
+};
+

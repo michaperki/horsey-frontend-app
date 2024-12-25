@@ -12,7 +12,7 @@ describe('User Flows with Mocked Lichess API', () => {
   const mockedGameId = 'mockedGameId';
   
   // Define initial balance based on your application's logic
-  const initialBalance = 500; // Adjust if different
+  const initialBalance = 1000; // Adjust if different
   
   before(() => {
     // Optional: Reset the database or seed data if necessary
@@ -21,7 +21,7 @@ describe('User Flows with Mocked Lichess API', () => {
     // cy.request('POST', '/api/test/reset-database');
   });
 
-  it('Registers a new user, logs in, places a bet using mocked Lichess API, and views the dashboard', () => {
+  it('Registers a new user, logs in, places a bet using mocked Lichess API, and verifies the updated balance on Profile page', () => {
     // ------------------------------
     // 1. Register a New User
     // ------------------------------
@@ -81,23 +81,24 @@ describe('User Flows with Mocked Lichess API', () => {
       .should('be.visible');
     
     // ------------------------------
-    // 4. View the Dashboard
+    // 4. Verify Updated Balance on Profile Page
     // ------------------------------
-    cy.visit('/dashboard');
+    cy.visit('/profile'); // Navigate to the Profile page where balance is displayed
     
     // Assert that the balance has been deducted correctly
-    cy.contains(`Balance: ${initialBalance - betAmount}`)
+    cy.contains(`${initialBalance - betAmount} PTK`)
       .should('be.visible');
     
     // Assert that 'Your Bets' section is visible
     cy.contains('Your Bets')
       .should('be.visible');
-    
+
     // Optional: Verify the details of the placed bet
-    cy.contains('Your Bets').within(() => {
+    cy.contains('Your Bets').should('be.visible');
+    cy.get('table').within(() => {
       cy.contains(mockedGameId)
         .should('be.visible');
-      cy.contains('white')
+      cy.contains('White')
         .should('be.visible');
       cy.contains(betAmount.toString())
         .should('be.visible');
