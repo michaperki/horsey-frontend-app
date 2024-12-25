@@ -29,5 +29,10 @@ export default [
     languageOptions: { sourceType: "commonjs" },
   },
   pluginReact.configs.flat.recommended,
+  {
+    rules: {
+      "react/display-name": "warn", // or "error"
+    },
+  }
 ];
 
