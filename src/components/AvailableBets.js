@@ -38,11 +38,19 @@ const AvailableBets = () => {
         }
 
         const data = await response.json();
-        console.log("Fetched available bets data:", data);
+        console.log("Fetched available bets data:", JSON.stringify(data, null, 2));
 
-        // Ensure data is an array
+        // Ensure data is an array and each bet has a unique id
         if (Array.isArray(data)) {
-          setBets(data);
+          const uniqueBets = data.filter((bet, index, self) =>
+            bet.id && self.findIndex(b => b.id === bet.id) === index
+          );
+
+          if (uniqueBets.length !== data.length) {
+            console.warn("Duplicate or missing id found in fetched bets.");
+          }
+
+          setBets(uniqueBets);
         } else {
           console.warn("Received data is not an array:", data);
           setBets([]); // Default to empty array
@@ -77,7 +85,7 @@ const AvailableBets = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ seekerId: betId }),
+        body: JSON.stringify({ seekerId: betId }), // Ensure backend expects seekerId as id
       });
 
       console.log("Accept bet response status:", response.status);
@@ -94,7 +102,7 @@ const AvailableBets = () => {
       console.log("Accept bet success data:", data);
       setSuccessMessage("Successfully joined the bet!");
       // Optionally, remove the accepted bet from the list
-      setBets((prevBets) => prevBets.filter((bet) => bet._id !== betId));
+      setBets((prevBets) => prevBets.filter((bet) => bet.id !== betId));
     } catch (err) {
       console.error("Error accepting bet:", err);
       setError("An unexpected error occurred.");
@@ -117,24 +125,31 @@ const AvailableBets = () => {
         <table style={styles.table}>
           <thead>
             <tr>
-              <th>Game ID</th>
-              <th>Choice</th>
-              <th>Amount (PTK)</th>
-              <th>Status</th>
+              <th>Bet ID</th>
+              <th>Creator</th>
+              <th>Balance</th>
+              <th>Wager (PTK)</th>
+              <th>Game Type</th>
+              <th>Created At</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {bets.map((bet) => (
-              <tr key={bet._id}>
-                <td>{bet.gameId}</td><td>{bet.choice}</td><td>{bet.amount}</td><td>{bet.status || "Available"}</td>
+              <tr key={bet.id}>
+                <td>{bet.id}</td>
+                <td>{bet.creator}</td>
+                <td>{bet.creatorBalance}</td>
+                <td>{bet.wager}</td>
+                <td>{bet.gameType}</td>
+                <td>{new Date(bet.createdAt).toLocaleString()}</td>
                 <td>
                   <button
-                    onClick={() => handleAcceptBet(bet._id)}
-                    disabled={acceptingBetId === bet._id}
+                    onClick={() => handleAcceptBet(bet.id)}
+                    disabled={acceptingBetId === bet.id}
                     style={styles.button}
                   >
-                    {acceptingBetId === bet._id ? "Joining..." : "Join Bet"}
+                    {acceptingBetId === bet.id ? "Joining..." : "Join Bet"}
                   </button>
                 </td>
               </tr>
@@ -150,7 +165,7 @@ const AvailableBets = () => {
 const styles = {
   container: {
     padding: "20px",
-    maxWidth: "800px",
+    maxWidth: "1000px",
     margin: "auto",
     backgroundColor: "#f9f9f9",
     borderRadius: "8px",
