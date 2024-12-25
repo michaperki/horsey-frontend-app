@@ -9,6 +9,10 @@
 /coverage
 cypress.env.json
 
+# Cypress artifacts
+cypress/screenshots/
+cypress/videos/
+
 # production
 /build
 
