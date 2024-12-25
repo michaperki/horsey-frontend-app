@@ -168,4 +168,7 @@ const styles = {
   },
 };
 
+// Add displayName for the component
+YourBets.displayName = 'YourBets';
+
 export default YourBets;
