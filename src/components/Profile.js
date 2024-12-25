@@ -1,50 +1,54 @@
-// components/Profile.js
-//
-import React from 'react';
-import { jwtDecode } from 'jwt-decode';
+
+// src/components/Profile.js
+import React, { useEffect, useState } from 'react';
+import { getUserBalance } from '../services/api';
 
 const Profile = () => {
-    const token = localStorage.getItem('token');
-    let user = null;
+  const [balance, setBalance] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    if (token) {
-        try {
-            user = jwtDecode(token);
-        } catch (error) {
-            console.error('Invalid token:', error);
-        }
-    }
+  useEffect(() => {
+    const fetchBalance = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const token = localStorage.getItem('token'); // Fetch token from local storage
+        if (!token) throw new Error('User is not logged in');
+        
+        const userBalance = await getUserBalance(token);
+        setBalance(userBalance);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!user) {
-        return <p>No user data available.</p>;
-    }
+    fetchBalance();
+  }, []);
 
-    return (
-        <div style={styles.container}>
-            <h2>Profile</h2>
-            <p>
-                <strong>Name:</strong> <span>{user.name || 'N/A'}</span>
-            </p>
-            <p>
-                <strong>Email:</strong> <span>{user.email || 'N/A'}</span>
-            </p>
-            <p>
-                <strong>Role:</strong> <span>{user.role || 'N/A'}</span>
-            </p>
-        </div>
-    );
+  return (
+    <div style={styles.container}>
+      <h2>Your Profile</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {balance !== null && <p>Your Balance: {balance} PTK</p>}
+    </div>
+  );
 };
 
 const styles = {
-    container: {
-        padding: "20px",
-        maxWidth: "400px",
-        margin: "auto",
-        backgroundColor: "#f1f1f1",
-        borderRadius: "8px",
-        marginTop: "50px",
-        textAlign: "center",
-    },
+  container: {
+    padding: '20px',
+    maxWidth: '400px',
+    margin: 'auto',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    marginTop: '50px',
+    textAlign: 'center',
+  },
 };
 
 export default Profile;
+

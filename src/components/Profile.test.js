@@ -1,50 +1,52 @@
+// src/components/Profile.test.js
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import Profile from './Profile';
-import * as jwtDecodeModule from 'jwt-decode';
+import * as api from '../services/api';
 
-jest.mock('jwt-decode', () => ({
-    jwtDecode: jest.fn(),
-}));
+// Mock the getUserBalance function
+jest.mock('../services/api');
 
 describe('Profile Component', () => {
-    beforeEach(() => {
-        localStorage.clear();
-        jest.clearAllMocks();
+  beforeEach(() => {
+    localStorage.clear();
+    jest.clearAllMocks();
+  });
+
+  test('renders profile information for logged-in user', async () => {
+    localStorage.setItem('token', 'valid-token');
+    api.getUserBalance.mockResolvedValue(500); // Mock balance
+
+    render(<Profile />);
+
+    expect(screen.getByText('Your Profile')).toBeInTheDocument();
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Your Balance: 500 PTK/i)).toBeInTheDocument();
+    });
+  });
+
+  test('renders error message when user is not logged in', async () => {
+    render(<Profile />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/User is not logged in/i)).toBeInTheDocument();
+    });
+  });
+
+  test('handles fetch balance error gracefully', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    localStorage.setItem('token', 'invalid-token');
+    api.getUserBalance.mockRejectedValue(new Error('Invalid token'));
+
+    render(<Profile />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Invalid token/i)).toBeInTheDocument();
     });
 
-    test('renders profile information for logged-in user', () => {
-        localStorage.setItem('token', 'valid-token');
-        jwtDecodeModule.jwtDecode.mockReturnValue({
-            name: 'Test User',
-            email: 'testuser@example.com',
-            role: 'user',
-        });
-
-        render(<Profile />);
-
-        expect(screen.getByText('Name:').nextElementSibling).toHaveTextContent('Test User');
-        expect(screen.getByText('Email:').nextElementSibling).toHaveTextContent('testuser@example.com');
-        expect(screen.getByText('Role:').nextElementSibling).toHaveTextContent('user');
-    });
-
-    test('renders fallback for missing token', () => {
-        render(<Profile />);
-
-        expect(screen.getByText(/No user data available./i)).toBeInTheDocument();
-    });
-
-    test('handles invalid token gracefully', () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-        localStorage.setItem('token', 'invalid-token');
-        jwtDecodeModule.jwtDecode.mockImplementation(() => {
-            throw new Error('Invalid token');
-        });
-
-        render(<Profile />);
-
-        expect(screen.getByText(/No user data available./i)).toBeInTheDocument();
-        consoleSpy.mockRestore();
-    });
+    consoleSpy.mockRestore();
+  });
 });

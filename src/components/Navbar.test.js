@@ -1,4 +1,6 @@
+
 // src/components/Navbar.test.js
+
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -28,7 +30,7 @@ describe('Navbar Component', () => {
 
   test('renders user links when logged in as user', () => {
     localStorage.setItem('token', 'fake-token');
-    jwtDecode.mockReturnValue({ role: 'user' });
+    jwtDecode.mockReturnValue({ role: 'user', username: 'TestUser' });
 
     render(
       <BrowserRouter>
@@ -37,6 +39,7 @@ describe('Navbar Component', () => {
     );
 
     expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument(); // New Link
     expect(screen.getByText(/Profile/i)).toBeInTheDocument();
     expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
     expect(screen.getByText(/Logout/i)).toBeInTheDocument();
@@ -44,7 +47,7 @@ describe('Navbar Component', () => {
 
   test('renders admin links when logged in as admin', () => {
     localStorage.setItem('token', 'fake-admin-token');
-    jwtDecode.mockReturnValue({ role: 'admin' });
+    jwtDecode.mockReturnValue({ role: 'admin', username: 'AdminUser' });
 
     render(
       <BrowserRouter>
@@ -54,11 +57,12 @@ describe('Navbar Component', () => {
 
     expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
     expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Available Bets/i)).not.toBeInTheDocument(); // Admin shouldn't see user links
   });
 
   test('handles logout correctly', () => {
     localStorage.setItem('token', 'fake-token');
-    jwtDecode.mockReturnValue({ role: 'user' });
+    jwtDecode.mockReturnValue({ role: 'user', username: 'TestUser' });
 
     render(
       <BrowserRouter>
@@ -67,6 +71,9 @@ describe('Navbar Component', () => {
     );
 
     fireEvent.click(screen.getByText(/Logout/i));
+
     expect(localStorage.getItem('token')).toBeNull();
+    expect(window.location.href).toContain('/'); // Redirect to home
   });
 });
+

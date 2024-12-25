@@ -1,5 +1,6 @@
 
 // frontend/src/components/Navbar.js
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -27,6 +28,7 @@ const Navbar = () => {
       {user && user.role === 'user' && (
         <>
           <Link to="/dashboard" style={styles.link}>Dashboard</Link>
+          <Link to="/available-bets" style={styles.link}>Available Bets</Link> {/* New Link */}
           <Link to="/profile" style={styles.link}>Profile</Link>
           <Link to="/notifications" style={styles.link}>Notifications</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>

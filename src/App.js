@@ -18,6 +18,7 @@ import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
 import BetHistory from './components/BetHistory';
+import AvailableBets from './components/AvailableBets'; // Import the new component
 
 function App() {
   return (
@@ -33,6 +34,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/available-bets"
+          element={
+            <ProtectedRoute>
+              <AvailableBets />
             </ProtectedRoute>
           }
         />
@@ -114,3 +123,4 @@ function App() {
 }
 
 export default App;
+
