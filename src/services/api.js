@@ -29,7 +29,7 @@ export const getUserBalance = async (token) => {
 };
 
 /**
- * Fetches the authenticated user's bets.
+ * Fetches the authenticated user's bet history.
  * @param {string} token - JWT token for authentication.
  * @param {object} params - Query parameters for pagination and sorting.
  * @returns {Promise<object>} - An object containing bets data.
@@ -37,7 +37,7 @@ export const getUserBalance = async (token) => {
 export const getUserBets = async (token, params = {}) => {
   try {
     const query = new URLSearchParams(params).toString();
-    const response = await fetch(`/bets/your-bets?${query}`, {
+    const response = await fetch(`/bets/history?${query}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -46,14 +46,13 @@ export const getUserBets = async (token, params = {}) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch your bets');
+      throw new Error(errorData.error || 'Failed to fetch your bet history');
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching user bets:', error);
+    console.error('Error fetching bet history:', error);
     throw error;
   }
 };
-

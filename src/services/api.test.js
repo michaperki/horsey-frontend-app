@@ -111,7 +111,7 @@ describe('API Service Functions', () => {
 
       const data = await getUserBets(token, params);
 
-      expect(fetch).toHaveBeenCalledWith('/bets/your-bets?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ describe('API Service Functions', () => {
 
       await expect(getUserBets(token, params)).rejects.toThrow(mockError);
 
-      expect(fetch).toHaveBeenCalledWith('/bets/your-bets?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -139,16 +139,15 @@ describe('API Service Functions', () => {
     });
 
     it('should throw a generic error when response is not ok and no error message is provided', async () => {
-      // Change the mock response to return a valid JSON object
       fetch.mockResponseOnce('{}', { status: 500 });
 
       const token = 'any-token';
       const params = { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' };
       localStorage.setItem('token', token);
 
-      await expect(getUserBets(token, params)).rejects.toThrow('Failed to fetch your bets');
+      await expect(getUserBets(token, params)).rejects.toThrow('Failed to fetch your bet history');
 
-      expect(fetch).toHaveBeenCalledWith('/bets/your-bets?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -166,7 +165,7 @@ describe('API Service Functions', () => {
 
       await expect(getUserBets(token, params)).rejects.toThrow('Network Error');
 
-      expect(fetch).toHaveBeenCalledWith('/bets/your-bets?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
