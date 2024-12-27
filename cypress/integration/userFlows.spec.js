@@ -18,40 +18,26 @@ describe('User Flows with Mocked Lichess API', () => {
   const betAmount = 100;
 
   before(() => {
-    // Optional: Reset the database or seed data if necessary
-    // This ensures a clean state before tests run
-    // Example:
-    // cy.request('POST', '/api/test/reset-database');
+    // Reset the database and create a test user with a balance of 1000
+    cy.request('POST', '/api/test/reset-database'); // Assuming you have a test endpoint for resetting
+    cy.request('POST', '/api/auth/register', {
+      username,
+      email: uniqueEmail,
+      password,
+    }).then((response) => {
+      expect(response.status).to.eq(201);
+      // Optionally, set the initial balance if not set by default
+      cy.request('POST', `/api/users/${response.body.id}/set-balance`, { balance: initialBalance });
+    });
   });
 
   beforeEach(() => {
-    // Intercept the GET /bets/history API call and respond with the fixture data
-    cy.intercept('GET', '/bets/history*', { fixture: 'bets.json' }).as('getUserBets');
+    // Clear cookies and local storage to ensure a clean state
+    cy.clearCookies();
+    cy.clearLocalStorage();
 
-    // Intercept the POST /bets/place API call and respond with a mocked successful response
-    cy.intercept('POST', '/bets/place', (req) => {
-      // Optionally, you can validate the request body here
-      expect(req.body).to.have.property('gameId', mockedGameId);
-      expect(req.body).to.have.property('creatorColor');
-      expect(req.body).to.have.property('amount', betAmount);
-
-      // Respond with a successful bet placement
-      req.reply({
-        statusCode: 201,
-        body: {
-          message: 'Bet placed successfully!',
-          bet: {
-            id: 'newBetId123',
-            creatorId: 'user123',
-            creatorColor: req.body.creatorColor,
-            gameId: req.body.gameId,
-            amount: req.body.amount,
-            status: 'pending',
-            createdAt: new Date().toISOString(),
-          },
-        },
-      });
-    }).as('postPlaceBet');
+    // Mock external APIs only (e.g., Lichess API)
+    cy.intercept('GET', 'https://lichess.org/api/game/*', { fixture: 'lichessGame.json' }).as('getLichessGame');
   });
 
   it('Registers a new user, logs in, places a bet using mocked Lichess API, and verifies the updated balance on Profile page', () => {
@@ -108,8 +94,8 @@ describe('User Flows with Mocked Lichess API', () => {
     // Submit the bet
     cy.get('button[type=submit]').click();
     
-    // Wait for the POST /bets/place API call to complete
-    cy.wait('@postPlaceBet').its('response.statusCode').should('eq', 201);
+    // Wait for the Lichess API call if needed
+    cy.wait('@getLichessGame');
     
     // Assert that the bet was placed successfully
     cy.contains('Bet placed successfully!')
@@ -120,8 +106,8 @@ describe('User Flows with Mocked Lichess API', () => {
     // ------------------------------
     cy.visit('/profile'); // Navigate to the Profile page where balance is displayed
     
-    // Wait for the GET /bets/history API call to complete
-    cy.wait('@getUserBets');
+    // Optionally, force a page reload to ensure fresh data fetch
+    cy.reload();
     
     // Assert that the balance has been deducted correctly
     cy.contains(`${initialBalance - betAmount} PTK`)

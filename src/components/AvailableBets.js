@@ -1,3 +1,4 @@
+
 // src/components/AvailableBets.js
 
 import React, { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ const AvailableBets = () => {
   const [error, setError] = useState("");
   const [acceptingBetId, setAcceptingBetId] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [selectedColors, setSelectedColors] = useState({}); // Track selected colors per bet
 
   useEffect(() => {
     const fetchAvailableBets = async () => {
@@ -43,7 +45,7 @@ const AvailableBets = () => {
         // Ensure data is an array and each bet has a unique id
         if (Array.isArray(data)) {
           const uniqueBets = data.filter((bet, index, self) =>
-            bet.id && self.findIndex(b => b.id === bet.id) === index
+            bet.id && self.findIndex((b) => b.id === bet.id) === index
           );
 
           if (uniqueBets.length !== data.length) {
@@ -67,7 +69,12 @@ const AvailableBets = () => {
     fetchAvailableBets();
   }, []);
 
+  const handleColorChange = (betId, color) => {
+    setSelectedColors((prev) => ({ ...prev, [betId]: color }));
+  };
+
   const handleAcceptBet = async (betId) => {
+    const opponentColor = selectedColors[betId] || "random"; // Default to 'random' if not selected
     setAcceptingBetId(betId);
     setError("");
     setSuccessMessage("");
@@ -79,13 +86,13 @@ const AvailableBets = () => {
         return;
       }
 
-      const response = await fetch("/bets/accept", {
+      const response = await fetch(`/bets/accept/${betId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ seekerId: betId }), // Ensure backend expects seekerId as id
+        body: JSON.stringify({ opponentColor }),
       });
 
       console.log("Accept bet response status:", response.status);
@@ -131,6 +138,7 @@ const AvailableBets = () => {
               <th>Wager (PTK)</th>
               <th>Game Type</th>
               <th>Created At</th>
+              <th>Choose Color</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -143,6 +151,18 @@ const AvailableBets = () => {
                 <td>{bet.wager}</td>
                 <td>{bet.gameType}</td>
                 <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                <td>
+                  <select
+                    data-testid={`color-select-${bet.id}`} // Added data-testid
+                    value={selectedColors[bet.id] || "random"}
+                    onChange={(e) => handleColorChange(bet.id, e.target.value)}
+                    style={styles.select}
+                  >
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="random">Random</option>
+                  </select>
+                </td>
                 <td>
                   <button
                     onClick={() => handleAcceptBet(bet.id)}
@@ -184,6 +204,12 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer",
   },
+  select: {
+    padding: "5px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+  },
 };
 
 export default AvailableBets;
+

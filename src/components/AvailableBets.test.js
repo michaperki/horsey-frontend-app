@@ -1,3 +1,4 @@
+
 // src/components/AvailableBets.test.js
 
 import React from 'react';
@@ -117,14 +118,15 @@ describe('AvailableBets Component', () => {
       expect(rows).toHaveLength(mockBets.length + 1);
 
       // Iterate through each bet and verify its data within the corresponding row
-      mockBets.forEach((bet, index) => {
-        const row = rows[index + 1]; // Skip the header row
+      mockBets.forEach((bet) => {
+        // Find the row containing the bet's ID
+        const betIdCell = screen.getByText(bet.id);
+        const row = betIdCell.closest('tr');
+        expect(row).toBeInTheDocument();
 
         // Use `within` to scope queries to the current row
         const { getByText, getByRole } = within(row);
 
-        // Check for bet ID
-        expect(getByText(bet.id)).toBeInTheDocument();
         // Check for creator
         expect(getByText(bet.creator)).toBeInTheDocument();
         // Check for creatorBalance
@@ -137,6 +139,9 @@ describe('AvailableBets Component', () => {
         expect(getByText(new Date(bet.createdAt).toLocaleString())).toBeInTheDocument();
         // Check for the "Join Bet" button
         expect(getByRole('button', { name: /Join Bet/i })).toBeInTheDocument();
+        // Check for the select element with default value 'random'
+        const selectElement = within(row).getByTestId(`color-select-${bet.id}`);
+        expect(selectElement.value).toBe('random');
       });
 
       // Additionally, verify that the number of "Standard" game types matches the number of bets
@@ -181,6 +186,11 @@ describe('AvailableBets Component', () => {
       expect(screen.getByText(/Standard/i)).toBeInTheDocument();
       expect(screen.getByText(/Available/i)).toBeInTheDocument();
     });
+
+    // Use findByTestId to wait for the select to have 'random' selected
+    const colorSelect = await screen.findByTestId('color-select-6769a1afb472b8dec9c23d4a');
+    expect(colorSelect.value).toBe('random'); // Verify initial value
+    fireEvent.change(colorSelect, { target: { value: 'black' } });
 
     // Click on the "Join Bet" button
     const joinButton = screen.getByRole('button', { name: /Join Bet/i });
@@ -238,6 +248,11 @@ describe('AvailableBets Component', () => {
       expect(screen.getByText(/Available/i)).toBeInTheDocument();
     });
 
+    // Use findByTestId to wait for the select to have 'random' selected
+    const colorSelect = await screen.findByTestId('color-select-6769a1afb472b8dec9c23d4a');
+    expect(colorSelect.value).toBe('random'); // Verify initial value
+    fireEvent.change(colorSelect, { target: { value: 'black' } });
+
     // Click on the "Join Bet" button
     const joinButton = screen.getByRole('button', { name: /Join Bet/i });
     fireEvent.click(joinButton);
@@ -281,3 +296,4 @@ describe('AvailableBets Component', () => {
     consoleErrorSpy.mockRestore();
   });
 });
+

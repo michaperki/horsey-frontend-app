@@ -1,9 +1,11 @@
 
+// src/components/PlaceBet.js
+
 import React, { useState, useEffect } from "react";
 
 const PlaceBet = () => {
   const [gameId, setGameId] = useState("");
-  const [creatorColor, setCreatorColor] = useState("white");
+  const [creatorColor, setCreatorColor] = useState("random"); // Default to 'random'
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [userBalance, setUserBalance] = useState(0);
@@ -67,7 +69,7 @@ const PlaceBet = () => {
       if (response.ok) {
         setMessage("Bet placed successfully!");
         setGameId("");
-        setCreatorColor("white");
+        setCreatorColor("random");
         setAmount("");
         setUserBalance((prev) => prev - Number(amount));
       } else {

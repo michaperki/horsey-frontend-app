@@ -82,6 +82,12 @@ const YourBets = () => {
                 <th onClick={() => handleSort('creatorColor')} style={styles.sortable}>
                   Your Choice {sortBy === 'creatorColor' ? (order === 'asc' ? '▲' : '▼') : ''}
                 </th>
+                <th onClick={() => handleSort('finalWhiteId')} style={styles.sortable}>
+                  Final White {sortBy === 'finalWhiteId' ? (order === 'asc' ? '▲' : '▼') : ''}
+                </th>
+                <th onClick={() => handleSort('finalBlackId')} style={styles.sortable}>
+                  Final Black {sortBy === 'finalBlackId' ? (order === 'asc' ? '▲' : '▼') : ''}
+                </th>
                 <th onClick={() => handleSort('amount')} style={styles.sortable}>
                   Amount {sortBy === 'amount' ? (order === 'asc' ? '▲' : '▼') : ''}
                 </th>
@@ -102,6 +108,8 @@ const YourBets = () => {
                       ? bet.creatorColor.charAt(0).toUpperCase() + bet.creatorColor.slice(1)
                       : 'N/A'}
                   </td>
+                  <td>{bet.finalWhiteId?.username || 'N/A'}</td>
+                  <td>{bet.finalBlackId?.username || 'N/A'}</td>
                   <td>{bet.amount}</td>
                   <td>
                     {bet.status
@@ -186,9 +194,6 @@ const styles = {
     color: "red",
   },
 };
-
-// Add displayName for the component
-YourBets.displayName = 'YourBets';
 
 export default YourBets;
 
