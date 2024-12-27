@@ -28,10 +28,15 @@ const YourBets = () => {
 
         const params = { page, limit, sortBy, order };
         const data = await getUserBets(token, params);
-        setBets(data.bets);
-        setTotalPages(data.totalPages);
+
+        if (data && data.bets) {
+          setBets(data.bets);
+          setTotalPages(data.totalPages);
+        } else {
+          setError('Unexpected response from the server.');
+        }
       } catch (error) {
-        setError(error.message);
+        setError(error.message || 'An error occurred while fetching your bets.');
       } finally {
         setLoading(false);
       }
@@ -74,8 +79,8 @@ const YourBets = () => {
                 <th onClick={() => handleSort('gameId')} style={styles.sortable}>
                   Game ID {sortBy === 'gameId' ? (order === 'asc' ? '▲' : '▼') : ''}
                 </th>
-                <th onClick={() => handleSort('choice')} style={styles.sortable}>
-                  Choice {sortBy === 'choice' ? (order === 'asc' ? '▲' : '▼') : ''}
+                <th onClick={() => handleSort('creatorColor')} style={styles.sortable}>
+                  Your Choice {sortBy === 'creatorColor' ? (order === 'asc' ? '▲' : '▼') : ''}
                 </th>
                 <th onClick={() => handleSort('amount')} style={styles.sortable}>
                   Amount {sortBy === 'amount' ? (order === 'asc' ? '▲' : '▼') : ''}
@@ -92,9 +97,17 @@ const YourBets = () => {
               {bets.map((bet) => (
                 <tr key={bet._id}>
                   <td>{bet.gameId}</td>
-                  <td>{bet.choice.charAt(0).toUpperCase() + bet.choice.slice(1)}</td>
+                  <td>
+                    {bet.creatorColor
+                      ? bet.creatorColor.charAt(0).toUpperCase() + bet.creatorColor.slice(1)
+                      : 'N/A'}
+                  </td>
                   <td>{bet.amount}</td>
-                  <td>{bet.status.charAt(0).toUpperCase() + bet.status.slice(1)}</td>
+                  <td>
+                    {bet.status
+                      ? bet.status.charAt(0).toUpperCase() + bet.status.slice(1)
+                      : 'N/A'}
+                  </td>
                   <td>{new Date(bet.createdAt).toLocaleString()}</td>
                 </tr>
               ))}
@@ -106,7 +119,10 @@ const YourBets = () => {
             <button
               onClick={handlePreviousPage}
               disabled={page === 1}
-              style={styles.pageButton}
+              style={{
+                ...styles.pageButton,
+                ...(page === 1 ? styles.pageButton.disabled : {}),
+              }}
             >
               Previous
             </button>
@@ -116,7 +132,10 @@ const YourBets = () => {
             <button
               onClick={handleNextPage}
               disabled={page === totalPages}
-              style={styles.pageButton}
+              style={{
+                ...styles.pageButton,
+                ...(page === totalPages ? styles.pageButton.disabled : {}),
+              }}
             >
               Next
             </button>
@@ -172,3 +191,4 @@ const styles = {
 YourBets.displayName = 'YourBets';
 
 export default YourBets;
+

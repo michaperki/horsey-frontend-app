@@ -30,7 +30,7 @@ describe('YourBets Component', () => {
     render(<YourBets />);
 
     // Check for the loading state
-    // Removed the expectation for 'Loading balance...' as it might not be present
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
     // Wait for the bets to be displayed after the promise resolves
     await waitFor(() => {
@@ -44,7 +44,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet1',
           gameId: 'game123',
-          choice: 'white',
+          creatorColor: 'white', // Updated field name
           amount: 100,
           status: 'pending',
           createdAt: '2024-12-25T12:00:00.000Z',
@@ -52,7 +52,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet2',
           gameId: 'game124',
-          choice: 'black',
+          creatorColor: 'black', // Updated field name
           amount: 200,
           status: 'won',
           createdAt: '2024-12-24T12:00:00.000Z',
@@ -67,7 +67,7 @@ describe('YourBets Component', () => {
     render(<YourBets />);
 
     // Check for the loading state
-    // Removed the expectation for 'Loading balance...' as it might not be present
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
     // Wait for the bets to be displayed
     await waitFor(() => {
@@ -93,7 +93,7 @@ describe('YourBets Component', () => {
     render(<YourBets />);
 
     // Check for the loading state
-    // Removed the expectation for 'Loading balance...' as it might not be present
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
     // Wait for the error message to be displayed
     await waitFor(() => {
@@ -112,7 +112,7 @@ describe('YourBets Component', () => {
     render(<YourBets />);
 
     // Check for the loading state
-    // Removed the expectation for 'Loading balance...' as it might not be present
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
     // Wait for the 'no bets' message to be displayed
     await waitFor(() => {
@@ -122,9 +122,6 @@ describe('YourBets Component', () => {
 
   test('renders message when user is not logged in', async () => {
     render(<YourBets />);
-
-    // Check for the loading state
-    // Removed the expectation for 'Loading balance...' as it might not be present
 
     // Wait for the error message to be displayed
     await waitFor(() => {
@@ -138,7 +135,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet1',
           gameId: 'game123',
-          choice: 'white',
+          creatorColor: 'white',
           amount: 100,
           status: 'pending',
           createdAt: '2024-12-25T12:00:00.000Z',
@@ -152,7 +149,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet2',
           gameId: 'game124',
-          choice: 'black',
+          creatorColor: 'black',
           amount: 200,
           status: 'won',
           createdAt: '2024-12-24T12:00:00.000Z',
@@ -201,7 +198,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet1',
           gameId: 'game123',
-          choice: 'white',
+          creatorColor: 'white',
           amount: 100,
           status: 'pending',
           createdAt: '2024-12-24T12:00:00.000Z',
@@ -209,7 +206,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet2',
           gameId: 'game124',
-          choice: 'black',
+          creatorColor: 'black',
           amount: 200,
           status: 'won',
           createdAt: '2024-12-25T12:00:00.000Z',
@@ -223,7 +220,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet2',
           gameId: 'game124',
-          choice: 'black',
+          creatorColor: 'black',
           amount: 200,
           status: 'won',
           createdAt: '2024-12-25T12:00:00.000Z',
@@ -231,7 +228,7 @@ describe('YourBets Component', () => {
         {
           _id: 'bet1',
           gameId: 'game123',
-          choice: 'white',
+          creatorColor: 'white',
           amount: 100,
           status: 'pending',
           createdAt: '2024-12-24T12:00:00.000Z',

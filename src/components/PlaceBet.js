@@ -1,10 +1,9 @@
 
-// frontend/src/components/PlaceBet.js
 import React, { useState, useEffect } from "react";
 
 const PlaceBet = () => {
   const [gameId, setGameId] = useState("");
-  const [choice, setChoice] = useState("white");
+  const [creatorColor, setCreatorColor] = useState("white");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [userBalance, setUserBalance] = useState(0);
@@ -29,7 +28,7 @@ const PlaceBet = () => {
         }
       } catch (error) {
         console.error("Error fetching balance:", error);
-        setMessage("An unexpected error occurred.");
+        setMessage("An unexpected error occurred while fetching your balance.");
       }
     };
 
@@ -38,7 +37,12 @@ const PlaceBet = () => {
 
   const handlePlaceBet = async () => {
     if (!gameId || !amount || Number(amount) <= 0) {
-      setMessage("Please enter valid game ID and bet amount.");
+      setMessage("Please enter a valid game ID and bet amount.");
+      return;
+    }
+
+    if (Number(amount) > userBalance) {
+      setMessage("Insufficient balance to place the bet.");
       return;
     }
 
@@ -56,22 +60,22 @@ const PlaceBet = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ gameId, choice, amount }),
+        body: JSON.stringify({ gameId, creatorColor, amount: Number(amount) }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setMessage("Bet placed successfully!");
         setGameId("");
-        setChoice("white");
+        setCreatorColor("white");
         setAmount("");
         setUserBalance((prev) => prev - Number(amount));
       } else {
-        setMessage(`Error: ${data.error}`);
+        setMessage(data.error || "Failed to place the bet.");
       }
     } catch (error) {
       console.error("Error placing bet:", error);
-      setMessage("An unexpected error occurred.");
+      setMessage("An unexpected error occurred while placing the bet.");
     } finally {
       setLoading(false);
     }
@@ -90,13 +94,14 @@ const PlaceBet = () => {
         style={styles.input}
       />
       <select
-        value={choice}
-        name="choice"
-        onChange={(e) => setChoice(e.target.value)}
+        value={creatorColor}
+        name="creatorColor"
+        onChange={(e) => setCreatorColor(e.target.value)}
         style={styles.input}
       >
         <option value="white">White</option>
         <option value="black">Black</option>
+        <option value="random">Random</option>
       </select>
       <input
         type="number"
@@ -110,11 +115,11 @@ const PlaceBet = () => {
         type="submit"
         onClick={handlePlaceBet}
         style={styles.button}
-        disabled={loading || !gameId || Number(amount) <= 0}
+        disabled={loading || !gameId || Number(amount) <= 0 || Number(amount) > userBalance}
       >
         {loading ? "Placing Bet..." : "Place Bet"}
       </button>
-      {message && <p>{message}</p>}
+      {message && <p style={styles.message}>{message}</p>}
     </div>
   );
 };
@@ -147,6 +152,11 @@ const styles = {
     cursor: "pointer",
     fontSize: "16px",
   },
+  message: {
+    marginTop: "10px",
+    color: "red",
+  },
 };
 
 export default PlaceBet;
+

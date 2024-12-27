@@ -42,3 +42,4 @@ describe('Admin Flows', () => {
     cy.contains('Processed bets for game game123', { timeout: 10000 }).should('be.visible');
   });
 });
+
