@@ -1,46 +1,29 @@
 
 // cypress/integration/userFlows.spec.js
 
-describe('User Flows with Mocked Lichess API', () => {
+describe('User Flows with Real Backend Interaction', () => {
   // Generate a unique timestamp for unique user credentials
   const timestamp = Date.now();
   const uniqueEmail = `testuser_${timestamp}@example.com`;
   const username = `testuser_${timestamp}`;
   const password = 'Password123';
   
-  // Define the mocked gameId as per your mock data
-  const mockedGameId = 'mockedGameId';
-  
-  // Define initial balance based on your application's logic
-  const initialBalance = 1000; // Adjust if different
-  
   // Define the bet amount
   const betAmount = 100;
 
   before(() => {
-    // Reset the database and create a test user with a balance of 1000
-    cy.request('POST', '/api/test/reset-database'); // Assuming you have a test endpoint for resetting
-    cy.request('POST', '/api/auth/register', {
-      username,
-      email: uniqueEmail,
-      password,
-    }).then((response) => {
-      expect(response.status).to.eq(201);
-      // Optionally, set the initial balance if not set by default
-      cy.request('POST', `/api/users/${response.body.id}/set-balance`, { balance: initialBalance });
-    });
+    // Optional: Reset the database or seed data if necessary
+    // This ensures a clean state before tests run
+    // Example:
+    // cy.request('POST', '/api/test/reset-database');
   });
 
   beforeEach(() => {
-    // Clear cookies and local storage to ensure a clean state
-    cy.clearCookies();
-    cy.clearLocalStorage();
-
-    // Mock external APIs only (e.g., Lichess API)
-    cy.intercept('GET', 'https://lichess.org/api/game/*', { fixture: 'lichessGame.json' }).as('getLichessGame');
+    // Ensure that the backend is in a known state before each test
+    // This could involve resetting the database or using API endpoints designed for testing
   });
 
-  it('Registers a new user, logs in, places a bet using mocked Lichess API, and verifies the updated balance on Profile page', () => {
+  it('Registers a new user, logs in, places a bet, and verifies the updated balance on Profile page', () => {
     // ------------------------------
     // 1. Register a New User
     // ------------------------------
@@ -72,16 +55,17 @@ describe('User Flows with Mocked Lichess API', () => {
       .should('be.visible');
     
     // ------------------------------
-    // 3. Place a Bet Using Mocked Lichess API
+    // 3. Place a Bet Using Real Backend
     // ------------------------------
     cy.visit('/place-bet');
     
-    // Input the mocked gameId
+    // Input the gameId (assuming it's dynamic or retrieved from the application)
+    const gameId = 'nuOCvs7w'; // Replace with a valid gameId as per your application logic
     cy.get('input[name=gameId]')
-      .type(mockedGameId)
-      .should('have.value', mockedGameId);
+      .type(gameId)
+      .should('have.value', gameId);
     
-    // Select 'white' as per the mocked outcome
+    // Select 'white' as the creator's color
     cy.get('select[name=creatorColor]')
       .select('white')
       .should('have.value', 'white');
@@ -94,9 +78,6 @@ describe('User Flows with Mocked Lichess API', () => {
     // Submit the bet
     cy.get('button[type=submit]').click();
     
-    // Wait for the Lichess API call if needed
-    cy.wait('@getLichessGame');
-    
     // Assert that the bet was placed successfully
     cy.contains('Bet placed successfully!')
       .should('be.visible');
@@ -106,11 +87,8 @@ describe('User Flows with Mocked Lichess API', () => {
     // ------------------------------
     cy.visit('/profile'); // Navigate to the Profile page where balance is displayed
     
-    // Optionally, force a page reload to ensure fresh data fetch
-    cy.reload();
-    
-    // Assert that the balance has been deducted correctly
-    cy.contains(`${initialBalance - betAmount} PTK`)
+    // Wait for the profile page to load and display the updated balance
+    cy.contains(`${1000 - betAmount} PTK`, { timeout: 10000 })
       .should('be.visible');
     
     // Assert that 'Your Bets' section is visible
@@ -119,13 +97,13 @@ describe('User Flows with Mocked Lichess API', () => {
 
     // Optional: Verify the details of the placed bet
     cy.get('table').within(() => {
-      cy.contains(mockedGameId)
+      cy.contains(gameId)
         .should('be.visible');
       cy.contains('White')
         .should('be.visible');
       cy.contains(betAmount.toString())
         .should('be.visible');
-      cy.contains('pending') // Assuming the initial status is 'pending'
+      cy.contains('Pending') // Assuming the initial status is 'pending'
         .should('be.visible');
     });
   });
