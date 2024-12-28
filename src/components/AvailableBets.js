@@ -2,6 +2,7 @@
 // src/components/AvailableBets.js
 
 import React, { useEffect, useState } from "react";
+import { acceptBet } from "../services/api"; // Import the acceptBet function
 
 const AvailableBets = () => {
   const [bets, setBets] = useState([]);
@@ -86,33 +87,20 @@ const AvailableBets = () => {
         return;
       }
 
-      const response = await fetch(`/bets/accept/${betId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ opponentColor }),
-      });
-
-      console.log("Accept bet response status:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log("Accept bet error data:", errorData);
-        setError(errorData.error || "Failed to accept the bet.");
-        setAcceptingBetId(null);
-        return;
-      }
-
-      const data = await response.json();
+      const data = await acceptBet(token, betId, opponentColor); // Modified to receive entire response
       console.log("Accept bet success data:", data);
       setSuccessMessage("Successfully joined the bet!");
+
       // Optionally, remove the accepted bet from the list
       setBets((prevBets) => prevBets.filter((bet) => bet.id !== betId));
+
+      // Open the game link in a new tab if available
+      if (data.gameLink) {
+        window.open(data.gameLink, "_blank"); // Opens the game link
+      }
     } catch (err) {
       console.error("Error accepting bet:", err);
-      setError("An unexpected error occurred.");
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setAcceptingBetId(null);
     }

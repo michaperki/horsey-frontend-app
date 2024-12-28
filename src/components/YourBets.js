@@ -97,12 +97,13 @@ const YourBets = () => {
                 <th onClick={() => handleSort('createdAt')} style={styles.sortable}>
                   Date {sortBy === 'createdAt' ? (order === 'asc' ? '▲' : '▼') : ''}
                 </th>
+                <th>Game Link</th> {/* New Column */}
               </tr>
             </thead>
             <tbody>
               {bets.map((bet) => (
                 <tr key={bet._id}>
-                  <td>{bet.gameId}</td>
+                  <td>{bet.gameId || 'N/A'}</td>
                   <td>
                     {bet.creatorColor
                       ? bet.creatorColor.charAt(0).toUpperCase() + bet.creatorColor.slice(1)
@@ -117,6 +118,15 @@ const YourBets = () => {
                       : 'N/A'}
                   </td>
                   <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                  <td>
+                    {bet.gameId ? (
+                      <a href={`https://lichess.org/${bet.gameId}`} target="_blank" rel="noopener noreferrer">
+                        View Game
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

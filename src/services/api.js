@@ -60,18 +60,19 @@ export const getUserBets = async (token, params = {}) => {
 /**
  * Places a new bet.
  * @param {string} token - JWT token for authentication.
- * @param {object} betData - Data for the new bet.
+ * @param {object} betData - Data for the new bet (excluding gameId).
  * @returns {Promise<object>} - The newly created bet.
  */
 export const placeBet = async (token, betData) => {
   try {
+    const { creatorColor, amount } = betData; // Destructure required fields
     const response = await fetch('/bets/place', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(betData),
+      body: JSON.stringify({ creatorColor, amount }), // Exclude gameId
     });
 
     if (!response.ok) {
@@ -92,7 +93,7 @@ export const placeBet = async (token, betData) => {
  * @param {string} token - JWT token for authentication.
  * @param {string} betId - ID of the bet to accept.
  * @param {string} opponentColor - Color preference of the acceptor.
- * @returns {Promise<object>} - The updated bet.
+ * @returns {Promise<object>} - The updated bet along with gameLink.
  */
 export const acceptBet = async (token, betId, opponentColor) => {
   try {
@@ -111,7 +112,7 @@ export const acceptBet = async (token, betId, opponentColor) => {
     }
 
     const data = await response.json();
-    return data.bet;
+    return data; // Return the entire response to include gameLink
   } catch (error) {
     console.error('Error accepting bet:', error);
     throw error;

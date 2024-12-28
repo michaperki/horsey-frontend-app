@@ -2,14 +2,16 @@
 // src/components/PlaceBet.js
 
 import React, { useState, useEffect } from "react";
+import { placeBet } from "../services/api"; // Import the placeBet function
+// import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 const PlaceBet = () => {
-  const [gameId, setGameId] = useState("");
   const [creatorColor, setCreatorColor] = useState("random"); // Default to 'random'
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [userBalance, setUserBalance] = useState(0);
   const [loading, setLoading] = useState(false);
+  // const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -38,8 +40,8 @@ const PlaceBet = () => {
   }, []);
 
   const handlePlaceBet = async () => {
-    if (!gameId || !amount || Number(amount) <= 0) {
-      setMessage("Please enter a valid game ID and bet amount.");
+    if (!amount || Number(amount) <= 0) {
+      setMessage("Please enter a valid bet amount.");
       return;
     }
 
@@ -56,28 +58,19 @@ const PlaceBet = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("/bets/place", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ gameId, creatorColor, amount: Number(amount) }),
-      });
+      const newBet = await placeBet(token, { creatorColor, amount: Number(amount) });
+      setMessage("Bet placed successfully!");
 
-      const data = await response.json();
-      if (response.ok) {
-        setMessage("Bet placed successfully!");
-        setGameId("");
-        setCreatorColor("random");
-        setAmount("");
-        setUserBalance((prev) => prev - Number(amount));
-      } else {
-        setMessage(data.error || "Failed to place the bet.");
+      // Redirect to the game link if available
+      if (newBet.gameLink) {
+        window.open(newBet.gameLink, "_blank"); // Opens the game link in a new tab
       }
+
+      setCreatorColor("random");
+      setAmount("");
+      setUserBalance((prev) => prev - Number(amount));
     } catch (error) {
-      console.error("Error placing bet:", error);
-      setMessage("An unexpected error occurred while placing the bet.");
+      setMessage(error.message || "Failed to place the bet.");
     } finally {
       setLoading(false);
     }
@@ -87,14 +80,7 @@ const PlaceBet = () => {
     <div style={styles.container}>
       <h2>Place a Bet</h2>
       <p>Your Balance: {userBalance} PTK</p>
-      <input
-        type="text"
-        name="gameId"
-        placeholder="Lichess Game ID"
-        value={gameId}
-        onChange={(e) => setGameId(e.target.value)}
-        style={styles.input}
-      />
+      {/* Removed Game ID input */}
       <select
         value={creatorColor}
         name="creatorColor"
@@ -117,7 +103,7 @@ const PlaceBet = () => {
         type="submit"
         onClick={handlePlaceBet}
         style={styles.button}
-        disabled={loading || !gameId || Number(amount) <= 0 || Number(amount) > userBalance}
+        disabled={loading || !amount || Number(amount) <= 0 || Number(amount) > userBalance}
       >
         {loading ? "Placing Bet..." : "Place Bet"}
       </button>
@@ -126,6 +112,7 @@ const PlaceBet = () => {
   );
 };
 
+// Inline Styles for Simplicity
 const styles = {
   container: {
     padding: "20px",

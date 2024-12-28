@@ -1,4 +1,3 @@
-
 // cypress/integration/userFlows.spec.js
 
 describe('User Flows with Real Backend Interaction', () => {
@@ -10,6 +9,11 @@ describe('User Flows with Real Backend Interaction', () => {
   
   // Define the bet amount
   const betAmount = 100;
+
+  // Function to generate a unique gameId
+  const generateUniqueGameId = () => {
+    return `game_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  };
 
   before(() => {
     // Optional: Reset the database or seed data if necessary
@@ -23,7 +27,7 @@ describe('User Flows with Real Backend Interaction', () => {
     // This could involve resetting the database or using API endpoints designed for testing
   });
 
-  it('Registers a new user, logs in, places a bet, and verifies the updated balance on Profile page', () => {
+  it('Registers a new user, logs in, places a bet with a unique gameId, and verifies the updated balance on Profile page', () => {
     // ------------------------------
     // 1. Register a New User
     // ------------------------------
@@ -43,7 +47,7 @@ describe('User Flows with Real Backend Interaction', () => {
     
     cy.get('button[type=submit]').click();
     
-    // Assert that registration was successful
+    // Assert that registration wassuccessful
     cy.contains('Registration successful.')
       .should('be.visible');
     
@@ -55,12 +59,14 @@ describe('User Flows with Real Backend Interaction', () => {
       .should('be.visible');
     
     // ------------------------------
-    // 3. Place a Bet Using Real Backend
+    // 3. Place a Bet Using Real Backend with Unique gameId
     // ------------------------------
     cy.visit('/place-bet');
     
-    // Input the gameId (assuming it's dynamic or retrieved from the application)
-    const gameId = 'nuOCvs7w'; // Replace with a valid gameId as per your application logic
+    // Generate a unique gameId
+    const gameId = generateUniqueGameId();
+    
+    // Input the unique gameId
     cy.get('input[name=gameId]')
       .type(gameId)
       .should('have.value', gameId);
@@ -110,4 +116,3 @@ describe('User Flows with Real Backend Interaction', () => {
 
   // Additional tests can be added here, such as handling insufficient balance, network errors, etc.
 });
-

@@ -1,8 +1,17 @@
 
-// frontend/src/setupTests.js
+// src/setupTests.js
 import '@testing-library/jest-dom';
 import fetchMock from 'jest-fetch-mock';
 fetchMock.enableMocks();
+
+// Mock window.open
+beforeAll(() => {
+  global.open = jest.fn();
+});
+
+afterAll(() => {
+  global.open.mockRestore();
+});
 
 // Suppress specific React Router warnings
 const originalWarn = console.warn;

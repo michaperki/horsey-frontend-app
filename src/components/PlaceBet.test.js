@@ -1,158 +1,124 @@
 
 // src/components/PlaceBet.test.js
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PlaceBet from './PlaceBet';
+import fetchMock from 'jest-fetch-mock';
 
-// Mock the fetch API
-global.fetch = jest.fn();
+beforeEach(() => {
+  fetchMock.resetMocks();
+  localStorage.clear();
+});
 
-describe('PlaceBet Component', () => {
-  beforeEach(() => {
-    fetch.mockClear();
-    localStorage.clear();
-    localStorage.setItem('token', 'fake-token');
-  });
+test('renders bet form with user balance', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify({ balance: 1000 }));
 
-  test('renders bet form with user balance', async () => {
-    fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ balance: 1000 }),
-      })
-    );
+  // Mock a valid token
+  const token = 'valid-token';
+  localStorage.setItem('token', token);
 
-    render(<PlaceBet />);
+  render(<PlaceBet />);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
-    });
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
 
-    expect(screen.getByPlaceholderText(/Lichess Game ID/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Amount to Bet/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Place Bet/i })).toBeInTheDocument();
-  });
+  expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
+  expect(screen.getByPlaceholderText(/Amount to Bet/i)).toBeInTheDocument();
+  expect(screen.getByRole('combobox', { name: /creatorColor/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Place Bet/i })).toBeInTheDocument();
+});
 
-  test('handles successful bet placement', async () => {
-    fetch
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ balance: 1000 }),
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ message: 'Bet placed successfully!' }),
-        })
-      );
+test('handles successful bet placement', async () => {
+  // Mock balance fetch
+  fetchMock.mockResponseOnce(JSON.stringify({ balance: 1000 }));
 
-    render(<PlaceBet />);
+  // Mock a valid token
+  const token = 'valid-token';
+  localStorage.setItem('token', token);
 
-    // Wait for the balance to be displayed
-    await waitFor(() => {
-      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
-    });
+  render(<PlaceBet />);
 
-    fireEvent.change(screen.getByPlaceholderText(/Lichess Game ID/i), {
-      target: { value: 'abc123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), {
-      target: { value: '100' },
-    });
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
+  // Mock the place bet API response with gameLink
+  const mockBetResponse = {
+    bet: {
+      gameLink: 'https://lichess.org/abc123',
+    },
+  };
+  fetchMock.mockResponseOnce(JSON.stringify(mockBetResponse));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Bet placed successfully!/i)).toBeInTheDocument();
-    });
+  // Enter amount and select color
+  fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), { target: { value: '100' } });
+  fireEvent.change(screen.getByRole('combobox', { name: /creatorColor/i }), { target: { value: 'white' } });
 
-    // Verify that the balance has been updated
-    expect(screen.getByText(/Your Balance: 900 PTK/i)).toBeInTheDocument();
-  });
+  // Click "Place Bet"
+  fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
 
-  test('handles bet placement with insufficient balance', async () => {
-    fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ balance: 1000 }),
-      })
-    );
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 
-    render(<PlaceBet />);
+  // Check for success message
+  expect(screen.getByText(/Bet placed successfully!/i)).toBeInTheDocument();
 
-    // Wait for the balance to be displayed
-    await waitFor(() => {
-      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
-    });
+  // Verify that window.open was called with the correct URL
+  expect(global.open).toHaveBeenCalledWith('https://lichess.org/abc123', '_blank');
+});
 
-    // Provide inputs that exceed balance
-    fireEvent.change(screen.getByPlaceholderText(/Lichess Game ID/i), {
-      target: { value: 'abc123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), {
-      target: { value: '1500' }, // Amount exceeds balance
-    });
+test('handles bet placement with API error', async () => {
+  // Mock balance fetch
+  fetchMock.mockResponseOnce(JSON.stringify({ balance: 1000 }));
 
-    // Ensure the "Place Bet" button is disabled due to insufficient balance
-    const placeBetButton = screen.getByRole('button', { name: /Place Bet/i });
-    expect(placeBetButton).toBeDisabled();
+  // Mock a valid token
+  const token = 'valid-token';
+  localStorage.setItem('token', token);
 
-    // Attempting to click the disabled button should not trigger handlePlaceBet
-    fireEvent.click(placeBetButton);
+  render(<PlaceBet />);
 
-    // Verify that fetch was only called once (for fetching balance)
-    expect(fetch).toHaveBeenCalledTimes(1);
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
 
-    // Since the button is disabled, the error message is not set by handlePlaceBet
-    // To ensure the message is displayed, consider updating the component to set the message when amount > balance without clicking
+  // Mock the place bet API failure
+  fetchMock.mockResponseOnce(JSON.stringify({ error: 'Insufficient balance' }), { status: 400 });
 
-    // However, based on current component logic, the message is set only on button click
-    // Hence, the test should not expect the message to appear
+  // Enter amount and select color
+  fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), { target: { value: '2000' } });
+  fireEvent.change(screen.getByRole('combobox', { name: /creatorColor/i }), { target: { value: 'black' } });
 
-    // Therefore, remove the expectation for the error message
-    // Alternatively, if you want to set the message upon input change, modify the component accordingly
+  // Click "Place Bet"
+  fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
 
-    // For the purpose of this test, we'll verify that the error message is not displayed
-    await waitFor(() => {
-      expect(screen.queryByText(/Insufficient balance to place the bet./i)).not.toBeInTheDocument();
-    });
-  });
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 
-  test('handles unexpected errors during bet placement', async () => {
-    fetch
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ balance: 1000 }),
-        })
-      )
-      .mockImplementationOnce(() => Promise.reject(new Error('Network error')));
+  // Check for error message
+  expect(screen.getByText(/Insufficient balance/i)).toBeInTheDocument();
+});
 
-    render(<PlaceBet />);
+test('handles unexpected errors during bet placement', async () => {
+  // Mock balance fetch
+  fetchMock.mockResponseOnce(JSON.stringify({ balance: 1000 }));
 
-    // Wait for the balance to be displayed
-    await waitFor(() => {
-      expect(screen.getByText(/Your Balance: 1000 PTK/i)).toBeInTheDocument();
-    });
+  // Mock a valid token
+  const token = 'valid-token';
+  localStorage.setItem('token', token);
 
-    // Provide valid inputs to enable the "Place Bet" button
-    fireEvent.change(screen.getByPlaceholderText(/Lichess Game ID/i), {
-      target: { value: 'abc123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), {
-      target: { value: '100' },
-    });
+  render(<PlaceBet />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/An unexpected error occurred while placing the bet/i)
-      ).toBeInTheDocument();
-    });
-  });
+  // Mock the place bet API response without gameLink
+  const mockBetResponse = {
+    bet: {},
+  };
+  fetchMock.mockResponseOnce(JSON.stringify(mockBetResponse));
+
+  // Enter amount and select color
+  fireEvent.change(screen.getByPlaceholderText(/Amount to Bet/i), { target: { value: '100' } });
+  fireEvent.change(screen.getByRole('combobox', { name: /creatorColor/i }), { target: { value: 'random' } });
+
+  // Click "Place Bet"
+  fireEvent.click(screen.getByRole('button', { name: /Place Bet/i }));
+
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+
+  // Check for error message
+  expect(screen.getByText(/Failed to place the bet/i)).toBeInTheDocument();
 });
 
