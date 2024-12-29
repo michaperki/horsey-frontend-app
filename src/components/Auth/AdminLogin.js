@@ -1,10 +1,15 @@
+
+// src/components/Auth/AdminLogin.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Destructure login from AuthContext
 
   const { email, password } = formData;
 
@@ -28,7 +33,7 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (data.token) {
-        localStorage.setItem('token', data.token);
+        login(data.token); // Use login from AuthContext
         setMessage('Admin login successful.');
         navigate('/admin/dashboard'); // Redirect to admin dashboard
       } else {
@@ -99,3 +104,4 @@ const styles = {
 };
 
 export default AdminLogin;
+

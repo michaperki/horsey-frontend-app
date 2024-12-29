@@ -1,15 +1,19 @@
-// frontend/src/components/Auth/UserLogin.js
+
+// src/components/Auth/UserLogin.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const UserLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Destructure login from AuthContext
 
   const { email, password } = formData;
 
-  const handleChange = (e) => 
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleLogin = async (e) => {
@@ -24,9 +28,13 @@ const UserLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        setMessage('Login successful.');
-        navigate('/dashboard'); // Redirect to user dashboard
+        if (data.token) {
+          login(data.token); // Use login from AuthContext
+          setMessage('Login successful.');
+          navigate('/dashboard'); // Redirect to user dashboard
+        } else {
+          setMessage(data.error || 'Login failed.');
+        }
       } else {
         setMessage(data.error || 'Login failed.');
       }
@@ -93,3 +101,4 @@ const styles = {
 };
 
 export default UserLogin;
+

@@ -1,25 +1,44 @@
 
-// frontend/src/components/Navbar.js
+// src/components/Navbar.js
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 
 const Navbar = () => {
-  const token = localStorage.getItem('token');
-  let user = null;
+  const { token, user, logout } = useAuth(); // Use AuthContext
+  const [lichessConnected, setLichessConnected] = useState(false);
 
-  if (token) {
-    try {
-      user = jwtDecode(token);
-    } catch (error) {
-      console.error('Invalid token:', error);
-    }
-  }
+  useEffect(() => {
+    const fetchLichessStatus = async () => {
+      if (token) {
+        try {
+          const response = await fetch('/lichess/status', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setLichessConnected(data.connected);
+          } else {
+            setLichessConnected(false);
+          }
+        } catch (error) {
+          console.error('Error fetching Lichess status:', error);
+          setLichessConnected(false);
+        }
+      } else {
+        setLichessConnected(false);
+      }
+    };
+
+    fetchLichessStatus();
+  }, [token]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/'; // Redirect to home
+    logout(); // Use logout from AuthContext
   };
 
   return (
@@ -32,6 +51,17 @@ const Navbar = () => {
           <Link to="/profile" style={styles.link}>Profile</Link>
           <Link to="/notifications" style={styles.link}>Notifications</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
+
+          {/* Lichess Connection */}
+          {!lichessConnected ? (
+            <Link to="/dashboard" style={styles.link}> {/* Redirect to Dashboard where Connect button is */}
+              Connect Lichess
+            </Link>
+          ) : (
+            <Link to="/profile" style={styles.link}>
+              Lichess Connected
+            </Link>
+          )}
         </>
       )}
       {user && user.role === 'admin' && (
@@ -71,6 +101,7 @@ const styles = {
     padding: "5px 10px",
     borderRadius: "4px",
     cursor: "pointer",
+    fontSize: "16px",
   },
 };
 

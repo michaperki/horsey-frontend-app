@@ -119,3 +119,69 @@ export const acceptBet = async (token, betId, opponentColor) => {
   }
 };
 
+
+/**
+ * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint,
+ * including the user's JWT token as a query parameter.
+ * @param {string} token - JWT token for authentication.
+ */
+export const initiateLichessOAuth = (token) => {
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const encodedToken = encodeURIComponent(token);
+  window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
+};
+
+/**
+ * Fetches the authenticated user's profile.
+ * @param {string} token - JWT token for authentication.
+ * @returns {Promise<object>} - The user's profile data.
+ */
+export const getUserProfile = async (token) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/profile`, { // Ensure REACT_APP_BACKEND_URL is set
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch user profile');
+    }
+
+    const data = await response.json();
+    return data.user; // Adjust based on your backend's response structure
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
+};
+
+/**
+ * Disconnects the user's Lichess account.
+ * @param {string} token - JWT token for authentication.
+ * @returns {Promise<void>}
+ */
+export const disconnectLichess = async (token) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/lichess/auth/disconnect`, { // Update the URL if different
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to disconnect Lichess account');
+    }
+
+    // Optionally, handle successful disconnection
+  } catch (error) {
+    console.error('Error disconnecting Lichess account:', error);
+    throw error;
+  }
+};

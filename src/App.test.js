@@ -1,3 +1,6 @@
+
+// src/App.test.js
+
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -26,7 +29,7 @@ describe("App Component", () => {
     expect(heading).toBeInTheDocument();
   });
 
-  test("redirects to login when accessing protected routes", () => {
+  test("redirects to login when accessing protected routes without authentication", () => {
     render(
       <MemoryRouter initialEntries={["/dashboard"]}>
         <App />
@@ -37,4 +40,15 @@ describe("App Component", () => {
     const heading = screen.getByRole("heading", { name: /User Login/i });
     expect(heading).toBeInTheDocument();
   });
+
+  test("renders LichessCallback component", () => {
+    render(
+      <MemoryRouter initialEntries={["/auth/lichess/callback"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/Lichess Connection/i)).toBeInTheDocument();
+  });
 });
+

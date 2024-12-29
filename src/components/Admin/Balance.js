@@ -1,16 +1,18 @@
 
-// frontend/src/components/Admin/Balance.js
+// src/components/Admin/Balance.js
+
 import React, { useState } from "react";
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const Balance = () => {
   const [address, setAddress] = useState("");
   const [balance, setBalance] = useState(null);
   const [message, setMessage] = useState("");
 
+  const { token } = useAuth(); // Use AuthContext
+
   const handleCheckBalance = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       if (!token) {
         setMessage("Please login as admin first.");
         return;
@@ -19,7 +21,7 @@ const Balance = () => {
       const response = await fetch(`/tokens/balance/${address}`, {
         method: "GET",
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${token}`, // Use token from AuthContext
         },
       });
 
@@ -88,3 +90,4 @@ const styles = {
 };
 
 export default Balance;
+

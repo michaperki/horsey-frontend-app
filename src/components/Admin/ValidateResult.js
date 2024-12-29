@@ -1,16 +1,18 @@
 
-// frontend/src/components/Admin/ValidateResult.js
+// src/components/Admin/ValidateResult.js
+
 import React, { useState } from "react";
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const ValidateResult = () => {
   const [gameId, setGameId] = useState("");
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState("");
 
+  const { token } = useAuth(); // Use AuthContext
+
   const handleValidate = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       if (!token) {
         setMessage("Please login as admin first.");
         return;
@@ -20,7 +22,7 @@ const ValidateResult = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // Ensure your backend extracts token correctly
+          Authorization: `Bearer ${token}`, // Use token from AuthContext
         },
         body: JSON.stringify({ gameId }),
       });
@@ -108,3 +110,4 @@ const styles = {
 };
 
 export default ValidateResult;
+

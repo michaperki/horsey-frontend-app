@@ -1,5 +1,6 @@
 
-// App.js
+// src/App.js
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -18,6 +19,7 @@ import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
 import AvailableBets from './components/AvailableBets'; // Import the new component
+import LichessCallback from './components/Auth/LichessCallback'; // Import the new component
 
 function App() {
   return (
@@ -28,6 +30,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/auth/lichess/callback" element={<LichessCallback />} /> {/* New Route */}
         <Route
           path="/dashboard"
           element={

@@ -1,11 +1,13 @@
 
+// src/components/ProtectedRoute.js
+
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 import PropTypes from 'prop-types';
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-  const token = localStorage.getItem('token');
+  const { token, user } = useAuth(); // Use AuthContext
 
   if (!token) {
     return requiredRole === 'admin' ? (
@@ -15,27 +17,20 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     );
   }
 
-  try {
-    const decoded = jwtDecode(token);
+  if (requiredRole && user?.role !== requiredRole) {
+    return requiredRole === 'admin' ? (
+      <Navigate to="/admin/login" replace />
+    ) : (
+      <Navigate to="/" replace />
+    );
+  }
 
-    if (requiredRole && decoded.role !== requiredRole) {
-      return requiredRole === 'admin' ? (
-        <Navigate to="/admin/login" replace />
-      ) : (
-        <Navigate to="/" replace />
-      );
-    }
-
-    const isTokenExpired = decoded.exp * 1000 < Date.now();
-    if (isTokenExpired) {
-      return <Navigate to="/login" replace />;
-    }
-
-    return children;
-  } catch (error) {
-    console.error('Token decoding error:', error);
+  const isTokenExpired = user?.exp * 1000 < Date.now();
+  if (isTokenExpired) {
     return <Navigate to="/login" replace />;
   }
+
+  return children;
 };
 
 ProtectedRoute.propTypes = {

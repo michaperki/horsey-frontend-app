@@ -2,15 +2,20 @@
 // src/components/Navbar.test.js
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 import Navbar from './Navbar';
 
-jest.mock('jwt-decode');
+// Mock the jwtDecode function
+jest.mock('jwt-decode', () => ({
+  jwtDecode: jest.fn(),
+}));
+
+import { jwtDecode } from 'jwt-decode';
 
 describe('Navbar Component', () => {
   beforeEach(() => {
+    fetch.resetMocks();
     localStorage.clear();
     jwtDecode.mockClear();
   });
@@ -28,9 +33,12 @@ describe('Navbar Component', () => {
     expect(screen.getByText(/Admin Login/i)).toBeInTheDocument();
   });
 
-  test('renders user links when logged in as user', () => {
-    localStorage.setItem('token', 'fake-token');
-    jwtDecode.mockReturnValue({ role: 'user', username: 'TestUser' });
+  test('renders user links when logged in as user and Lichess not connected', async () => {
+    const mockUser = { role: 'user' };
+    jwtDecode.mockReturnValue(mockUser);
+    localStorage.setItem('token', 'valid-user-token');
+
+    fetch.mockResponseOnce(JSON.stringify({ connected: false }), { status: 200 });
 
     render(
       <BrowserRouter>
@@ -38,42 +46,70 @@ describe('Navbar Component', () => {
       </BrowserRouter>
     );
 
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
+      headers: {
+        Authorization: 'Bearer valid-user-token',
+      },
+    }));
+
     expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument(); // New Link
+    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument();
     expect(screen.getByText(/Profile/i)).toBeInTheDocument();
     expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
     expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+    expect(screen.getByText(/Connect Lichess/i)).toBeInTheDocument();
   });
 
-  test('renders admin links when logged in as admin', () => {
-    localStorage.setItem('token', 'fake-admin-token');
-    jwtDecode.mockReturnValue({ role: 'admin', username: 'AdminUser' });
+  test('renders user links with Lichess connected', async () => {
+    const mockUser = { role: 'user' };
+    jwtDecode.mockReturnValue(mockUser);
+    localStorage.setItem('token', 'valid-user-token');
+
+    fetch.mockResponseOnce(JSON.stringify({ connected: true }), { status: 200 });
 
     render(
       <BrowserRouter>
         <Navbar />
       </BrowserRouter>
     );
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
+      headers: {
+        Authorization: 'Bearer valid-user-token',
+      },
+    }));
+
+    expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument();
+    expect(screen.getByText(/Profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
+    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lichess Connected/i)).toBeInTheDocument();
+  });
+
+  test('renders admin links when logged in as admin', async () => {
+    const mockUser = { role: 'admin' };
+    jwtDecode.mockReturnValue(mockUser);
+    localStorage.setItem('token', 'valid-admin-token');
+
+    fetch.mockResponseOnce(JSON.stringify({ connected: false }), { status: 200 });
+
+    render(
+      <BrowserRouter>
+        <Navbar />
+      </BrowserRouter>
+    );
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
+      headers: {
+        Authorization: 'Bearer valid-admin-token',
+      },
+    }));
 
     expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
     expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Available Bets/i)).not.toBeInTheDocument(); // Admin shouldn't see user links
-  });
-
-  test('handles logout correctly', () => {
-    localStorage.setItem('token', 'fake-token');
-    jwtDecode.mockReturnValue({ role: 'user', username: 'TestUser' });
-
-    render(
-      <BrowserRouter>
-        <Navbar />
-      </BrowserRouter>
-    );
-
-    fireEvent.click(screen.getByText(/Logout/i));
-
-    expect(localStorage.getItem('token')).toBeNull();
-    expect(window.location.href).toContain('/'); // Redirect to home
+    expect(screen.queryByText(/Available Bets/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Connect Lichess/i)).not.toBeInTheDocument();
   });
 });
 

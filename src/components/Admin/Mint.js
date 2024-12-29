@@ -1,46 +1,41 @@
 
-// frontend/src/components/Admin/Mint.js
+// src/components/Admin/Mint.js
+
 import React, { useState } from "react";
-//import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const Mint = () => {
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
-  //const navigate = useNavigate();
+
+  const { token } = useAuth(); // Use AuthContext
 
   const handleMint = async () => {
     try {
-      // Retrieve JWT token from localStorage
-      const token = localStorage.getItem("token");
-
       if (!token) {
         setMessage("Please login as admin first.");
         return;
       }
 
-      // Prepare the request payload
       const payload = {
         toAddress,
         amount,
       };
 
-      // Make the POST request to the backend
       const response = await fetch("/tokens/mint", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // Send JWT token in headers
+          Authorization: `Bearer ${token}`, // Use token from AuthContext
         },
         body: JSON.stringify(payload),
       });
 
-      // Parse the JSON response
       const data = await response.json();
 
       if (response.ok) {
         setMessage(`Success! Transaction Hash: ${data.txHash}`);
-        // Optionally, reset the form
         setToAddress("");
         setAmount("");
       } else {

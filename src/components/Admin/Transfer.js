@@ -1,6 +1,8 @@
 
-// frontend/src/components/Admin/Transfer.js
+// src/components/Admin/Transfer.js
+
 import React, { useState } from "react";
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const Transfer = () => {
   const [fromAddress, setFromAddress] = useState("");
@@ -8,10 +10,10 @@ const Transfer = () => {
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
 
+  const { token } = useAuth(); // Use AuthContext
+
   const handleTransfer = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       if (!token) {
         setMessage("Please login as admin first.");
         return;
@@ -27,7 +29,7 @@ const Transfer = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`, // Use token from AuthContext
         },
         body: JSON.stringify(payload),
       });
@@ -111,3 +113,4 @@ const styles = {
 };
 
 export default Transfer;
+
