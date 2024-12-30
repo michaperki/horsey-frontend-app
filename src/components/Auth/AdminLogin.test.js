@@ -1,7 +1,8 @@
-// frontend/src/components/Auth/AdminLogin.test.js
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../../contexts/AuthContext'; // Use AuthProvider directly
 import AdminLogin from './AdminLogin';
 
 global.fetch = jest.fn();
@@ -31,12 +32,16 @@ describe('AdminLogin Component', () => {
     localStorage.clear();
   });
 
-  test('renders Admin Login form', () => {
-    render(
-      <BrowserRouter>
-        <AdminLogin />
-      </BrowserRouter>
+  const renderWithAuthProvider = (ui) => {
+    return render(
+      <AuthProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </AuthProvider>
     );
+  };
+
+  test('renders Admin Login form', () => {
+    renderWithAuthProvider(<AdminLogin />);
 
     expect(screen.getByText(/Admin Login/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Admin Email/i)).toBeInTheDocument();
@@ -50,11 +55,7 @@ describe('AdminLogin Component', () => {
       json: async () => ({ token: 'mocked_token' }),
     });
 
-    render(
-      <BrowserRouter>
-        <AdminLogin />
-      </BrowserRouter>
-    );
+    renderWithAuthProvider(<AdminLogin />);
 
     fireEvent.change(screen.getByPlaceholderText(/Admin Email/i), {
       target: { value: 'admin@example.com' },
@@ -76,11 +77,7 @@ describe('AdminLogin Component', () => {
       json: async () => ({ error: 'Invalid credentials' }),
     });
 
-    render(
-      <BrowserRouter>
-        <AdminLogin />
-      </BrowserRouter>
-    );
+    renderWithAuthProvider(<AdminLogin />);
 
     fireEvent.click(screen.getByRole('button', { name: /Login as Admin/i }));
 
@@ -89,3 +86,4 @@ describe('AdminLogin Component', () => {
     });
   });
 });
+
