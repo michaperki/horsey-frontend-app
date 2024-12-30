@@ -1,27 +1,37 @@
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { AuthProvider, AuthContext } from '../../contexts/AuthContext'; // Ensure correct import
 import ValidateResult from './ValidateResult';
+
+// Utility function to render with a mocked AuthContext
+const renderWithAuthContext = (ui, { token = null } = {}) => {
+  return render(
+    <AuthContext.Provider value={{ token, user: null, login: jest.fn(), logout: jest.fn() }}>
+      {ui}
+    </AuthContext.Provider>
+  );
+};
+
+// Mock fetch globally
+const mockFetch = (response, isError = false) => {
+  global.fetch = jest.fn(() =>
+    isError
+      ? Promise.reject(new Error(response)) // Simulate a network error
+      : Promise.resolve({
+          ok: response.ok,
+          json: () => Promise.resolve(response.data),
+        })
+  );
+};
 
 describe('ValidateResult Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear();
-    localStorage.setItem('token', 'valid-admin-token');
   });
 
-  const mockFetch = (response, isError = false) => {
-    global.fetch = jest.fn(() =>
-      isError
-        ? Promise.reject(new Error(response)) // Simulates network error
-        : Promise.resolve({
-            ok: response.ok,
-            json: () => Promise.resolve(response.data),
-          })
-    );
-  };
-
   test('renders the validation form', () => {
-    render(<ValidateResult />);
+    renderWithAuthContext(<ValidateResult />);
     expect(screen.getByText(/Validate Lichess Game Result/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter Lichess Game ID/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Validate Result/i })).toBeInTheDocument();
@@ -38,7 +48,7 @@ describe('ValidateResult Component', () => {
 
     mockFetch({ ok: true, data: mockResult });
 
-    render(<ValidateResult />);
+    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'gameId123' },
     });
@@ -46,29 +56,18 @@ describe('ValidateResult Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Game result processed successfully./i)).toBeInTheDocument();
-      // Use a function matcher for text split across elements
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === 'Outcome: white_win';
-      })).toBeInTheDocument();
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === 'White Player: player1';
-      })).toBeInTheDocument();
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === 'Black Player: player2';
-      })).toBeInTheDocument();
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === 'Status: valid';
-      })).toBeInTheDocument();
-      expect(screen.getByText((content, element) => {
-        return element?.textContent === 'Message: Game result validated successfully.';
-      })).toBeInTheDocument();
+      expect(screen.getByText(/Outcome: white_win/i)).toBeInTheDocument();
+      expect(screen.getByText(/White Player: player1/i)).toBeInTheDocument();
+      expect(screen.getByText(/Black Player: player2/i)).toBeInTheDocument();
+      expect(screen.getByText(/Status: valid/i)).toBeInTheDocument();
+      expect(screen.getByText(/Message: Game result validated successfully./i)).toBeInTheDocument();
     });
   });
 
   test('handles validation error gracefully', async () => {
     mockFetch({ ok: false, data: { error: 'Invalid game ID' } });
 
-    render(<ValidateResult />);
+    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'invalidGameId' },
     });
@@ -80,8 +79,7 @@ describe('ValidateResult Component', () => {
   });
 
   test('shows error when no token is present', () => {
-    localStorage.removeItem('token');
-    render(<ValidateResult />);
+    renderWithAuthContext(<ValidateResult />); // No token passed
     fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
     expect(screen.getByText(/Please login as admin first./i)).toBeInTheDocument();
   });
@@ -91,7 +89,7 @@ describe('ValidateResult Component', () => {
 
     mockFetch('Network error', true);
 
-    render(<ValidateResult />);
+    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'gameId123' },
     });
@@ -104,3 +102,4 @@ describe('ValidateResult Component', () => {
     consoleErrorSpy.mockRestore(); // Restore original console.error behavior
   });
 });
+
