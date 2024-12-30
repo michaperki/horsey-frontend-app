@@ -138,10 +138,12 @@ const AvailableBets = () => {
                 <td>{bet.creatorBalance}</td>
                 <td>{bet.wager}</td>
                 <td>{bet.gameType}</td>
-                <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                <td data-testid={`created-at-${bet.id}`}>
+                  {new Date(bet.createdAt).toLocaleString()}
+                </td>
                 <td>
                   <select
-                    data-testid={`color-select-${bet.id}`} // Added data-testid
+                    data-testid={`color-select-${bet.id}`}
                     value={selectedColors[bet.id] || "random"}
                     onChange={(e) => handleColorChange(bet.id, e.target.value)}
                     style={styles.select}
@@ -153,6 +155,7 @@ const AvailableBets = () => {
                 </td>
                 <td>
                   <button
+                    data-testid={`join-bet-${bet.id}`}
                     onClick={() => handleAcceptBet(bet.id)}
                     disabled={acceptingBetId === bet.id}
                     style={styles.button}
@@ -200,4 +203,3 @@ const styles = {
 };
 
 export default AvailableBets;
-

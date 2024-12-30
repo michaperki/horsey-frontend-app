@@ -5,13 +5,19 @@ import '@testing-library/jest-dom';
 import fetchMock from 'jest-fetch-mock';
 fetchMock.enableMocks();
 
-// Mock window.open
+// Mock window.open to prevent actual navigation
 beforeAll(() => {
   global.open = jest.fn();
+
+  // Mock Date.prototype.toLocaleString to return a consistent date string
+  jest.spyOn(Date.prototype, 'toLocaleString').mockImplementation(() => '1/1/2024, 12:00:00 PM');
 });
 
 afterAll(() => {
   global.open.mockRestore();
+
+  // Restore Date.prototype.toLocaleString to its original implementation
+  Date.prototype.toLocaleString.mockRestore();
 });
 
 // Suppress specific React Router warnings
