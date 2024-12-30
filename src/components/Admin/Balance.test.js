@@ -2,23 +2,26 @@
 // src/components/Admin/Balance.test.js
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useAuth } from '../../contexts/AuthContext'; // Mock this
 import Balance from './Balance';
 
-describe('Balance Component', () => {
-  let consoleSpy;
+// Mock the AuthContext
+jest.mock('../../contexts/AuthContext');
 
+describe('Balance Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear();
-    localStorage.setItem('token', 'valid-admin-token');
 
-    // Suppress console.error temporarily
-    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
+    // Mock useAuth to simulate an authenticated admin user
+    useAuth.mockReturnValue({
+      token: 'valid-admin-token',
+      user: { username: 'AdminUser' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
 
-  afterEach(() => {
-    // Restore console.error
-    consoleSpy.mockRestore();
+    // Mock fetch
+    global.fetch = jest.fn();
   });
 
   test('renders the balance form', () => {
@@ -30,12 +33,11 @@ describe('Balance Component', () => {
   });
 
   test('handles successful balance check', async () => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ balance: 100 }),
-      })
-    );
+    // Mock successful API response
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ balance: 100 }),
+    });
 
     render(<Balance />);
 
@@ -44,19 +46,23 @@ describe('Balance Component', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /Check Balance/i }));
 
+    // Verify the success message
     await waitFor(() => {
       expect(screen.getByText(/Balance: 100 PTK/i)).toBeInTheDocument();
     });
-    expect(global.fetch).toHaveBeenCalledWith('/tokens/balance/0xValidAddress', expect.any(Object));
+
+    // Ensure fetch was called with the correct arguments
+    expect(global.fetch).toHaveBeenCalledWith('/tokens/balance/0xValidAddress', expect.objectContaining({
+      headers: { Authorization: 'Bearer valid-admin-token' },
+    }));
   });
 
   test('handles error during balance check', async () => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => Promise.resolve({ error: 'Invalid address' }),
-      })
-    );
+    // Mock API response with error
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Invalid address' }),
+    });
 
     render(<Balance />);
 
@@ -65,22 +71,32 @@ describe('Balance Component', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /Check Balance/i }));
 
+    // Verify the error message
     await waitFor(() => {
       expect(screen.getByText(/Error: Invalid address/i)).toBeInTheDocument();
     });
   });
 
   test('shows error when no token is present', () => {
-    localStorage.removeItem('token');
+    // Mock useAuth to simulate missing token
+    useAuth.mockReturnValue({
+      token: null,
+      user: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
     render(<Balance />);
 
     fireEvent.click(screen.getByRole('button', { name: /Check Balance/i }));
 
+    // Verify the message about missing admin token
     expect(screen.getByText(/Please login as admin first./i)).toBeInTheDocument();
   });
 
   test('handles unexpected API error gracefully', async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    // Mock fetch to reject
+    global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
     render(<Balance />);
 
@@ -89,6 +105,7 @@ describe('Balance Component', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /Check Balance/i }));
 
+    // Verify the error message for unexpected API error
     await waitFor(() => {
       expect(screen.getByText(/An unexpected error occurred./i)).toBeInTheDocument();
     });
