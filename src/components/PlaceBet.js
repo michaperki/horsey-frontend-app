@@ -1,4 +1,3 @@
-
 // src/components/PlaceBet.js
 
 import React, { useState, useEffect } from "react";
@@ -40,6 +39,12 @@ const PlaceBet = () => {
   }, []);
 
   const handlePlaceBet = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage("Please log in to place a bet.");
+      return;
+    }
+
     if (!amount || Number(amount) <= 0) {
       setMessage("Please enter a valid bet amount.");
       return;
@@ -47,12 +52,6 @@ const PlaceBet = () => {
 
     if (Number(amount) > userBalance) {
       setMessage("Insufficient balance to place the bet.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setMessage("Please log in to place a bet.");
       return;
     }
 
@@ -103,7 +102,7 @@ const PlaceBet = () => {
         type="submit"
         onClick={handlePlaceBet}
         style={styles.button}
-        disabled={loading || !amount || Number(amount) <= 0 || Number(amount) > userBalance}
+        disabled={loading || !amount} // Only disable based on loading and presence of amount
       >
         {loading ? "Placing Bet..." : "Place Bet"}
       </button>
@@ -148,4 +147,3 @@ const styles = {
 };
 
 export default PlaceBet;
-

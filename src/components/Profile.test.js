@@ -3,25 +3,34 @@
 
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { useAuth } from '../contexts/AuthContext';
 import Profile from './Profile';
 import * as api from '../services/api';
 import YourBets from './YourBets';
 
 // Mock the API service
 jest.mock('../services/api');
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
 // Mock the YourBets component to isolate Profile tests
 jest.mock('./YourBets', () => () => <div data-testid="your-bets-mock">Your Bets Mock</div>);
 
 describe('Profile Component', () => {
   beforeEach(() => {
-    localStorage.clear();
     jest.clearAllMocks();
+
+    // Mock the useAuth hook
+    useAuth.mockReturnValue({
+      token: 'mock-token',
+      user: { id: 'user1', name: 'Test User' },
+      logout: jest.fn(),
+    });
   });
 
   test('renders profile information for logged-in user with balance and bets', async () => {
     const mockBalance = 500;
     api.getUserBalance.mockResolvedValue(mockBalance);
-    localStorage.setItem('token', 'valid-token');
 
     render(<Profile />);
 
@@ -38,13 +47,20 @@ describe('Profile Component', () => {
   });
 
   test('renders error message when user is not logged in', async () => {
+    useAuth.mockReturnValue({
+      token: null,
+      user: null,
+      logout: jest.fn(),
+    });
+
     render(<Profile />);
 
     expect(screen.getByText('Your Profile')).toBeInTheDocument();
-    // Removed the expectation for 'Loading balance...' as it might not be present
 
     await waitFor(() => {
-      expect(screen.getByText(/Please log in to view your balance./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Please log in to view your balance./i)
+      ).toBeInTheDocument();
     });
 
     // YourBets component should still render but show its own message
@@ -56,7 +72,6 @@ describe('Profile Component', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     api.getUserBalance.mockRejectedValue(new Error(mockError));
-    localStorage.setItem('token', 'invalid-token');
 
     render(<Profile />);
 
@@ -73,4 +88,3 @@ describe('Profile Component', () => {
     consoleSpy.mockRestore();
   });
 });
-
