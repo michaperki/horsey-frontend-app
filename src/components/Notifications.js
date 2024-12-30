@@ -1,11 +1,8 @@
-
-// src/components/Notifications.js
-
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
+import { useAuth } from '../contexts/AuthContext'; // Correct capitalization
 
 const Notifications = () => {
-  const { user } = useAuth(); // Use AuthContext
+  const { user } = useAuth(); // Correct capitalization
 
   return (
     <div style={styles.container}>
@@ -22,15 +19,14 @@ const Notifications = () => {
 
 const styles = {
   container: {
-    padding: "20px",
-    maxWidth: "400px",
-    margin: "auto",
-    backgroundColor: "#f1f1f1",
-    borderRadius: "8px",
-    marginTop: "50px",
-    textAlign: "center",
+    padding: '20px',
+    maxWidth: '400px',
+    margin: 'auto',
+    backgroundColor: '#f1f1f1',
+    borderRadius: '8px',
+    marginTop: '50px',
+    textAlign: 'center',
   },
 };
 
 export default Notifications;
-

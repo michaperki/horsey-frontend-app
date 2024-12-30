@@ -10,16 +10,22 @@ beforeAll(() => {
   global.confirm = jest.fn();
 });
 
+// Restore window.confirm after tests
 afterAll(() => {
   global.confirm.mockRestore();
 });
 
-describe('DisconnectLichess Component', () => {
-  beforeEach(() => {
-    fetch.resetMocks();
-    localStorage.clear();
-  });
+// Mock fetch globally
+beforeEach(() => {
+  global.fetch = jest.fn();
+  localStorage.clear();
+});
 
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+describe('DisconnectLichess Component', () => {
   test('renders Disconnect button', () => {
     render(<DisconnectLichess />);
     expect(screen.getByText(/Disconnect Lichess Account/i)).toBeInTheDocument();
@@ -29,8 +35,11 @@ describe('DisconnectLichess Component', () => {
     // Mock confirmation
     global.confirm.mockReturnValueOnce(true);
 
-    // Mock API response
-    fetch.mockResponseOnce(JSON.stringify({ message: 'Disconnected successfully' }), { status: 200 });
+    // Mock API response without body expectation
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'Disconnected successfully' }),
+    });
 
     // Set token in localStorage
     localStorage.setItem('token', 'valid-token');
@@ -51,7 +60,7 @@ describe('DisconnectLichess Component', () => {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer valid-token',
         },
-        body: JSON.stringify({}),
+        // Ensure no body is sent
       });
       // Optionally, check if the page reloads or redirects
     });
@@ -74,8 +83,11 @@ describe('DisconnectLichess Component', () => {
     // Mock confirmation
     global.confirm.mockReturnValueOnce(true);
 
-    // Mock API failure
-    fetch.mockResponseOnce(JSON.stringify({ error: 'Failed to disconnect' }), { status: 500 });
+    // Mock API failure with detailed error message
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Failed to disconnect Lichess account.' }),
+    });
 
     // Set token in localStorage
     localStorage.setItem('token', 'valid-token');
@@ -96,7 +108,7 @@ describe('DisconnectLichess Component', () => {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer valid-token',
         },
-        body: JSON.stringify({}),
+        // Ensure no body is sent
       });
     });
   });
@@ -114,3 +126,4 @@ describe('DisconnectLichess Component', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 });
+

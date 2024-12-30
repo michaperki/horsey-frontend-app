@@ -1,42 +1,105 @@
+// src/pages/Home.test.js
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import Home from './Home';
+import { MemoryRouter } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-// frontend/src/App.test.js
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import App from "../App";
+// Mock the useNavigate hook from react-router-dom
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
 
-describe("App Component", () => {
-  test("renders the Home page by default", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <App />
-      </MemoryRouter>
-    );
+// Mock jwt-decode
+jest.mock('jwt-decode');
 
-    expect(screen.getByText(/Welcome to Chess Betting Platform/i)).toBeInTheDocument();
+describe('Home Component', () => {
+  const mockNavigate = jest.fn();
+
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
+    // Mock useNavigate to return the mockNavigate function
+    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
+    // Clear localStorage
+    localStorage.clear();
   });
 
-  test("navigates to the Register page", () => {
+  test('renders welcome message when no token is present', () => {
     render(
-      <MemoryRouter initialEntries={["/register"]}>
-        <App />
+      <MemoryRouter>
+        <Home />
       </MemoryRouter>
     );
 
-    // Use query to specifically target the <h2> in the Register page
-    const heading = screen.getByRole("heading", { name: /Register/i });
-    expect(heading).toBeInTheDocument();
+    expect(screen.getByText('Welcome to Chess Betting Platform')).toBeInTheDocument();
+    expect(screen.getByText('Please sign up or log in to continue.')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  test("redirects to login when accessing protected routes", () => {
+  test('navigates to /admin/dashboard when token has admin role', () => {
+    const adminToken = 'admin-token';
+    const decodedAdminToken = { role: 'admin' };
+    localStorage.setItem('token', adminToken);
+    jwtDecode.mockReturnValue(decodedAdminToken);
+
     render(
-      <MemoryRouter initialEntries={["/dashboard"]}>
-        <App />
+      <MemoryRouter>
+        <Home />
       </MemoryRouter>
     );
 
-    // Use role to find the specific button or heading for User Login
-    const heading = screen.getByRole("heading", { name: /User Login/i });
-    expect(heading).toBeInTheDocument();
+    expect(jwtDecode).toHaveBeenCalledWith(adminToken);
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
+  });
+
+  test('navigates to /dashboard when token has user role', () => {
+    const userToken = 'user-token';
+    const decodedUserToken = { role: 'user' };
+    localStorage.setItem('token', userToken);
+    jwtDecode.mockReturnValue(decodedUserToken);
+
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    );
+
+    expect(jwtDecode).toHaveBeenCalledWith(userToken);
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+  });
+
+  test('handles invalid token gracefully', () => {
+    const invalidToken = 'invalid-token';
+    localStorage.setItem('token', invalidToken);
+    jwtDecode.mockImplementation(() => {
+      throw new Error('Invalid token');
+    });
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    );
+
+    expect(jwtDecode).toHaveBeenCalledWith(invalidToken);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid token:', expect.any(Error));
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(mockNavigate).not.toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  test('does not navigate when no token is present', () => {
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    );
+
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

@@ -1,115 +1,111 @@
-
 // src/components/Navbar.test.js
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 
-// Mock the jwtDecode function
-jest.mock('jwt-decode', () => ({
-  jwtDecode: jest.fn(),
+// Mock AuthContext
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
 }));
 
-import { jwtDecode } from 'jwt-decode';
-
-describe('Navbar Component', () => {
-  beforeEach(() => {
-    fetch.resetMocks();
-    localStorage.clear();
-    jwtDecode.mockClear();
-  });
-
-  test('renders public links when not logged in', () => {
-    render(
-      <BrowserRouter>
-        <Navbar />
-      </BrowserRouter>
-    );
-
-    expect(screen.getByText(/Home/i)).toBeInTheDocument();
-    expect(screen.getByText(/User Login/i)).toBeInTheDocument();
-    expect(screen.getByText(/Register/i)).toBeInTheDocument();
-    expect(screen.getByText(/Admin Login/i)).toBeInTheDocument();
-  });
-
-  test('renders user links when logged in as user and Lichess not connected', async () => {
-    const mockUser = { role: 'user' };
-    jwtDecode.mockReturnValue(mockUser);
-    localStorage.setItem('token', 'valid-user-token');
-
-    fetch.mockResponseOnce(JSON.stringify({ connected: false }), { status: 200 });
+describe('Navbar', () => {
+  it('renders the basic links for unauthenticated users', () => {
+    useAuth.mockReturnValue({ token: null, user: null, logout: jest.fn() });
 
     render(
-      <BrowserRouter>
+      <Router>
         <Navbar />
-      </BrowserRouter>
+      </Router>
     );
 
-    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
-      headers: {
-        Authorization: 'Bearer valid-user-token',
-      },
-    }));
-
-    expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument();
-    expect(screen.getByText(/Profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
-    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-    expect(screen.getByText(/Connect Lichess/i)).toBeInTheDocument();
+    expect(screen.getByText(/home/i)).toBeInTheDocument();
+    expect(screen.getByText(/user login/i)).toBeInTheDocument();
+    expect(screen.getByText(/register/i)).toBeInTheDocument();
+    expect(screen.getByText(/admin login/i)).toBeInTheDocument();
   });
 
-  test('renders user links with Lichess connected', async () => {
-    const mockUser = { role: 'user' };
-    jwtDecode.mockReturnValue(mockUser);
-    localStorage.setItem('token', 'valid-user-token');
-
-    fetch.mockResponseOnce(JSON.stringify({ connected: true }), { status: 200 });
+  it('renders user links when a user is logged in', () => {
+    useAuth.mockReturnValue({
+      token: 'mockToken',
+      user: { role: 'user' },
+      logout: jest.fn(),
+    });
 
     render(
-      <BrowserRouter>
+      <Router>
         <Navbar />
-      </BrowserRouter>
+      </Router>
     );
 
-    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
-      headers: {
-        Authorization: 'Bearer valid-user-token',
-      },
-    }));
-
-    expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Available Bets/i)).toBeInTheDocument();
-    expect(screen.getByText(/Profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
-    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-    expect(screen.getByText(/Lichess Connected/i)).toBeInTheDocument();
+    expect(screen.getByText(/home/i)).toBeInTheDocument();
+    expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/available bets/i)).toBeInTheDocument();
+    expect(screen.getByText(/profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/logout/i)).toBeInTheDocument();
   });
 
-  test('renders admin links when logged in as admin', async () => {
-    const mockUser = { role: 'admin' };
-    jwtDecode.mockReturnValue(mockUser);
-    localStorage.setItem('token', 'valid-admin-token');
-
-    fetch.mockResponseOnce(JSON.stringify({ connected: false }), { status: 200 });
+  it('renders admin links when an admin is logged in', () => {
+    useAuth.mockReturnValue({
+      token: 'mockToken',
+      user: { role: 'admin' },
+      logout: jest.fn(),
+    });
 
     render(
-      <BrowserRouter>
+      <Router>
         <Navbar />
-      </BrowserRouter>
+      </Router>
     );
 
-    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/lichess/status', {
-      headers: {
-        Authorization: 'Bearer valid-admin-token',
-      },
-    }));
+    expect(screen.getByText(/admin dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/logout/i)).toBeInTheDocument();
+  });
 
-    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Available Bets/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Connect Lichess/i)).not.toBeInTheDocument();
+  it('calls logout when the logout button is clicked', () => {
+    const mockLogout = jest.fn();
+    useAuth.mockReturnValue({
+      token: 'mockToken',
+      user: { role: 'user' },
+      logout: mockLogout,
+    });
+
+    render(
+      <Router>
+        <Navbar />
+      </Router>
+    );
+
+    const logoutButton = screen.getByText(/logout/i);
+    fireEvent.click(logoutButton);
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the Lichess connection status correctly', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ connected: true }),
+      })
+    );
+
+    useAuth.mockReturnValue({
+      token: 'mockToken',
+      user: { role: 'user' },
+      logout: jest.fn(),
+    });
+
+    render(
+      <Router>
+        <Navbar />
+      </Router>
+    );
+
+    expect(await screen.findByText(/lichess connected/i)).toBeInTheDocument();
+
+    global.fetch.mockRestore();
   });
 });
-

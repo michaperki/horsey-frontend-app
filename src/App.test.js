@@ -1,54 +1,47 @@
-
 // src/App.test.js
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext"; // Adjust the import to your actual AuthProvider location
 import App from "./App";
+
+const renderWithProviders = (ui, { route = "/" } = {}) => {
+  return render(
+    <MemoryRouter initialEntries={[route]}>
+      <AuthProvider>
+        {ui}
+      </AuthProvider>
+    </MemoryRouter>
+  );
+};
 
 describe("App Component", () => {
   test("renders the Home page by default", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <App />
-      </MemoryRouter>
-    );
+    renderWithProviders(<App />, { route: "/" });
 
-    expect(screen.getByText(/Welcome to Chess Betting Platform/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Welcome to Chess Betting Platform/i)
+    ).toBeInTheDocument();
   });
 
   test("navigates to the Register page", () => {
-    render(
-      <MemoryRouter initialEntries={["/register"]}>
-        <App />
-      </MemoryRouter>
-    );
+    renderWithProviders(<App />, { route: "/register" });
 
-    // Use query to specifically target the <h2> in the Register page
     const heading = screen.getByRole("heading", { name: /Register/i });
     expect(heading).toBeInTheDocument();
   });
 
   test("redirects to login when accessing protected routes without authentication", () => {
-    render(
-      <MemoryRouter initialEntries={["/dashboard"]}>
-        <App />
-      </MemoryRouter>
-    );
+    renderWithProviders(<App />, { route: "/dashboard" });
 
-    // Use role to find the specific button or heading for User Login
     const heading = screen.getByRole("heading", { name: /User Login/i });
     expect(heading).toBeInTheDocument();
   });
 
   test("renders LichessCallback component", () => {
-    render(
-      <MemoryRouter initialEntries={["/auth/lichess/callback"]}>
-        <App />
-      </MemoryRouter>
-    );
+    renderWithProviders(<App />, { route: "/auth/lichess/callback" });
 
     expect(screen.getByText(/Lichess Connection/i)).toBeInTheDocument();
   });
 });
-

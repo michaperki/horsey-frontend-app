@@ -1,6 +1,7 @@
-
 // src/setupTests.js
 import '@testing-library/jest-dom';
+// Remove or comment out the jest-localstorage-mock import
+// import 'jest-localstorage-mock'; 
 import fetchMock from 'jest-fetch-mock';
 fetchMock.enableMocks();
 
@@ -30,4 +31,3 @@ beforeAll(() => {
 afterAll(() => {
   console.warn = originalWarn;
 });
-

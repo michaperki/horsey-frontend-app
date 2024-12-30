@@ -1,12 +1,18 @@
-
 // src/components/YourBets.test.js
+
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import YourBets from './YourBets';
-import fetchMock from 'jest-fetch-mock';
+import { getUserBets } from '../services/api'; // Import the actual function
+
+// Explicitly mock the getUserBets function
+jest.mock('../services/api', () => ({
+  getUserBets: jest.fn(),
+}));
 
 beforeEach(() => {
-  fetchMock.resetMocks();
+  // Clear all instances and calls to constructor and all methods:
+  getUserBets.mockClear();
   localStorage.clear();
 });
 
@@ -27,7 +33,8 @@ test('renders Your Bets table with fetched data', async () => {
     totalPages: 1,
   };
 
-  fetchMock.mockResponseOnce(JSON.stringify(mockBetsData));
+  // Mock the resolved value of getUserBets
+  getUserBets.mockResolvedValue(mockBetsData);
 
   // Mock a valid token in localStorage
   const token = 'valid-token';
@@ -35,26 +42,30 @@ test('renders Your Bets table with fetched data', async () => {
 
   render(<YourBets />);
 
-  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  // Wait for the getUserBets to be called
+  await waitFor(() => expect(getUserBets).toHaveBeenCalledTimes(1));
 
-  // Check if table headers are present
-  expect(screen.getByText(/Game ID/i)).toBeInTheDocument();
-  expect(screen.getByText(/Your Choice/i)).toBeInTheDocument();
-  expect(screen.getByText(/Final White/i)).toBeInTheDocument();
-  expect(screen.getByText(/Final Black/i)).toBeInTheDocument();
-  expect(screen.getByText(/Amount/i)).toBeInTheDocument();
-  expect(screen.getByText(/Status/i)).toBeInTheDocument();
-  expect(screen.getByText(/Date/i)).toBeInTheDocument();
-  expect(screen.getByText(/Game Link/i)).toBeInTheDocument();
+  // Use findByText which returns a promise and waits for the element to appear
+  expect(await screen.findByText(/Game ID/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Your Choice/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Final White/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Final Black/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Amount/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Status/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Date/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Game Link/i)).toBeInTheDocument();
 
   // Check if mock bet data is rendered
-  expect(screen.getByText('White')).toBeInTheDocument();
-  expect(screen.getByText('User1')).toBeInTheDocument();
-  expect(screen.getByText('User2')).toBeInTheDocument();
-  expect(screen.getByText('100')).toBeInTheDocument();
-  expect(screen.getByText('Active')).toBeInTheDocument();
-  expect(screen.getByText('1/1/2024, 12:00:00 PM')).toBeInTheDocument();
-  expect(screen.getByText(/View Game/i)).toBeInTheDocument();
+  expect(await screen.findByText('White')).toBeInTheDocument();
+  expect(await screen.findByText('User1')).toBeInTheDocument();
+  expect(await screen.findByText('User2')).toBeInTheDocument();
+  expect(await screen.findByText('100')).toBeInTheDocument();
+  expect(await screen.findByText('Active')).toBeInTheDocument();
+
+  // Date formatting can vary based on locale, so use a regex or alternative matcher
+  expect(await screen.findByText(/1\/1\/2024/i)).toBeInTheDocument();
+
+  expect(await screen.findByText(/View Game/i)).toBeInTheDocument();
 });
 
 test('displays message when no bets are present', async () => {
@@ -63,7 +74,8 @@ test('displays message when no bets are present', async () => {
     totalPages: 1,
   };
 
-  fetchMock.mockResponseOnce(JSON.stringify(mockBetsData));
+  // Mock the resolved value of getUserBets
+  getUserBets.mockResolvedValue(mockBetsData);
 
   // Mock a valid token in localStorage
   const token = 'valid-token';
@@ -71,13 +83,14 @@ test('displays message when no bets are present', async () => {
 
   render(<YourBets />);
 
-  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(getUserBets).toHaveBeenCalledTimes(1));
 
-  expect(screen.getByText(/You have not placed any bets yet./i)).toBeInTheDocument();
+  expect(await screen.findByText(/You have not placed any bets yet./i)).toBeInTheDocument();
 });
 
 test('handles API errors gracefully', async () => {
-  fetchMock.mockRejectOnce(new Error('API Error'));
+  // Mock getUserBets to reject with an error
+  getUserBets.mockRejectedValue(new Error('API Error'));
 
   // Mock a valid token in localStorage
   const token = 'valid-token';
@@ -85,8 +98,15 @@ test('handles API errors gracefully', async () => {
 
   render(<YourBets />);
 
-  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(getUserBets).toHaveBeenCalledTimes(1));
 
-  // expect(screen.getByText(/API Error/i)).toBeInTheDocument();
+  expect(await screen.findByText(/API Error/i)).toBeInTheDocument();
 });
 
+test('displays error message when no token is present', async () => {
+  render(<YourBets />);
+
+  await waitFor(() => expect(getUserBets).not.toHaveBeenCalled());
+
+  expect(await screen.findByText(/Please log in to view your bets./i)).toBeInTheDocument();
+});

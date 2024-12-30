@@ -1,22 +1,31 @@
 // src/components/Notifications.test.js
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Notifications from './Notifications';
-import * as jwtDecodeModule from 'jwt-decode'; // Import as a module for mocking
+import * as AuthContextModule from '../contexts/AuthContext'; // Import entire module
 
-jest.mock('jwt-decode', () => ({
-    jwtDecode: jest.fn(), // Mock the named export
+// Mock the useAuth hook
+jest.mock('../contexts/AuthContext', () => ({
+    useAuth: jest.fn(),
 }));
 
 describe('Notifications Component', () => {
+    const mockedUseAuth = AuthContextModule.useAuth;
+
     beforeEach(() => {
         localStorage.clear();
         jest.clearAllMocks();
     });
 
     test('renders message for logged-in user', () => {
-        localStorage.setItem('token', 'valid-token');
-        jwtDecodeModule.jwtDecode.mockReturnValue({ username: 'TestUser' }); // Mock the decoded token
+        // Mock useAuth to return a logged-in user
+        mockedUseAuth.mockReturnValue({
+            user: { username: 'TestUser' },
+            token: 'valid-token',
+            login: jest.fn(),
+            logout: jest.fn(),
+        });
 
         render(<Notifications />);
 
@@ -27,9 +36,12 @@ describe('Notifications Component', () => {
     test('handles invalid token gracefully', () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
 
-        localStorage.setItem('token', 'invalid-token');
-        jwtDecodeModule.jwtDecode.mockImplementation(() => {
-            throw new Error('Invalid token');
+        // Mock useAuth to simulate an invalid token scenario
+        mockedUseAuth.mockReturnValue({
+            user: null,
+            token: null,
+            login: jest.fn(),
+            logout: jest.fn(),
         });
 
         render(<Notifications />);
