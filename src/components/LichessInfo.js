@@ -4,12 +4,22 @@
 import React from 'react';
 
 const LichessInfo = ({ info }) => {
+  const connectedDate = info.connectedAt ? new Date(info.connectedAt).toISOString() : "N/A";
+  
   return (
     <div style={styles.container}>
-      <p><strong>Username:</strong> {info.username}</p>
-      <p><strong>Rating:</strong> {info.rating}</p>
-      {/* Add more Lichess-related information as needed */}
-      <p><strong>Connected Since:</strong> {new Date(info.connectedAt).toLocaleString()}</p>
+      <p>
+        <strong>Username:</strong> {info.username}
+      </p>
+      <p>
+        <strong>Rating:</strong> {info.rating}
+      </p>
+      <p>
+        <strong>Connected Since:</strong>{" "}
+        <span data-testid="connected-date">
+          {connectedDate}
+        </span>
+      </p>
     </div>
   );
 };
@@ -26,3 +36,4 @@ const styles = {
 };
 
 export default LichessInfo;
+
