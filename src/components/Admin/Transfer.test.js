@@ -1,13 +1,26 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useAuth } from '../../contexts/AuthContext'; // Mock this
 import Transfer from './Transfer';
+
+// Mock the AuthContext
+jest.mock('../../contexts/AuthContext');
 
 describe('Transfer Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear();
-    localStorage.setItem('token', 'valid-admin-token');
+
+    // Mock useAuth to simulate an authenticated admin user
+    useAuth.mockReturnValue({
+      token: 'valid-admin-token',
+      user: { username: 'AdminUser' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    // Mock fetch
+    global.fetch = jest.fn();
   });
 
   test('renders the transfer form', () => {
@@ -21,12 +34,11 @@ describe('Transfer Component', () => {
   });
 
   test('handles successful token transfer', async () => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ txHash: '0x12345' }),
-      })
-    );
+    // Mock successful API response
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ txHash: '0x12345' }),
+    });
 
     render(<Transfer />);
 
@@ -44,16 +56,27 @@ describe('Transfer Component', () => {
     await waitFor(() => {
       expect(screen.getByText(/Success! Transaction Hash: 0x12345/i)).toBeInTheDocument();
     });
-    expect(global.fetch).toHaveBeenCalledWith('/tokens/transfer', expect.any(Object));
+
+    expect(global.fetch).toHaveBeenCalledWith('/tokens/transfer', expect.objectContaining({
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer valid-admin-token',
+      },
+      body: JSON.stringify({
+        fromAddress: '0xFromAddress',
+        toAddress: '0xToAddress',
+        amount: '100',
+      }),
+    }));
   });
 
   test('handles transfer error gracefully', async () => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => Promise.resolve({ error: 'Transfer failed' }),
-      })
-    );
+    // Mock API response with error
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Transfer failed' }),
+    });
 
     render(<Transfer />);
 
@@ -74,7 +97,14 @@ describe('Transfer Component', () => {
   });
 
   test('shows error when no token is present', () => {
-    localStorage.removeItem('token');
+    // Mock useAuth to simulate missing token
+    useAuth.mockReturnValue({
+      token: null,
+      user: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
     render(<Transfer />);
 
     fireEvent.click(screen.getByRole('button', { name: /Transfer Tokens/i }));
@@ -83,27 +113,29 @@ describe('Transfer Component', () => {
   });
 
   test('handles unexpected API error gracefully', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Mock console.error
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Mock console.error
 
-      global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    // Mock fetch to reject
+    global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
-      render(<Transfer />);
+    render(<Transfer />);
 
-      fireEvent.change(screen.getByPlaceholderText(/From Address/i), {
-        target: { value: '0xFromAddress' },
-      });
-      fireEvent.change(screen.getByPlaceholderText(/To Address/i), {
-        target: { value: '0xToAddress' },
-      });
-      fireEvent.change(screen.getByPlaceholderText(/Amount/i), {
-        target: { value: '100' },
-      });
-      fireEvent.click(screen.getByRole('button', { name: /Transfer Tokens/i }));
+    fireEvent.change(screen.getByPlaceholderText(/From Address/i), {
+      target: { value: '0xFromAddress' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/To Address/i), {
+      target: { value: '0xToAddress' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Amount/i), {
+      target: { value: '100' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Transfer Tokens/i }));
 
-      await waitFor(() => {
-        expect(screen.getByText(/An unexpected error occurred./i)).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(screen.getByText(/An unexpected error occurred./i)).toBeInTheDocument();
+    });
 
-      consoleSpy.mockRestore(); // Restore original console.error after the test
+    consoleSpy.mockRestore(); // Restore original console.error after the test
   });
 });
+
