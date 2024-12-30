@@ -1,7 +1,7 @@
 
-// src/setupTests.js
 import '@testing-library/jest-dom';
-import 'jest-localstorage-mock'; // Re-enable the mock
+// Remove or comment out the jest-localstorage-mock import
+// import 'jest-localstorage-mock'; 
 import fetchMock from 'jest-fetch-mock';
 fetchMock.enableMocks();
 
@@ -15,9 +15,11 @@ beforeAll(() => {
 
 afterAll(() => {
   global.open.mockRestore();
+});
 
+afterEach(() => {
   // Restore Date.prototype.toLocaleString to its original implementation
-  Date.prototype.toLocaleString.mockRestore();
+  jest.restoreAllMocks();
 });
 
 // Suppress specific React Router warnings

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import 'jest-localstorage-mock'; // Re-enable the mock
 import YourBets from './YourBets';
 import { getUserBets } from '../services/api';
 
