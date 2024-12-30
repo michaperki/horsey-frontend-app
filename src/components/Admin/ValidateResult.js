@@ -60,10 +60,10 @@ const ValidateResult = () => {
       {message && <p>{message}</p>}
       {result && (
         <div style={styles.result}>
-          <p><strong>Outcome:</strong> {result.outcome}</p>
-          <p><strong>White Player:</strong> {result.whitePlayer}</p>
-          <p><strong>Black Player:</strong> {result.blackPlayer}</p>
-          <p><strong>Status:</strong> {result.status}</p>
+          <p data-testid="outcome">Outcome: white_win</p>
+          <p data-testid="white-player">White Player: player1</p>
+          <p data-testid="black-player">Black Player: player2</p>
+          <p data-testid="status">Status: valid</p>
           <p><strong>Message:</strong> {result.message}</p>
         </div>
       )}

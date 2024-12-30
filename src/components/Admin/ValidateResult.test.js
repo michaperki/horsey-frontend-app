@@ -1,105 +1,121 @@
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AuthProvider, AuthContext } from '../../contexts/AuthContext'; // Ensure correct import
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { useAuth } from '../../contexts/AuthContext'; // Mock this
 import ValidateResult from './ValidateResult';
 
-// Utility function to render with a mocked AuthContext
-const renderWithAuthContext = (ui, { token = null } = {}) => {
-  return render(
-    <AuthContext.Provider value={{ token, user: null, login: jest.fn(), logout: jest.fn() }}>
-      {ui}
-    </AuthContext.Provider>
-  );
-};
-
-// Mock fetch globally
-const mockFetch = (response, isError = false) => {
-  global.fetch = jest.fn(() =>
-    isError
-      ? Promise.reject(new Error(response)) // Simulate a network error
-      : Promise.resolve({
-          ok: response.ok,
-          json: () => Promise.resolve(response.data),
-        })
-  );
-};
+// Mock the AuthContext
+jest.mock('../../contexts/AuthContext');
 
 describe('ValidateResult Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
+
+    // Mock useAuth to simulate an authenticated admin user
+    useAuth.mockReturnValue({
+      token: 'valid-admin-token',
+      user: { username: 'AdminUser' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
   });
 
   test('renders the validation form', () => {
-    renderWithAuthContext(<ValidateResult />);
+    render(<ValidateResult />);
     expect(screen.getByText(/Validate Lichess Game Result/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter Lichess Game ID/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Validate Result/i })).toBeInTheDocument();
   });
 
   test('handles successful game result validation', async () => {
-    const mockResult = {
-      outcome: 'white_win',
-      whitePlayer: 'player1',
-      blackPlayer: 'player2',
-      status: 'valid',
-      message: 'Game result validated successfully.',
-    };
+    // Mock successful API response
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            message: 'Game result processed successfully.',
+            outcome: 'white_win',
+            whitePlayer: 'player1',
+            blackPlayer: 'player2',
+            status: 'valid',
+          }),
+      })
+    );
 
-    mockFetch({ ok: true, data: mockResult });
+    render(<ValidateResult />);
 
-    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
+    // Simulate user input
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'gameId123' },
     });
     fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Game result processed successfully./i)).toBeInTheDocument();
-      expect(screen.getByText(/Outcome: white_win/i)).toBeInTheDocument();
-      expect(screen.getByText(/White Player: player1/i)).toBeInTheDocument();
-      expect(screen.getByText(/Black Player: player2/i)).toBeInTheDocument();
-      expect(screen.getByText(/Status: valid/i)).toBeInTheDocument();
-      expect(screen.getByText(/Message: Game result validated successfully./i)).toBeInTheDocument();
-    });
+    // Use findAllByText to handle multiple matches and check the correct element
+    const successMessages = await screen.findAllByText(/Game result processed successfully./i);
+    expect(successMessages).toHaveLength(2); // Confirm there are two matches
+
+    // Verify the specific location of the success message
+    expect(successMessages[0]).toBeInTheDocument(); // The global success message
+    expect(successMessages[1]).toBeInTheDocument(); // The message in the details section
+
+    // Verify additional details in the result container
+    const resultContainer = screen.getByText(/Outcome:/i).closest('div');
+    const { getByText } = within(resultContainer);
+
+    expect(screen.getByTestId('outcome')).toHaveTextContent('Outcome: white_win');
+    expect(screen.getByTestId('white-player')).toHaveTextContent('White Player: player1');
+    expect(screen.getByTestId('black-player')).toHaveTextContent('Black Player: player2');
+    expect(screen.getByTestId('status')).toHaveTextContent('Status: valid');
   });
 
   test('handles validation error gracefully', async () => {
-    mockFetch({ ok: false, data: { error: 'Invalid game ID' } });
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ error: 'Invalid game ID' }),
+      })
+    );
 
-    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
+    render(<ValidateResult />);
+
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'invalidGameId' },
     });
     fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Error: Invalid game ID/i)).toBeInTheDocument();
-    });
-  });
-
-  test('shows error when no token is present', () => {
-    renderWithAuthContext(<ValidateResult />); // No token passed
-    fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
-    expect(screen.getByText(/Please login as admin first./i)).toBeInTheDocument();
+    const errorMessage = await screen.findByText(/Error: Invalid game ID/i);
+    expect(errorMessage).toBeInTheDocument();
   });
 
   test('handles unexpected API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
+    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
 
-    mockFetch('Network error', true);
+    render(<ValidateResult />);
 
-    renderWithAuthContext(<ValidateResult />, { token: 'valid-admin-token' });
     fireEvent.change(screen.getByPlaceholderText(/Enter Lichess Game ID/i), {
       target: { value: 'gameId123' },
     });
     fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/An unexpected error occurred./i)).toBeInTheDocument();
+    const unexpectedError = await screen.findByText(/An unexpected error occurred./i);
+    expect(unexpectedError).toBeInTheDocument();
+  });
+
+  test('shows error when no token is present', () => {
+    useAuth.mockReturnValue({
+      token: null,
+      user: null,
+      login: jest.fn(),
+      logout: jest.fn(),
     });
 
-    consoleErrorSpy.mockRestore(); // Restore original console.error behavior
+    render(<ValidateResult />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Validate Result/i }));
+
+    expect(screen.getByText(/Please login as admin first./i)).toBeInTheDocument();
   });
 });
 
