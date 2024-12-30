@@ -117,7 +117,8 @@ const YourBets = () => {
                       ? bet.status.charAt(0).toUpperCase() + bet.status.slice(1)
                       : 'N/A'}
                   </td>
-                  <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                  {/* Add data-testid to the Date cell */}
+                  <td data-testid="bet-date">{new Date(bet.createdAt).toLocaleString()}</td>
                   <td>
                     {bet.gameId ? (
                       <a href={`https://lichess.org/${bet.gameId}`} target="_blank" rel="noopener noreferrer">
