@@ -1,3 +1,4 @@
+
 // cypress/integration/multiUserLichessFlows.spec.js
 
 describe('Multi-User Lichess Pairing Flow', () => {
@@ -15,11 +16,11 @@ describe('Multi-User Lichess Pairing Flow', () => {
     password: 'TestPass123!',
   };
 
-  // Admin user
+  // Admin user (fixed credentials)
   const adminUser = {
-    username: `Admin_${timestamp}`,
-    email: `Admin_${timestamp}@test.com`,
-    password: 'AdminPass123!',
+    username: Cypress.env('INITIAL_ADMIN_USERNAME'), // "testadmin"
+    email: Cypress.env('INITIAL_ADMIN_EMAIL'),       // "testadmin@example.com"
+    password: Cypress.env('INITIAL_ADMIN_PASSWORD'), // "TestAdminPass123!"
   };
 
   // Amount to bet
@@ -31,65 +32,57 @@ describe('Multi-User Lichess Pairing Flow', () => {
   };
 
   before(() => {
-    // 1) Set admin credentials in Cypress.env
-    Cypress.env('adminEmail', adminUser.email);
-    Cypress.env('adminPassword', adminUser.password);
+    // 1) Reset the database and reseed admin
+    cy.resetDatabaseAndSeedAdmin();
 
-    // 2) Register admin user
-    cy.registerAdmin(adminUser.username, adminUser.email, adminUser.password);
+    // 2) Log in as admin after reset
+    cy.loginAsAdmin().then(() => {
+      cy.log('Admin logged in successfully.');
+    });
 
-    // 3) Log in as admin
-    cy.loginAsAdmin();
-
-    // 4) Reset the database
-    cy.resetDatabase();
-
-    // 5) Re-register admin user after reset
-    cy.registerAdmin(adminUser.username, adminUser.email, adminUser.password);
-
-    // 6) Re-login as admin after reset
-    cy.loginAsAdmin();
-
-    // 7) Register user A & user B via UI
+    // 3) Register user A & user B via UI
     cy.registerUser(userA.username, userA.email, userA.password);
     cy.registerUser(userB.username, userB.email, userB.password);
   });
 
   context('User A - Registration, Login, Connect Lichess', () => {
     it('Logs in User A and connects to Lichess', () => {
-      // 8) Log in User A
+      // 1) Log in User A
       cy.login(userA.email, userA.password);
       cy.visit('/dashboard');
       cy.contains('Dashboard').should('be.visible');
 
-      // 9) Mock necessary Lichess endpoints as disconnected
+      // 2) Mock necessary Lichess endpoints as disconnected
       mockLichessFlow(false);
 
-      // 10) Visit profile to trigger GET /lichess/status
+      // 3) Mock window.open to prevent actual OAuth redirect
+      cy.mockWindowOpen();
+
+      // 4) Visit profile to trigger GET /lichess/status
       cy.visit('/profile');
 
-      // 11) Wait for 'GET /lichess/status' to be called with connected: false
+      // 5) Wait for 'GET /lichess/status' to be called with connected: false
       cy.wait('@mockLichessStatus').its('response.statusCode').should('eq', 200);
 
-      // 12) Ensure 'Connect Lichess' button is visible
+      // 6) Ensure 'Connect Lichess' button is visible
       cy.get('button').contains('Connect Lichess').should('be.visible').click();
 
-      // 13) Wait for the mocked Lichess callback
+      // 7) Wait for the mocked Lichess callback
       cy.wait('@mockLichessCallback');
 
-      // 14) Verify that window.open was called (OAuth redirect)
+      // 8) Verify that window.open was called (OAuth redirect)
       cy.get('@windowOpen').should('be.called');
 
-      // 15) After connecting, mock Lichess status as connected
+      // 9) After connecting, mock Lichess status as connected
       mockLichessFlow(true);
 
-      // 16) Visit profile again to trigger GET /lichess/status
+      // 10) Visit profile again to trigger GET /lichess/status
       cy.visit('/profile');
 
-      // 17) Wait for 'GET /lichess/status' to be called with connected: true
+      // 11) Wait for 'GET /lichess/status' to be called with connected: true
       cy.wait('@mockLichessStatus').its('response.body.connected').should('eq', true);
 
-      // 18) Verify Lichess connected
+      // 12) Verify Lichess connected
       cy.contains('Lichess Connected').should('be.visible');
       cy.contains('testLichessUser').should('be.visible');
     });
@@ -97,42 +90,45 @@ describe('Multi-User Lichess Pairing Flow', () => {
 
   context('User B - Registration, Login, Connect Lichess', () => {
     it('Logs in User B and connects to Lichess', () => {
-      // 19) Log out from User A
+      // 1) Log out from User A
       cy.logout();
 
-      // 20) Log in as User B
+      // 2) Log in as User B
       cy.login(userB.email, userB.password);
       cy.visit('/dashboard');
       cy.contains('Dashboard').should('be.visible');
 
-      // 21) Mock necessary Lichess endpoints as disconnected
+      // 3) Mock necessary Lichess endpoints as disconnected
       mockLichessFlow(false);
 
-      // 22) Visit profile to trigger GET /lichess/status
+      // 4) Mock window.open to prevent actual OAuth redirect
+      cy.mockWindowOpen();
+
+      // 5) Visit profile to trigger GET /lichess/status
       cy.visit('/profile');
 
-      // 23) Wait for 'GET /lichess/status' to be called with connected: false
+      // 6) Wait for 'GET /lichess/status' to be called with connected: false
       cy.wait('@mockLichessStatus').its('response.statusCode').should('eq', 200);
 
-      // 24) Ensure 'Connect Lichess' button is visible
+      // 7) Ensure 'Connect Lichess' button is visible
       cy.get('button').contains('Connect Lichess').should('be.visible').click();
 
-      // 25) Wait for the mocked Lichess callback
+      // 8) Wait for the mocked Lichess callback
       cy.wait('@mockLichessCallback');
 
-      // 26) Verify that window.open was called (OAuth redirect)
+      // 9) Verify that window.open was called (OAuth redirect)
       cy.get('@windowOpen').should('be.called');
 
-      // 27) After connecting, mock Lichess status as connected
+      // 10) After connecting, mock Lichess status as connected
       mockLichessFlow(true);
 
-      // 28) Visit profile again to trigger GET /lichess/status
+      // 11) Visit profile again to trigger GET /lichess/status
       cy.visit('/profile');
 
-      // 29) Wait for 'GET /lichess/status' to be called with connected: true
+      // 12) Wait for 'GET /lichess/status' to be called with connected: true
       cy.wait('@mockLichessStatus').its('response.body.connected').should('eq', true);
 
-      // 30) Verify Lichess connected
+      // 13) Verify Lichess connected
       cy.contains('Lichess Connected').should('be.visible');
       cy.contains('testLichessUser').should('be.visible');
     });
@@ -140,36 +136,36 @@ describe('Multi-User Lichess Pairing Flow', () => {
 
   context('Bet Creation & Acceptance Flow', () => {
     it('User A places a bet; User B accepts it', () => {
-      // 31) Log out from User B
+      // 1) Log out from User B
       cy.logout();
 
-      // 32) Log in as User A
+      // 2) Log in as User A
       cy.login(userA.email, userA.password);
       cy.visit('/dashboard');
       cy.contains('Dashboard').should('be.visible');
 
-      // 33) Place a bet
+      // 3) Place a bet
       cy.visit('/place-bet');
       cy.get('select[name="creatorColor"]').select('White'); // or "random"
       cy.get('input[name="amount"]').type(`${betAmount}`);
       cy.get('button').contains('Place Bet').click();
 
-      // 34) Confirm bet placement
+      // 4) Confirm bet placement
       cy.contains('Bet placed successfully!').should('be.visible');
 
-      // 35) (Optional) Check updated balance on profile
+      // 5) (Optional) Check updated balance on profile
       cy.visit('/profile');
       cy.contains(`${1000 - betAmount} PTK`).should('be.visible'); // Adjust if your default is 1000
 
-      // 36) Log out from User A
+      // 6) Log out from User A
       cy.logout();
 
-      // 37) Log in as User B
+      // 7) Log in as User B
       cy.login(userB.email, userB.password);
       cy.visit('/available-bets');
       cy.contains('Available Bets').should('be.visible');
 
-      // 38) Locate the newly created bet from User A and accept it
+      // 8) Locate the newly created bet from User A and accept it
       cy.get('table').within(() => {
         cy.contains(userA.username) // Adjusted to use username instead of email
           .parent('tr')
@@ -179,29 +175,29 @@ describe('Multi-User Lichess Pairing Flow', () => {
           });
       });
 
-      // 39) Confirm acceptance
+      // 9) Confirm acceptance
       cy.contains('Successfully joined the bet!').should('be.visible');
 
-      // 40) (Optional) Check if a game link is available
+      // 10) (Optional) Check if a game link is available
       // e.g., "Game created at https://lichess.org/abcd1234"
     });
   });
 
   context('Optional: Admin Validates Game Result', () => {
     it('Admin logs in and processes the final game result', () => {
-      // 41) Log out from User B
+      // 1) Log out from User B
       cy.logout();
 
-      // 42) Log in as Admin
+      // 2) Log in as Admin
       cy.loginAsAdmin();
       cy.visit('/admin/dashboard');
       cy.contains('Admin Dashboard').should('be.visible');
 
-      // 43) Navigate to validate result page
+      // 3) Navigate to validate result page
       cy.visit('/admin/validate-result');
 
-      // 44) Mock the validate result endpoint
-      cy.intercept('POST', '/lichess/validate-result', {
+      // 4) Mock the validate result endpoint
+      cy.intercept('POST', '**/lichess/validate-result', {
         statusCode: 200,
         body: {
           gameId: 'abcd1234',
@@ -210,18 +206,19 @@ describe('Multi-User Lichess Pairing Flow', () => {
         },
       }).as('validateResult');
 
-      // 45) Validate the game result
+      // 5) Validate the game result
       cy.get('input[name="gameId"]').type('abcd1234');
       cy.get('button').contains('Validate Result').click();
 
-      // 46) Wait for the mocked validate result
+      // 6) Wait for the mocked validate result
       cy.wait('@validateResult');
 
-      // 47) Confirm validation success
+      // 7) Confirm validation success
       cy.contains('Game result processed successfully.').should('be.visible');
 
-      // 48) (Optional) Check user balances again if the winner got tokens
+      // 8) (Optional) Check user balances again if the winner got tokens
       // or check status in the DB via an admin endpoint
     });
   });
 });
+

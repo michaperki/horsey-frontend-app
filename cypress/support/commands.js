@@ -1,19 +1,9 @@
-// cypress/support/commands.js
 
-// Register a new admin user
-Cypress.Commands.add('registerAdmin', (username, email, password) => {
-  cy.request('POST', '/auth/admin/register', {
-    username,
-    email,
-    password,
-  }).then((response) => {
-    expect(response.status).to.eq(201);
-  });
-});
+// cypress/support/commands.js
 
 // Log in a regular user
 Cypress.Commands.add('login', (email, password) => {
-  cy.request('POST', '/auth/login', {
+  cy.request('POST', `${Cypress.env('backendUrl')}/auth/login`, {
     email,
     password,
   }).then((response) => {
@@ -24,12 +14,15 @@ Cypress.Commands.add('login', (email, password) => {
 
 // Log in as admin and store token in localStorage
 Cypress.Commands.add('loginAsAdmin', () => {
+  const adminEmail = Cypress.env('INITIAL_ADMIN_EMAIL');
+  const adminPassword = Cypress.env('INITIAL_ADMIN_PASSWORD');
+
   cy.request({
     method: 'POST',
-    url: '/auth/admin/login', // Ensure this is the correct endpoint
+    url: `${Cypress.env('backendUrl')}/auth/admin/login`,
     body: {
-      email: Cypress.env('adminEmail'),
-      password: Cypress.env('adminPassword'),
+      email: adminEmail,
+      password: adminPassword,
     },
     failOnStatusCode: false, // Prevent Cypress from failing the test on non-2xx status codes
   }).then((response) => {
@@ -50,24 +43,16 @@ Cypress.Commands.add('logout', () => {
   cy.visit('/login');
 });
 
-// Reset the database (requires admin privileges)
-Cypress.Commands.add('resetDatabase', () => {
-  const token = window.localStorage.getItem('token');
-  if (!token) {
-    throw new Error('No token found for resetting the database.');
-  }
-  cy.request({
-    method: 'POST',
-    url: '/reset-database',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((response) => {
-    expect(response.status).to.eq(200);
-  });
+// Reset the database and reseed admin
+Cypress.Commands.add('resetDatabaseAndSeedAdmin', () => {
+  cy.request('POST', `${Cypress.env('backendUrl')}/test/reset-and-seed-admin`)
+    .then((response) => {
+      expect(response.status).to.eq(200);
+      cy.log('Database reset and admin seeded.');
+    });
 });
 
-// Set Authorization header for all subsequent requests
+// Set Authorization header for all subsequent requests (if needed)
 Cypress.Commands.add('setAuthToken', () => {
   const token = Cypress.env('authToken');
   if (!token) {
@@ -93,6 +78,8 @@ Cypress.Commands.add('registerUser', (username, email, password) => {
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('button[type="submit"]').click();
+  cy.contains('Registration successful.')
+    .should('be.visible');
 });
 
 // Connect Lichess account (assuming a button triggers OAuth)
@@ -136,3 +123,4 @@ Cypress.Commands.add('mockLichess', (connected = false) => {
     },
   }).as('mockLichessUser');
 });
+
