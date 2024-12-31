@@ -11,7 +11,7 @@ Cypress.Commands.add('registerAdmin', (username, email, password) => {
   });
 });
 
-// Log in a user
+// Log in a regular user
 Cypress.Commands.add('login', (email, password) => {
   cy.request('POST', '/auth/login', {
     email,
@@ -26,7 +26,7 @@ Cypress.Commands.add('login', (email, password) => {
 Cypress.Commands.add('loginAsAdmin', () => {
   cy.request({
     method: 'POST',
-    url: '/auth/admin/login', // Use relative URL based on baseUrl
+    url: '/auth/admin/login', // Ensure this is the correct endpoint
     body: {
       email: Cypress.env('adminEmail'),
       password: Cypress.env('adminPassword'),
@@ -105,4 +105,34 @@ Cypress.Commands.add('mockWindowOpen', () => {
   cy.window().then((win) => {
     cy.stub(win, 'open').as('windowOpen');
   });
+});
+
+// Mock necessary Lichess endpoints
+Cypress.Commands.add('mockLichess', (connected = false) => {
+  // Mock GET /lichess/status
+  cy.intercept('GET', '**/lichess/status', {
+    statusCode: 200,
+    body: {
+      connected: connected,
+      lichessHandle: connected ? 'testLichessUser' : null,
+    },
+  }).as('mockLichessStatus');
+
+  // Mock POST /auth/lichess/callback
+  cy.intercept('POST', '**/auth/lichess/callback', {
+    statusCode: 200,
+    body: {
+      lichessHandle: 'testLichessUser',
+      connectedAt: new Date().toISOString(),
+    },
+  }).as('mockLichessCallback');
+
+  // Mock GET /lichess/user
+  cy.intercept('GET', '**/lichess/user', {
+    statusCode: 200,
+    body: {
+      lichessHandle: connected ? 'testLichessUser' : null,
+      // Add other necessary fields if required
+    },
+  }).as('mockLichessUser');
 });
