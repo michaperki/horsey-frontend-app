@@ -1,21 +1,30 @@
+// src/components/Profile.js
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserBalance, getUserBets } from '../services/api';
+import { getUserBalance, getUserBets, getUserLichessInfo } from '../services/api';
 import YourBets from './YourBets';
 import LichessInfo from './LichessInfo';
 import DisconnectLichess from './Auth/DisconnectLichess';
+import LichessConnect from './Auth/LichessConnect'; // Existing component
 
 const Profile = () => {
-  const { token } = useAuth(); // Use AuthContext
+  const { token } = useAuth(); // Access the auth token from context
   const [balance, setBalance] = useState(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [errorBalance, setErrorBalance] = useState('');
+
   const [lichessInfo, setLichessInfo] = useState(null);
   const [loadingLichess, setLoadingLichess] = useState(false);
   const [errorLichess, setErrorLichess] = useState('');
 
-  // Fetch User Balance
+  const [bets, setBets] = useState([]);
+  const [loadingBets, setLoadingBets] = useState(false);
+  const [errorBets, setErrorBets] = useState('');
+
+  /**
+   * Fetches the user's token balance.
+   */
   const fetchBalance = async () => {
     setLoadingBalance(true);
     setErrorBalance('');
@@ -33,7 +42,9 @@ const Profile = () => {
     }
   };
 
-  // Fetch Lichess Information
+  /**
+   * Fetches the user's Lichess information.
+   */
   const fetchLichessInfo = async () => {
     setLoadingLichess(true);
     setErrorLichess('');
@@ -42,43 +53,75 @@ const Profile = () => {
         throw new Error('Please log in to view your Lichess information.');
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/lichess/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Lichess account not connected.');
-        }
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch Lichess information.');
-      }
-
-      const data = await response.json();
+      const data = await getUserLichessInfo(token);
+      console.log('Received Lichess Info:', data);
       setLichessInfo(data);
     } catch (error) {
-      setErrorLichess(error.message || 'Failed to fetch Lichess information.');
+      if (error.status === 404) {
+        // User has not connected a Lichess account
+        setLichessInfo(null);
+      } else {
+        setErrorLichess(error.message || 'Failed to fetch Lichess information.');
+      }
     } finally {
       setLoadingLichess(false);
     }
   };
 
-  useEffect(() => {
-    fetchBalance();
-  }, [token]);
+  /**
+   * Fetches the user's bets.
+   */
+  const fetchBets = async () => {
+    setLoadingBets(true);
+    setErrorBets('');
+    try {
+      if (!token) {
+        throw new Error('Please log in to view your bets.');
+      }
 
+      const userBets = await getUserBets(token);
+      setBets(userBets);
+    } catch (error) {
+      setErrorBets(error.message || 'Failed to fetch bets.');
+    } finally {
+      setLoadingBets(false);
+    }
+  };
+
+  /**
+   * Effect hook to fetch data when the token changes.
+   * Resets state if the user logs out.
+   */
   useEffect(() => {
+    if (token) {
+      fetchBalance();
+      fetchLichessInfo();
+      fetchBets();
+    } else {
+      // Reset all states when there's no token (user logged out)
+      setBalance(null);
+      setErrorBalance('');
+      setLichessInfo(null);
+      setErrorLichess('');
+      setBets([]);
+      setErrorBets('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]); // Run this effect whenever the token changes
+
+  /**
+   * Handler to refresh Lichess information after connecting or disconnecting.
+   */
+  const handleLichessChange = () => {
     fetchLichessInfo();
-  }, [token]);
+  };
 
   return (
     <div style={styles.container}>
       <h2>Your Profile</h2>
 
-      {/* Display User Balance */}
-      <div style={styles.balanceSection}>
+      {/* User Balance Section */}
+      <section style={styles.section}>
         <h3>Token Balance</h3>
         {loadingBalance ? (
           <p>Loading balance...</p>
@@ -89,27 +132,41 @@ const Profile = () => {
         ) : (
           <p>No balance available.</p>
         )}
-      </div>
+      </section>
 
-      {/* Display Lichess Information */}
-      <div style={styles.lichessSection}>
+      {/* Lichess Information Section */}
+      <section style={styles.section}>
         <h3>Lichess Account</h3>
         {loadingLichess ? (
           <p>Loading Lichess information...</p>
-        ) : errorLichess ? (
+        ) : errorLichess && !lichessInfo ? (
           <p style={styles.error}>{errorLichess}</p>
         ) : lichessInfo ? (
           <>
             <LichessInfo info={lichessInfo} />
-            <DisconnectLichess />
+            <DisconnectLichess onDisconnect={handleLichessChange} />
           </>
         ) : (
-          <p>Your Lichess account is not connected.</p>
+          <>
+            <p>Your Lichess account is not connected.</p>
+            <LichessConnect /> {/* Existing Connect Component */}
+          </>
         )}
-      </div>
+      </section>
 
-      {/* Display User Bets */}
-      <YourBets />
+      {/* User Bets Section */}
+      <section style={styles.section}>
+        <h3>Your Bets</h3>
+        {loadingBets ? (
+          <p>Loading your bets...</p>
+        ) : errorBets ? (
+          <p style={styles.error}>{errorBets}</p>
+        ) : bets.length > 0 ? (
+          <YourBets bets={bets} />
+        ) : (
+          <p>You have no active bets.</p>
+        )}
+      </section>
     </div>
   );
 };
@@ -120,21 +177,19 @@ const styles = {
     padding: '20px',
     maxWidth: '800px',
     margin: 'auto',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#ffffff',
     borderRadius: '8px',
     marginTop: '50px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   },
-  balanceSection: {
+  section: {
     marginBottom: '30px',
     textAlign: 'center',
   },
   balance: {
     fontSize: '1.5em',
     fontWeight: 'bold',
-  },
-  lichessSection: {
-    marginBottom: '30px',
-    textAlign: 'center',
+    color: '#2c3e50',
   },
   error: {
     color: 'red',
@@ -142,4 +197,3 @@ const styles = {
 };
 
 export default Profile;
-

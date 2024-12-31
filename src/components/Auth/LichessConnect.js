@@ -1,5 +1,3 @@
-
-// frontend/src/components/LichessConnect.js
 // frontend/src/components/LichessConnect.js
 
 import React, { useState } from 'react';

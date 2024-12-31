@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import LichessConnect from '../components/Auth/LichessConnect';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserProfile, disconnectLichess } from '../services/api'; // Updated import
+import { getUserProfile, disconnectLichessAccount } from '../services/api'; // Updated import
 
 const Dashboard = () => {
   const { token } = useAuth();
@@ -49,7 +49,7 @@ const Dashboard = () => {
     setDisconnecting(true);
 
     try {
-      await disconnectLichess(token);
+      await disconnectLichessAccount(token);
       setLichessConnected(false);
       setLichessUsername('');
       alert('Lichess account disconnected successfully.');

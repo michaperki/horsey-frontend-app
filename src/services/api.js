@@ -161,27 +161,41 @@ export const getUserProfile = async (token) => {
 
 /**
  * Disconnects the user's Lichess account.
- * @param {string} token - JWT token for authentication.
- * @returns {Promise<void>}
+ * This would typically involve clearing Lichess-related fields in the backend.
  */
-export const disconnectLichess = async (token) => {
-  try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/lichess/auth/disconnect`, { // Update the URL if different
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: 'include',
-    });
+export const disconnectLichessAccount = async (token) => {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/lichess/disconnect`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to disconnect Lichess account');
-    }
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to disconnect Lichess account.');
+  }
 
-    // Optionally, handle successful disconnection
-  } catch (error) {
-    console.error('Error disconnecting Lichess account:', error);
+  const data = await response.json();
+  return data;
+};
+
+
+export const getUserLichessInfo = async (token) => {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/lichess/user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    const error = new Error(errorData.error || 'Failed to fetch Lichess information.');
+    error.status = response.status;
     throw error;
   }
+
+  const data = await response.json();
+  return data;
 };
