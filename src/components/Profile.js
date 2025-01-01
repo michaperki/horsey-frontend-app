@@ -97,6 +97,12 @@ const Profile = () => {
       fetchBalance();
       fetchLichessInfo();
       fetchBets();
+      
+      // Check for query parameters indicating OAuth status
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('lichess') === 'connected') {
+        fetchLichessInfo(); // Re-fetch to get updated Lichess info
+      }
     } else {
       // Reset all states when there's no token (user logged out)
       setBalance(null);
@@ -107,7 +113,7 @@ const Profile = () => {
       setErrorBets('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]); // Run this effect whenever the token changes
+  }, [token, window.location.search]); // Add window.location.search to dependencies
 
   /**
    * Handler to refresh Lichess information after connecting or disconnecting.

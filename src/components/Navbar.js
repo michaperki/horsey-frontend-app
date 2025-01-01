@@ -3,10 +3,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-  const { token, user, logout } = useAuth(); // Use AuthContext
+  const { token, user, logout } = useAuth();
   const [lichessConnected, setLichessConnected] = useState(false);
 
   useEffect(() => {
@@ -38,23 +38,22 @@ const Navbar = () => {
   }, [token]);
 
   const handleLogout = () => {
-    logout(); // Use logout from AuthContext
+    logout();
   };
 
   return (
     <nav style={styles.nav}>
       <Link to="/" style={styles.link}>Home</Link>
-      {user && user.role === 'user' && (
+      {token && user?.role === 'user' && (
         <>
           <Link to="/dashboard" style={styles.link}>Dashboard</Link>
-          <Link to="/available-bets" style={styles.link}>Available Bets</Link> {/* New Link */}
+          <Link to="/available-bets" style={styles.link}>Available Bets</Link>
           <Link to="/profile" style={styles.link}>Profile</Link>
           <Link to="/notifications" style={styles.link}>Notifications</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
 
-          {/* Lichess Connection */}
           {!lichessConnected ? (
-            <Link to="/dashboard" style={styles.link}> {/* Redirect to Dashboard where Connect button is */}
+            <Link to="/dashboard" style={styles.link}>
               Connect Lichess
             </Link>
           ) : (
@@ -64,13 +63,13 @@ const Navbar = () => {
           )}
         </>
       )}
-      {user && user.role === 'admin' && (
+      {token && user?.role === 'admin' && (
         <>
           <Link to="/admin/dashboard" style={styles.link}>Admin Dashboard</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
         </>
       )}
-      {!user && (
+      {!token && (
         <>
           <Link to="/login" style={styles.link}>User Login</Link>
           <Link to="/register" style={styles.link}>Register</Link>
@@ -106,4 +105,3 @@ const styles = {
 };
 
 export default Navbar;
-

@@ -1,4 +1,3 @@
-
 // cypress/support/commands.js
 
 // Log in a regular user
@@ -24,32 +23,30 @@ Cypress.Commands.add('loginAsAdmin', () => {
       email: adminEmail,
       password: adminPassword,
     },
-    failOnStatusCode: false, // Prevent Cypress from failing the test on non-2xx status codes
+    failOnStatusCode: false,
   }).then((response) => {
     if (response.status !== 200) {
-      // Log detailed error information
       cy.log('Admin Login Failed:', response.body);
       throw new Error(`Admin login failed with status ${response.status}: ${response.body.error}`);
     }
     const token = response.body.token;
     Cypress.env('authToken', token);
-    window.localStorage.setItem('token', token); // Store token in localStorage
+    window.localStorage.setItem('token', token);
   });
 });
 
-// Log out a user by removing token from localStorage and visiting the login page
+// Log out a user
 Cypress.Commands.add('logout', () => {
   window.localStorage.removeItem('token');
   cy.visit('/login');
 });
 
-// Reset the database and reseed admin
+// Reset DB and seed admin
 Cypress.Commands.add('resetDatabaseAndSeedAdmin', () => {
-  cy.request('POST', `${Cypress.env('backendUrl')}/test/reset-and-seed-admin`)
-    .then((response) => {
-      expect(response.status).to.eq(200);
-      cy.log('Database reset and admin seeded.');
-    });
+  cy.request('POST', `${Cypress.env('backendUrl')}/test/reset-and-seed-admin`).then((response) => {
+    expect(response.status).to.eq(200);
+    cy.log('Database reset and admin seeded.');
+  });
 });
 
 // Set Authorization header for all subsequent requests (if needed)
@@ -58,7 +55,6 @@ Cypress.Commands.add('setAuthToken', () => {
   if (!token) {
     throw new Error('Token not found in Cypress.env');
   }
-
   cy.intercept('**', (req) => {
     req.headers['authorization'] = `Bearer ${token}`;
   });
@@ -67,8 +63,7 @@ Cypress.Commands.add('setAuthToken', () => {
 // Verify user's balance on the profile page
 Cypress.Commands.add('verifyBalance', (expectedBalance) => {
   cy.visit('/profile');
-  cy.contains(`Balance: ${expectedBalance}`)
-    .should('be.visible');
+  cy.contains(`Balance: ${expectedBalance}`).should('be.visible');
 });
 
 // Register a new user via the UI
@@ -78,13 +73,7 @@ Cypress.Commands.add('registerUser', (username, email, password) => {
   cy.get('input[name="email"]').type(email);
   cy.get('input[name="password"]').type(password);
   cy.get('button[type="submit"]').click();
-  cy.contains('Registration successful.')
-    .should('be.visible');
-});
-
-// Connect Lichess account (assuming a button triggers OAuth)
-Cypress.Commands.add('connectLichess', () => {
-  cy.get('button').contains('Connect Lichess').click();
+  cy.contains('Registration successful.').should('be.visible');
 });
 
 // Mock window.open to prevent actual navigation during tests
@@ -94,33 +83,61 @@ Cypress.Commands.add('mockWindowOpen', () => {
   });
 });
 
-// Mock necessary Lichess endpoints
-Cypress.Commands.add('mockLichess', (connected = false) => {
-  // Mock GET /lichess/status
-  cy.intercept('GET', '**/lichess/status', {
-    statusCode: 200,
-    body: {
-      connected: connected,
-      lichessHandle: connected ? 'testLichessUser' : null,
-    },
+/**
+ * Mocks the Lichess endpoints based on the connection state.
+ * Uses Cypress.env('lichessConnected') to determine the response.
+ */
+Cypress.Commands.add('mockLichess', () => {
+  // Intercept GET /lichess/status
+  cy.intercept('GET', '**/lichess/status', (req) => {
+    const connected = Cypress.env('lichessConnected') || false;
+    req.reply({
+      statusCode: 200,
+      body: {
+        connected: connected,
+        lichessHandle: connected ? 'testLichessUser' : null,
+      },
+    });
   }).as('mockLichessStatus');
 
-  // Mock POST /auth/lichess/callback
-  cy.intercept('POST', '**/auth/lichess/callback', {
-    statusCode: 200,
-    body: {
-      lichessHandle: 'testLichessUser',
-      connectedAt: new Date().toISOString(),
-    },
-  }).as('mockLichessCallback');
-
-  // Mock GET /lichess/user
-  cy.intercept('GET', '**/lichess/user', {
-    statusCode: 200,
-    body: {
-      lichessHandle: connected ? 'testLichessUser' : null,
-      // Add other necessary fields if required
-    },
+  // Intercept GET /lichess/user
+  cy.intercept('GET', '**/lichess/user', (req) => {
+    const connected = Cypress.env('lichessConnected') || false;
+    req.reply({
+      statusCode: 200,
+      body: connected
+        ? {
+            username: 'testLichessUser',
+            connectedAt: '2023-01-01T12:00:00Z',
+            ratings: {
+              classical: 1500,
+              rapid: 1400,
+              blitz: 1300,
+              bullet: 1200,
+            },
+          }
+        : {
+            username: 'testAppUser',
+            connectedAt: null,
+            ratings: {},
+          },
+    });
   }).as('mockLichessUser');
+
+  // Intercept GET /auth/lichess/callback to perform a redirect
+  cy.intercept('GET', '**/auth/lichess/callback**', (req) => {
+    req.reply((res) => {
+      // Simulate redirect with query parameters indicating success
+      res.redirect(`${Cypress.env('frontendUrl')}/dashboard?lichess=connected`);
+    });
+  }).as('mockLichessCallback');
 });
 
+/**
+ * Sets the Lichess connection state and mocks the endpoints accordingly.
+ * @param {boolean} connected - Whether Lichess is connected or not.
+ */
+Cypress.Commands.add('mockLichessFlow', (connected) => {
+  Cypress.env('lichessConnected', connected);
+  cy.mockLichess();
+});
