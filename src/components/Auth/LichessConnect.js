@@ -5,7 +5,7 @@ import { initiateLichessOAuth } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LichessConnect = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading /* , setLoading */] = useState(false); // Commented out setLoading
   const [error, setError] = useState(null);
 
   const { token } = useAuth(); // Retrieve the JWT token from your Auth context or state

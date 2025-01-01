@@ -2,7 +2,7 @@
 // src/components/Auth/Register.js
 
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth if needed
+// import { useAuth } from '../../contexts/AuthContext'; // Import useAuth if needed
 
 const Register = () => {
   const [formData, setFormData] = useState({
