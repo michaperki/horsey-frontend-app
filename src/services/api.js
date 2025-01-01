@@ -50,6 +50,7 @@ export const getUserBets = async (token, params = {}) => {
     }
 
     const data = await response.json();
+    console.log("received user bets:,", data)
     return data;
   } catch (error) {
     console.error('Error fetching bet history:', error);
@@ -198,4 +199,20 @@ export const getUserLichessInfo = async (token) => {
 
   const data = await response.json();
   return data;
+};
+
+export const cancelBet = async (token, betId) => {
+  const response = await fetch(`/bets/cancel/${betId}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to cancel the bet');
+  }
+
+  return await response.json();
 };

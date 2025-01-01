@@ -1,126 +1,149 @@
-
 // src/components/AvailableBets.js
-
 import React, { useEffect, useState } from "react";
-import { acceptBet } from "../services/api"; // Import the acceptBet function
+import { acceptBet } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 const AvailableBets = () => {
+  const { token } = useAuth();
   const [bets, setBets] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [acceptingBetId, setAcceptingBetId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Optional filters
+  const [status, setStatus] = useState("pending");
+  const [minWager, setMinWager] = useState("");
+  const [maxWager, setMaxWager] = useState("");
+
+  // You can add more filters like date range, color, etc. if your backend supports them
+
   useEffect(() => {
-    const fetchAvailableBets = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Please log in to view available bets.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch("/bets/seekers", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.error || "Failed to fetch available bets.");
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-
-        // **Handle Unexpected Data Format**
-        if (!Array.isArray(data)) {
-          setError("Unexpected data format received from server.");
-          setBets([]);
-          setLoading(false);
-          return;
-        }
-
-        // **Filter Duplicate Bet IDs - Retain First Occurrence**
-        const uniqueBetsMap = new Map();
-        data.forEach((bet) => {
-          if (bet.id && !uniqueBetsMap.has(bet.id)) {
-            uniqueBetsMap.set(bet.id, bet);
-          }
-        });
-        const uniqueBets = Array.from(uniqueBetsMap.values());
-        setBets(uniqueBets);
-
-        // **Optional: Notify if duplicates were found and ignored**
-        if (data.length !== uniqueBets.length) {
-          setError("Some duplicate bets were found and have been ignored.");
-        }
-      } catch (err) {
-        setError("An unexpected error occurred.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAvailableBets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAcceptBet = async (betId) => {
-    setAcceptingBetId(betId);
+  const fetchAvailableBets = async () => {
+    if (!token) {
+      setError("Please log in to view available bets.");
+      return;
+    }
+    setLoading(true);
     setError("");
     setSuccessMessage("");
+
+    // Build query if needed
+    const params = {
+      status,       // e.g., "pending"
+      minWager,
+      maxWager,
+    };
+
+    // Remove empty
+    Object.keys(params).forEach((k) => {
+      if (!params[k]) delete params[k];
+    });
+
+    const queryString = new URLSearchParams(params).toString();
+
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Please log in to accept bets.");
-        setAcceptingBetId(null);
-        return;
+      const response = await fetch(`/bets/seekers?${queryString}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to fetch available bets.");
       }
+      const data = await response.json();
 
-      const data = await acceptBet(token, betId); // Modified to receive entire response
-      setSuccessMessage("Successfully joined the bet!");
-
-      // Optionally, remove the accepted bet from the list
-      setBets((prevBets) => prevBets.filter((bet) => bet.id !== betId));
-
-      // Open the game link in a new tab if available
-      if (data.gameLink) {
-        window.open(data.gameLink, "_blank");
+      if (!Array.isArray(data)) {
+        throw new Error("Unexpected data format from server.");
       }
+      setBets(data);
     } catch (err) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
-      setAcceptingBetId(null);
+      setLoading(false);
     }
+  };
+
+  const handleAcceptBet = async (betId) => {
+    setError("");
+    setSuccessMessage("");
+    if (!token) {
+      setError("Please log in to accept bets.");
+      return;
+    }
+
+    try {
+      const result = await acceptBet(token, betId);
+      setSuccessMessage("Successfully accepted the bet!");
+      // Optionally remove the bet from local state
+      setBets((prev) => prev.filter((b) => b.id !== betId));
+
+      // Open Lichess link in a new tab if provided
+      if (result.gameLink) {
+        window.open(result.gameLink, "_blank");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleApplyFilter = () => {
+    // Re-fetch with new parameters
+    fetchAvailableBets();
   };
 
   return (
     <div style={styles.container}>
       <h2>Available Bets</h2>
 
-      {loading && <p>Loading available bets...</p>}
+      {/* Filter Bar */}
+      <div style={styles.filterBar}>
+        <label>Status:</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="pending">Pending</option>
+          <option value="matched">Matched</option>
+          {/* Add others if the backend supports it */}
+        </select>
+
+        <label>Min Wager:</label>
+        <input
+          type="number"
+          value={minWager}
+          onChange={(e) => setMinWager(e.target.value)}
+          style={{ width: 80 }}
+        />
+
+        <label>Max Wager:</label>
+        <input
+          type="number"
+          value={maxWager}
+          onChange={(e) => setMaxWager(e.target.value)}
+          style={{ width: 80 }}
+        />
+
+        <button onClick={handleApplyFilter}>Apply Filters</button>
+      </div>
+
+      {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
 
-      {!loading && bets.length === 0 && <p>No available bets at the moment.</p>}
+      {bets.length === 0 && !loading && !error && (
+        <p>No bets available right now.</p>
+      )}
 
-      {!loading && bets.length > 0 && (
+      {bets.length > 0 && !loading && (
         <table style={styles.table}>
           <thead>
             <tr>
               <th>Bet ID</th>
               <th>Creator</th>
-              <th>Balance</th>
-              <th>Wager (PTK)</th>
-              <th>Game Type</th>
+              <th>Wager</th>
               <th>Color</th>
-              <th>Created At</th>
-              <th>Action</th>
+              <th>Created</th>
+              <th>Accept</th>
             </tr>
           </thead>
           <tbody>
@@ -128,21 +151,15 @@ const AvailableBets = () => {
               <tr key={bet.id}>
                 <td>{bet.id}</td>
                 <td>{bet.creator}</td>
-                <td>{bet.creatorBalance}</td>
                 <td>{bet.wager}</td>
-                <td>{bet.gameType}</td>
-                <td>{bet.colorPreference || "N/A"}</td> {/* Handle undefined colorPreference */}
-                <td data-testid={`created-at-${bet.id}`}>
-                  {new Date(bet.createdAt).toLocaleString()}
-                </td>
+                <td>{bet.colorPreference}</td>
+                <td>{new Date(bet.createdAt).toLocaleString()}</td>
                 <td>
                   <button
                     onClick={() => handleAcceptBet(bet.id)}
-                    disabled={acceptingBetId === bet.id}
-                    style={styles.button}
-                    data-testid={`join-bet-${bet.id}`} // Added data-testid
+                    style={styles.acceptBtn}
                   >
-                    {acceptingBetId === bet.id ? "Joining..." : "Join Bet"}
+                    Accept
                   </button>
                 </td>
               </tr>
@@ -154,30 +171,27 @@ const AvailableBets = () => {
   );
 };
 
-// Simple inline styles
 const styles = {
-  container: {
-    padding: "20px",
-    maxWidth: "1000px",
-    margin: "auto",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "8px",
-    marginTop: "50px",
+  container: { padding: 20 },
+  filterBar: {
+    marginBottom: 20,
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    marginTop: "20px",
+    marginTop: 10,
   },
-  button: {
-    padding: "5px 10px",
+  acceptBtn: {
     backgroundColor: "#28a745",
     color: "#fff",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: 4,
+    padding: "5px 8px",
     cursor: "pointer",
   },
 };
 
 export default AvailableBets;
-

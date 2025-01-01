@@ -167,7 +167,7 @@ const Profile = () => {
           <p>Loading your bets...</p>
         ) : errorBets ? (
           <p style={styles.error}>{errorBets}</p>
-        ) : bets.length > 0 ? (
+        ) : bets ? (
           <YourBets bets={bets} />
         ) : (
           <p>You have no active bets.</p>
