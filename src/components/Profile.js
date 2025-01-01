@@ -79,8 +79,8 @@ const Profile = () => {
         throw new Error('Please log in to view your bets.');
       }
 
-      const userBets = await getUserBets(token);
-      setBets(userBets);
+      const response = await getUserBets(token, { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' });
+      setBets(response.bets);
     } catch (error) {
       setErrorBets(error.message || 'Failed to fetch bets.');
     } finally {
@@ -97,7 +97,7 @@ const Profile = () => {
       fetchBalance();
       fetchLichessInfo();
       fetchBets();
-      
+
       // Check for query parameters indicating OAuth status
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('lichess') === 'connected') {
@@ -167,8 +167,8 @@ const Profile = () => {
           <p>Loading your bets...</p>
         ) : errorBets ? (
           <p style={styles.error}>{errorBets}</p>
-        ) : bets ? (
-          <YourBets bets={bets} />
+        ) : bets.length > 0 ? (
+          <YourBets />
         ) : (
           <p>You have no active bets.</p>
         )}

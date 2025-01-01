@@ -1,4 +1,3 @@
-
 // src/components/Profile.test.js
 
 import React from 'react';
@@ -7,116 +6,221 @@ import { useAuth } from '../contexts/AuthContext';
 import Profile from './Profile';
 import * as api from '../services/api';
 
-// Mock the API service
-jest.mock('../services/api');
+// Mock the AuthContext
 jest.mock('../contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
-// Mock the YourBets component to isolate Profile tests
+
+// Mock the API functions
+jest.mock('../services/api', () => ({
+  getUserBalance: jest.fn(),
+  getUserBets: jest.fn(),
+  getUserLichessInfo: jest.fn(),
+}));
+
+// Mock child components to isolate Profile tests
 jest.mock('./YourBets', () => () => <div data-testid="your-bets-mock">Your Bets Mock</div>);
+jest.mock('./LichessInfo', () => () => <div data-testid="lichess-info-mock">Lichess Info Mock</div>);
+jest.mock('./Auth/DisconnectLichess', () => () => <button>Disconnect Lichess</button>);
+jest.mock('./Auth/LichessConnect', () => () => <button>Connect Lichess</button>);
 
 describe('Profile Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Mock the useAuth hook with default logged-in state
-    useAuth.mockReturnValue({
-      token: 'mock-token',
-      user: { id: 'user1', name: 'Test User' },
-      logout: jest.fn(),
-    });
-
-    // Default mocks for API calls
-    api.getUserBalance.mockResolvedValue(500); // Default balance
-    api.getUserBets.mockResolvedValue([]); // Default bets
-    api.getUserLichessInfo.mockResolvedValue(null); // Default Lichess info
+    // Reset mocks before each test
+    useAuth.mockReset();
+    api.getUserBalance.mockReset();
+    api.getUserBets.mockReset();
+    api.getUserLichessInfo.mockReset();
   });
 
   test('renders profile information for logged-in user with balance and bets', async () => {
-    const mockBalance = 500;
-    const mockBets = [{ id: 1, name: 'Bet 1' }, { id: 2, name: 'Bet 2' }];
-    api.getUserBalance.mockResolvedValue(mockBalance);
-    api.getUserBets.mockResolvedValue(mockBets); // Mock bets
+    // Mock authenticated user
+    useAuth.mockReturnValue({
+      token: 'mock-token',
+      user: { id: 'user1', name: 'Test User' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    // Mock API responses
+    api.getUserBalance.mockResolvedValueOnce(500); // Mock balance
+    api.getUserBets.mockResolvedValueOnce({
+      bets: [
+        { id: 'bet1', name: 'Bet 1' },
+        { id: 'bet2', name: 'Bet 2' },
+      ],
+    }); // Mock bets
+    api.getUserLichessInfo.mockResolvedValueOnce({
+      username: 'testuser',
+      rating: 1500,
+    }); // Mock Lichess info
 
     render(<Profile />);
 
-    expect(screen.getByText('Your Profile')).toBeInTheDocument();
+    // Check for loading states
     expect(screen.getByText(/Loading balance.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading Lichess information.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
+    // Wait for balance to load
     await waitFor(() => {
       expect(screen.getByText(/Token Balance/i)).toBeInTheDocument();
-      expect(screen.getByText(`${mockBalance} PTK`)).toBeInTheDocument();
+      expect(screen.getByText('500 PTK')).toBeInTheDocument();
     });
 
-    // Verify that YourBets component is rendered with mock data
-    expect(screen.getByTestId('your-bets-mock')).toBeInTheDocument();
+    // Wait for Lichess info to load
+    await waitFor(() => {
+      expect(screen.getByTestId('lichess-info-mock')).toBeInTheDocument();
+      expect(screen.getByText('Disconnect Lichess')).toBeInTheDocument();
+    });
+
+    // Wait for bets to load
+    await waitFor(() => {
+      expect(screen.getByTestId('your-bets-mock')).toBeInTheDocument();
+    });
   });
 
   test('renders "No active bets" message when user has no bets', async () => {
-    const mockBalance = 300;
-    api.getUserBalance.mockResolvedValue(mockBalance);
-    api.getUserBets.mockResolvedValue([]); // No bets
+    // Mock authenticated user
+    useAuth.mockReturnValue({
+      token: 'mock-token',
+      user: { id: 'user1', name: 'Test User' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    // Mock API responses
+    api.getUserBalance.mockResolvedValueOnce(300); // Mock balance
+    api.getUserBets.mockResolvedValueOnce({ bets: [] }); // No bets
+    api.getUserLichessInfo.mockResolvedValueOnce(null); // No Lichess info
 
     render(<Profile />);
 
-    expect(screen.getByText('Your Profile')).toBeInTheDocument();
+    // Check for loading states
     expect(screen.getByText(/Loading balance.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading Lichess information.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
+    // Wait for balance to load
     await waitFor(() => {
       expect(screen.getByText(/Token Balance/i)).toBeInTheDocument();
-      expect(screen.getByText(`${mockBalance} PTK`)).toBeInTheDocument();
+      expect(screen.getByText('300 PTK')).toBeInTheDocument();
     });
 
-    // Since there are no bets, YourBets should not render
-    expect(screen.queryByTestId('your-bets-mock')).not.toBeInTheDocument();
-    expect(screen.getByText(/You have no active bets./i)).toBeInTheDocument();
+    // Wait for Lichess info to load
+    await waitFor(() => {
+      expect(screen.getByText(/Your Lichess account is not connected./i)).toBeInTheDocument();
+      expect(screen.getByText('Connect Lichess')).toBeInTheDocument();
+    });
+
+    // Wait for bets to load
+    await waitFor(() => {
+      expect(screen.getByText(/You have no active bets./i)).toBeInTheDocument();
+      expect(screen.queryByTestId('your-bets-mock')).not.toBeInTheDocument();
+    });
   });
 
   test('renders "No balance available" message when user is not logged in', async () => {
+    // Mock unauthenticated user
     useAuth.mockReturnValue({
       token: null,
       user: null,
+      login: jest.fn(),
       logout: jest.fn(),
     });
 
     render(<Profile />);
 
+    // Check for "Your Profile" heading
     expect(screen.getByText('Your Profile')).toBeInTheDocument();
 
+    // Balance section should show "No balance available."
     await waitFor(() => {
-      expect(
-        screen.getByText(/No balance available./i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No balance available./i)).toBeInTheDocument();
     });
 
-    // Since user is not logged in, "You have no active bets." should be displayed instead of the YourBets component
+    // Lichess section should prompt to connect
+    expect(screen.getByText(/Your Lichess account is not connected./i)).toBeInTheDocument();
+    expect(screen.getByText('Connect Lichess')).toBeInTheDocument();
+
+    // Bets section should show "You have no active bets."
     expect(screen.getByText(/You have no active bets./i)).toBeInTheDocument();
     expect(screen.queryByTestId('your-bets-mock')).not.toBeInTheDocument();
   });
 
   test('handles fetch balance error gracefully', async () => {
-    const mockError = 'Invalid token';
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    // Mock authenticated user
+    useAuth.mockReturnValue({
+      token: 'mock-token',
+      user: { id: 'user1', name: 'Test User' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
 
-    api.getUserBalance.mockRejectedValue(new Error(mockError));
-    api.getUserBets.mockResolvedValue([]); // Ensure bets are mocked
+    // Mock API responses
+    api.getUserBalance.mockRejectedValueOnce(new Error('Invalid token'));
+    api.getUserBets.mockResolvedValueOnce({ bets: [] }); // No bets
+    api.getUserLichessInfo.mockResolvedValueOnce(null); // No Lichess info
 
     render(<Profile />);
 
-    expect(screen.getByText('Your Profile')).toBeInTheDocument();
+    // Check for loading states
     expect(screen.getByText(/Loading balance.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading Lichess information.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
 
+    // Wait for balance error to load
     await waitFor(() => {
-      expect(screen.getByText(mockError)).toBeInTheDocument();
+      expect(screen.getByText('Invalid token')).toBeInTheDocument();
     });
 
-    // Since fetching bets is independent, ensure "You have no active bets." is displayed
+    // Lichess info should not show errors if `getUserLichessInfo` returns null
+    expect(screen.getByText(/Your Lichess account is not connected./i)).toBeInTheDocument();
+
+    // Bets section should still show "You have no active bets."
     expect(screen.getByText(/You have no active bets./i)).toBeInTheDocument();
     expect(screen.queryByTestId('your-bets-mock')).not.toBeInTheDocument();
-
-    consoleSpy.mockRestore();
   });
 
-  // Add more tests as needed, ensuring all API calls are properly mocked
-});
+  test('handles fetch Lichess info error gracefully', async () => {
+    // Mock authenticated user
+    useAuth.mockReturnValue({
+      token: 'mock-token',
+      user: { id: 'user1', name: 'Test User' },
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
 
+    // Mock API responses
+    api.getUserBalance.mockResolvedValueOnce(400); // Mock balance
+    api.getUserBets.mockResolvedValueOnce({
+      bets: [
+        { id: 'bet1', name: 'Bet 1' },
+      ],
+    }); // Mock bets
+    api.getUserLichessInfo.mockRejectedValueOnce(new Error('Failed to fetch Lichess info')); // Mock Lichess info failure
+
+    render(<Profile />);
+
+    // Check for loading states
+    expect(screen.getByText(/Loading balance.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading Lichess information.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading your bets.../i)).toBeInTheDocument();
+
+    // Wait for balance to load
+    await waitFor(() => {
+      expect(screen.getByText(/Token Balance/i)).toBeInTheDocument();
+      expect(screen.getByText('400 PTK')).toBeInTheDocument();
+    });
+
+    // Wait for Lichess info error to load
+    await waitFor(() => {
+      expect(screen.getByText('Failed to fetch Lichess info')).toBeInTheDocument();
+    });
+
+    // Wait for bets to load
+    await waitFor(() => {
+      expect(screen.getByTestId('your-bets-mock')).toBeInTheDocument();
+    });
+  });
+});

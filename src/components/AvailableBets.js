@@ -15,8 +15,6 @@ const AvailableBets = () => {
   const [minWager, setMinWager] = useState("");
   const [maxWager, setMaxWager] = useState("");
 
-  // You can add more filters like date range, color, etc. if your backend supports them
-
   useEffect(() => {
     fetchAvailableBets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -33,7 +31,7 @@ const AvailableBets = () => {
 
     // Build query if needed
     const params = {
-      status,       // e.g., "pending"
+      status, // e.g., "pending"
       minWager,
       maxWager,
     };
@@ -58,7 +56,18 @@ const AvailableBets = () => {
       if (!Array.isArray(data)) {
         throw new Error("Unexpected data format from server.");
       }
-      setBets(data);
+
+      // Filter out duplicate IDs and exclude bets without an ID
+      const uniqueBets = [];
+      const seenIds = new Set();
+      for (let bet of data) {
+        if (bet.id && !seenIds.has(bet.id)) {
+          uniqueBets.push(bet);
+          seenIds.add(bet.id);
+        }
+      }
+
+      setBets(uniqueBets);
     } catch (err) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -140,7 +149,9 @@ const AvailableBets = () => {
             <tr>
               <th>Bet ID</th>
               <th>Creator</th>
+              <th>Creator Balance</th>
               <th>Wager</th>
+              <th>Game Type</th>
               <th>Color</th>
               <th>Created</th>
               <th>Accept</th>
@@ -151,13 +162,29 @@ const AvailableBets = () => {
               <tr key={bet.id}>
                 <td>{bet.id}</td>
                 <td>{bet.creator}</td>
+                <td>{bet.creatorBalance}</td>
                 <td>{bet.wager}</td>
+                <td>{bet.gameType}</td>
                 <td>{bet.colorPreference}</td>
-                <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                <td data-testid={`created-at-${bet.id}`}>
+                  {bet.createdAt
+                    ? new Date(bet.createdAt).toLocaleString('en-US', {
+                        // Specify locale and options to ensure consistency
+                        timeZone: 'UTC', // Adjust if needed
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })
+                    : 'N/A'}
+                </td>
                 <td>
                   <button
                     onClick={() => handleAcceptBet(bet.id)}
                     style={styles.acceptBtn}
+                    data-testid={`accept-bet-${bet.id}`}
                   >
                     Accept
                   </button>
