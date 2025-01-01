@@ -1,5 +1,6 @@
 import globals from "globals";
 import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks"; // Import the React Hooks plugin
 import parser from "@babel/eslint-parser";
 
 /** @type {import('eslint').Linter.Config[]} */
@@ -30,9 +31,13 @@ export default [
   },
   pluginReact.configs.flat.recommended,
   {
-    rules: {
-      "react/display-name": "warn", // or "error"
+    plugins: {
+      "react-hooks": pluginReactHooks, // Add the React Hooks plugin
     },
-  }
+    rules: {
+      "react/display-name": "warn", // Warn for missing display names
+      "react-hooks/rules-of-hooks": "error", // Ensure hooks are used correctly
+      "react-hooks/exhaustive-deps": "warn", // Warn for missing dependencies in hooks
+    },
+  },
 ];
-
