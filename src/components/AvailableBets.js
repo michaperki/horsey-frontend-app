@@ -37,7 +37,29 @@ const AvailableBets = () => {
         }
 
         const data = await response.json();
-        setBets(data);
+
+        // **Handle Unexpected Data Format**
+        if (!Array.isArray(data)) {
+          setError("Unexpected data format received from server.");
+          setBets([]);
+          setLoading(false);
+          return;
+        }
+
+        // **Filter Duplicate Bet IDs - Retain First Occurrence**
+        const uniqueBetsMap = new Map();
+        data.forEach((bet) => {
+          if (bet.id && !uniqueBetsMap.has(bet.id)) {
+            uniqueBetsMap.set(bet.id, bet);
+          }
+        });
+        const uniqueBets = Array.from(uniqueBetsMap.values());
+        setBets(uniqueBets);
+
+        // **Optional: Notify if duplicates were found and ignored**
+        if (data.length !== uniqueBets.length) {
+          setError("Some duplicate bets were found and have been ignored.");
+        }
       } catch (err) {
         setError("An unexpected error occurred.");
       } finally {
@@ -109,13 +131,16 @@ const AvailableBets = () => {
                 <td>{bet.creatorBalance}</td>
                 <td>{bet.wager}</td>
                 <td>{bet.gameType}</td>
-                <td>{bet.colorPreference}</td>
-                <td>{new Date(bet.createdAt).toLocaleString()}</td>
+                <td>{bet.colorPreference || "N/A"}</td> {/* Handle undefined colorPreference */}
+                <td data-testid={`created-at-${bet.id}`}>
+                  {new Date(bet.createdAt).toLocaleString()}
+                </td>
                 <td>
                   <button
                     onClick={() => handleAcceptBet(bet.id)}
                     disabled={acceptingBetId === bet.id}
                     style={styles.button}
+                    data-testid={`join-bet-${bet.id}`} // Added data-testid
                   >
                     {acceptingBetId === bet.id ? "Joining..." : "Join Bet"}
                   </button>
@@ -155,3 +180,4 @@ const styles = {
 };
 
 export default AvailableBets;
+

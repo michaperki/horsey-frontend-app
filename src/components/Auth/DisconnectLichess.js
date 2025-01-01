@@ -6,11 +6,21 @@ import { disconnectLichessAccount } from '../../services/api'; // Implement this
 import { useAuth } from '../../contexts/AuthContext';
 
 const DisconnectLichess = ({ onDisconnect }) => {
-  const { token } = useAuth();
+  const { token } = useAuth() || {}; // Provide a default empty object
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
 
   const handleDisconnect = async () => {
+    if (!token) {
+      setError('Please log in to disconnect your Lichess account.');
+      return;
+    }
+
+    const confirmDisconnect = window.confirm('Are you sure you want to disconnect your Lichess account?');
+    if (!confirmDisconnect) {
+      return;
+    }
+
     setLoading(true);
     setError('');
     try {

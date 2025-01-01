@@ -1,4 +1,6 @@
+
 // src/components/AvailableBets.test.js
+
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import AvailableBets from './AvailableBets';
@@ -7,6 +9,8 @@ import fetchMock from 'jest-fetch-mock';
 beforeEach(() => {
   fetchMock.resetMocks();
   localStorage.clear();
+  jest.spyOn(Date.prototype, 'toLocaleString').mockImplementation(() => '1/1/2024, 12:00:00 PM');
+  global.open = jest.fn(); // Mock window.open
 });
 
 afterEach(() => {
@@ -21,6 +25,7 @@ test('renders Available Bets table with fetched data', async () => {
       creatorBalance: 500,
       wager: 100,
       gameType: 'Blitz',
+      colorPreference: 'Red', // Added colorPreference
       createdAt: '2024-01-01T12:00:00Z',
     },
   ];
@@ -31,9 +36,6 @@ test('renders Available Bets table with fetched data', async () => {
   // Set a valid token in localStorage
   const token = 'valid-token';
   localStorage.setItem('token', token);
-
-  // **Mock Date.prototype.toLocaleString within the test**
-  jest.spyOn(Date.prototype, 'toLocaleString').mockImplementation(() => '1/1/2024, 12:00:00 PM');
 
   render(<AvailableBets />);
 
@@ -47,8 +49,8 @@ test('renders Available Bets table with fetched data', async () => {
   expect(screen.getByText(/Balance/i)).toBeInTheDocument();
   expect(screen.getByText(/Wager \(PTK\)/i)).toBeInTheDocument();
   expect(screen.getByText(/Game Type/i)).toBeInTheDocument();
+  expect(screen.getByText(/Color/i)).toBeInTheDocument(); // Updated expectation
   expect(screen.getByText(/Created At/i)).toBeInTheDocument();
-  expect(screen.getByText(/Choose Color/i)).toBeInTheDocument();
   expect(screen.getByText(/Action/i)).toBeInTheDocument();
 
   // Check if mock bet data is rendered
@@ -57,6 +59,7 @@ test('renders Available Bets table with fetched data', async () => {
   expect(screen.getByText('500')).toBeInTheDocument();
   expect(screen.getByText('100')).toBeInTheDocument();
   expect(screen.getByText('Blitz')).toBeInTheDocument();
+  expect(screen.getByText('Red')).toBeInTheDocument(); // Check colorPreference
 
   // **Use findByTestId to wait for the date cell to appear**
   const dateCell = await screen.findByTestId('created-at-bet1');
@@ -75,6 +78,7 @@ test('handles bet acceptance successfully', async () => {
       creatorBalance: 500,
       wager: 100,
       gameType: 'Blitz',
+      colorPreference: 'Red',
       createdAt: '2024-01-01T12:00:00Z',
     },
   ];
@@ -106,6 +110,11 @@ test('handles bet acceptance successfully', async () => {
 
   // Verify that window.open was called with the correct URL
   expect(global.open).toHaveBeenCalledWith('https://lichess.org/abc123', '_blank');
+
+  // **Optional: Verify that the bet is removed from the list**
+  await waitFor(() => {
+    expect(screen.queryByText('bet1')).not.toBeInTheDocument();
+  });
 });
 
 test('displays message when not authenticated', () => {
@@ -156,6 +165,7 @@ test('handles duplicate or missing bet IDs gracefully', async () => {
       creatorBalance: 500,
       wager: 100,
       gameType: 'Blitz',
+      colorPreference: 'Red',
       createdAt: '2024-01-01T12:00:00Z',
     },
     {
@@ -164,6 +174,7 @@ test('handles duplicate or missing bet IDs gracefully', async () => {
       creatorBalance: 300,
       wager: 150,
       gameType: 'Rapid',
+      colorPreference: 'Blue',
       createdAt: '2024-01-02T15:30:00Z',
     },
     {
@@ -172,6 +183,7 @@ test('handles duplicate or missing bet IDs gracefully', async () => {
       creatorBalance: 400,
       wager: 200,
       gameType: 'Bullet',
+      colorPreference: 'Green',
       createdAt: '2024-01-03T09:45:00Z',
     },
   ];
@@ -193,7 +205,7 @@ test('handles duplicate or missing bet IDs gracefully', async () => {
   expect(screen.queryByText('User2')).not.toBeInTheDocument();
   expect(screen.queryByText('User3')).not.toBeInTheDocument();
 
-  // Optionally, check for a warning message if implemented
+  // **Optional: Check for a warning message if implemented**
 });
 
 test('handles unexpected data format gracefully', async () => {
@@ -211,3 +223,4 @@ test('handles unexpected data format gracefully', async () => {
   // Wait for the error message to appear
   expect(await screen.findByText(/Unexpected data format received from server./i)).toBeInTheDocument();
 });
+

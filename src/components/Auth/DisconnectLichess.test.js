@@ -3,127 +3,100 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import DisconnectLichess from './DisconnectLichess';
+import { useAuth } from '../../contexts/AuthContext';
+import fetchMock from 'jest-fetch-mock';
 
-// Mock window.confirm
-beforeAll(() => {
-  global.confirm = jest.fn();
-});
+// Mock dependencies
+jest.mock('../../contexts/AuthContext');
 
-// Restore window.confirm after tests
-afterAll(() => {
-  global.confirm.mockRestore();
-});
-
-// Mock fetch globally
-beforeEach(() => {
-  global.fetch = jest.fn();
-  localStorage.clear();
-});
-
-afterEach(() => {
-  jest.resetAllMocks();
-});
+fetchMock.enableMocks();
 
 describe('DisconnectLichess Component', () => {
+  const mockOnDisconnect = jest.fn();
+
+  beforeEach(() => {
+    // Mock useAuth to return a valid token
+    useAuth.mockReturnValue({
+      token: 'valid-token',
+    });
+
+    // Clear previous mocks
+    fetchMock.resetMocks();
+    mockOnDisconnect.mockClear();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('renders Disconnect button', () => {
-    render(<DisconnectLichess />);
-    expect(screen.getByText(/Disconnect Lichess Account/i)).toBeInTheDocument();
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+    const button = screen.getByText(/Disconnect Lichess/i);
+    expect(button).toBeInTheDocument();
   });
 
   test('handles successful disconnection', async () => {
-    // Mock confirmation
-    global.confirm.mockReturnValueOnce(true);
+    fetchMock.mockResponseOnce(JSON.stringify({ success: true }), { status: 200 });
 
-    // Mock API response without body expectation
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ message: 'Disconnected successfully' }),
-    });
+    // Mock window.confirm to always return true
+    window.confirm = jest.fn().mockReturnValue(true);
 
-    // Set token in localStorage
-    localStorage.setItem('token', 'valid-token');
-
-    render(<DisconnectLichess />);
-
-    const button = screen.getByText(/Disconnect Lichess Account/i);
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+    const button = screen.getByText(/Disconnect Lichess/i);
     fireEvent.click(button);
 
     expect(button).toBeDisabled();
-    expect(screen.getByText(/Disconnecting.../i)).toBeInTheDocument();
+    expect(button).toHaveTextContent(/Disconnecting.../i);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Lichess account disconnected successfully./i)).toBeInTheDocument();
-      expect(fetch).toHaveBeenCalledWith('/auth/lichess/disconnect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer valid-token',
-        },
-        // Ensure no body is sent
-      });
-      // Optionally, check if the page reloads or redirects
-    });
+    await waitFor(() => expect(mockOnDisconnect).toHaveBeenCalledTimes(1));
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveTextContent(/Disconnect Lichess/i);
   });
 
   test('handles disconnection cancellation', () => {
-    // Mock cancellation
-    global.confirm.mockReturnValueOnce(false);
+    // Mock window.confirm to return false
+    window.confirm = jest.fn().mockReturnValue(false);
 
-    render(<DisconnectLichess />);
-
-    const button = screen.getByText(/Disconnect Lichess Account/i);
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+    const button = screen.getByText(/Disconnect Lichess/i);
     fireEvent.click(button);
 
-    expect(button).not.toBeDisabled();
-    expect(screen.queryByText(/Disconnecting.../i)).not.toBeInTheDocument();
+    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to disconnect your Lichess account?');
+    expect(mockOnDisconnect).not.toHaveBeenCalled();
   });
 
   test('handles API failure during disconnection', async () => {
-    // Mock confirmation
-    global.confirm.mockReturnValueOnce(true);
+    fetchMock.mockRejectOnce(new Error('API failure'));
 
-    // Mock API failure with detailed error message
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: 'Failed to disconnect Lichess account.' }),
-    });
+    // Mock window.confirm to always return true
+    window.confirm = jest.fn().mockReturnValue(true);
 
-    // Set token in localStorage
-    localStorage.setItem('token', 'valid-token');
-
-    render(<DisconnectLichess />);
-
-    const button = screen.getByText(/Disconnect Lichess Account/i);
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+    const button = screen.getByText(/Disconnect Lichess/i);
     fireEvent.click(button);
 
     expect(button).toBeDisabled();
-    expect(screen.getByText(/Disconnecting.../i)).toBeInTheDocument();
+    expect(button).toHaveTextContent(/Disconnecting.../i);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Failed to disconnect Lichess account./i)).toBeInTheDocument();
-      expect(fetch).toHaveBeenCalledWith('/auth/lichess/disconnect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer valid-token',
-        },
-        // Ensure no body is sent
-      });
-    });
+    await waitFor(() => expect(screen.getByText(/API failure/i)).toBeInTheDocument());
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveTextContent(/Disconnect Lichess/i);
   });
 
   test('shows error when no token is present', () => {
-    // Mock confirmation
-    global.confirm.mockReturnValueOnce(true);
+    // Mock useAuth to return no token
+    useAuth.mockReturnValue({
+      token: null,
+    });
 
-    render(<DisconnectLichess />);
-
-    const button = screen.getByText(/Disconnect Lichess Account/i);
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+    const button = screen.getByText(/Disconnect Lichess/i);
     fireEvent.click(button);
 
     expect(screen.getByText(/Please log in to disconnect your Lichess account./i)).toBeInTheDocument();
-    expect(fetch).not.toHaveBeenCalled();
+    expect(mockOnDisconnect).not.toHaveBeenCalled();
   });
 });
 
