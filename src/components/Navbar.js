@@ -48,12 +48,14 @@ const Navbar = () => {
         <>
           <Link to="/dashboard" style={styles.link}>Dashboard</Link>
           <Link to="/available-bets" style={styles.link}>Available Bets</Link>
+          <Link to="/place-bet" style={styles.link}>Place Bet</Link>
+          <Link to="/my-bets" style={styles.link}>My Bets</Link>
           <Link to="/profile" style={styles.link}>Profile</Link>
           <Link to="/notifications" style={styles.link}>Notifications</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
 
           {!lichessConnected ? (
-            <Link to="/dashboard" style={styles.link}>
+            <Link to="/connect-lichess" style={styles.link}>
               Connect Lichess
             </Link>
           ) : (
@@ -87,11 +89,13 @@ const styles = {
     alignItems: "center",
     padding: "10px",
     backgroundColor: "#343a40",
+    flexWrap: "wrap", // Ensures responsiveness
   },
   link: {
     color: "#fff",
     textDecoration: "none",
     padding: "0 10px",
+    margin: "5px 0", // Adds spacing for smaller screens
   },
   button: {
     backgroundColor: "#dc3545",
@@ -101,7 +105,9 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer",
     fontSize: "16px",
+    margin: "5px 0", // Adds spacing for consistency
   },
 };
 
 export default Navbar;
+

@@ -1,5 +1,5 @@
 
-// src/App.js
+// frontend/src/App.js
 
 import React from "react";
 import { Routes, Route } from "react-router-dom";
@@ -20,11 +20,14 @@ import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
 import AvailableBets from './components/AvailableBets'; // Import the new component
 import LichessCallback from './components/Auth/LichessCallback'; // Import the new component
+import { SocketProvider } from './contexts/SocketContext'; // Import SocketProvider
+import NotificationsModal from './components/NotificationsModal'; // Import NotificationsModal
 
 function App() {
   return (
-    <>
+    <SocketProvider>
       <Navbar />
+      <NotificationsModal /> {/* Include the modal here */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
@@ -112,7 +115,7 @@ function App() {
           }
         />
       </Routes>
-    </>
+    </SocketProvider>
   );
 }
 

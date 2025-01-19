@@ -85,6 +85,7 @@ const AvailableBets = () => {
 
     try {
       const result = await acceptBet(token, betId);
+      console.log("Accept Bet Result:", result);
       setSuccessMessage("Successfully accepted the bet!");
       // Optionally remove the bet from local state
       setBets((prev) => prev.filter((b) => b.id !== betId));

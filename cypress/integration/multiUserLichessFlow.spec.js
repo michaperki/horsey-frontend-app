@@ -173,7 +173,7 @@ describe('Multi-User Lichess Pairing Flow', () => {
         cy.contains(userA.username)
           .parent('tr')
           .within(() => {
-            cy.get('button').contains('Join Bet').click();
+            cy.get('button').contains('Accept').click();
           });
       });
 
