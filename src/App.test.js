@@ -3,21 +3,19 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext"; // Adjust the import to your actual AuthProvider location
+import { AuthProvider } from "./contexts/AuthContext"; // Adjust import if necessary
 import App from "./App";
 
 const renderWithProviders = (ui, { route = "/" } = {}) => {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <AuthProvider>
-        {ui}
-      </AuthProvider>
+      <AuthProvider>{ui}</AuthProvider>
     </MemoryRouter>
   );
 };
 
 describe("App Component", () => {
-  test("renders the Home page by default", () => {
+  test("renders the Landing page by default", () => {
     renderWithProviders(<App />, { route: "/" });
 
     expect(
@@ -33,10 +31,9 @@ describe("App Component", () => {
   });
 
   test("redirects to login when accessing protected routes without authentication", () => {
-    renderWithProviders(<App />, { route: "/dashboard" });
+    renderWithProviders(<App />, { route: "/home" }); // Updated from "/dashboard"
 
-    const heading = screen.getByRole("heading", { name: /User Login/i });
-    expect(heading).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /User Login/i })).toBeInTheDocument();
   });
 
   test("renders LichessCallback component", () => {

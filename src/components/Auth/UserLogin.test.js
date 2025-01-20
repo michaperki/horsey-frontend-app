@@ -100,8 +100,8 @@ describe('UserLogin Component', () => {
       // Ensure mockLogin was called with 'fake-token'
       expect(mockLogin).toHaveBeenCalledWith('fake-token');
 
-      // Ensure navigation to '/dashboard' was called
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+      // Ensure navigation to '/home' was called
+      expect(mockNavigate).toHaveBeenCalledWith('/home');
 
       // Check if localStorage.setItem was called with correct arguments
       expect(setItemSpy).toHaveBeenCalledWith('token', 'fake-token');

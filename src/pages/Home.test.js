@@ -1,48 +1,38 @@
 // src/pages/Home.test.js
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Home from './Home';
-import { MemoryRouter } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 
-// Mock the useNavigate hook from react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import Home from './Home';
+import * as AuthContextModule from '../contexts/AuthContext'; // Import entire module
+import * as api from '../services/api';
+
+// Mock the API functions
+jest.mock('../services/api', () => ({
+  initiateLichessOAuth: jest.fn(),
+  getUserProfile: jest.fn(),
+  disconnectLichess: jest.fn(),
 }));
 
-// Mock jwt-decode
-jest.mock('jwt-decode');
+// Mock the useAuth hook
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
 
 describe('Home Component', () => {
-  const mockNavigate = jest.fn();
+  const mockedUseAuth = AuthContextModule.useAuth;
 
   beforeEach(() => {
-    // Clear all mocks before each test
-    jest.clearAllMocks();
-    // Mock useNavigate to return the mockNavigate function
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
-    // Clear localStorage
-    localStorage.clear();
+    // Clear all instances and calls to constructor and all methods:
+    api.initiateLichessOAuth.mockClear();
+    api.getUserProfile.mockClear();
+    api.disconnectLichess.mockClear();
+    mockedUseAuth.mockClear();
   });
 
-  test('renders welcome message when no token is present', () => {
-    render(
-      <MemoryRouter>
-        <Home />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText('Welcome to Chess Betting Platform')).toBeInTheDocument();
-    expect(screen.getByText('Please sign up or log in to continue.')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  test('navigates to /admin/dashboard when token has admin role', () => {
-    const adminToken = 'admin-token';
-    const decodedAdminToken = { role: 'admin' };
-    localStorage.setItem('token', adminToken);
-    jwtDecode.mockReturnValue(decodedAdminToken);
+  test('renders LichessConnect button when not connected', async () => {
+    mockedUseAuth.mockReturnValue({ token: 'fake-token' });
+    api.getUserProfile.mockResolvedValue({ lichessUsername: null });
 
     render(
       <MemoryRouter>
@@ -50,15 +40,17 @@ describe('Home Component', () => {
       </MemoryRouter>
     );
 
-    expect(jwtDecode).toHaveBeenCalledWith(adminToken);
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
+    // Wait for loading to finish
+    expect(await screen.findByText(/Connect Your Lichess Account/i)).toBeInTheDocument();
   });
 
-  test('navigates to /dashboard when token has user role', () => {
-    const userToken = 'user-token';
-    const decodedUserToken = { role: 'user' };
-    localStorage.setItem('token', userToken);
-    jwtDecode.mockReturnValue(decodedUserToken);
+  test('redirects to /auth/lichess when Connect button is clicked', async () => {
+    mockedUseAuth.mockReturnValue({ token: 'fake-token' });
+    api.getUserProfile.mockResolvedValue({ lichessUsername: null });
+
+    // Mock window.location.href
+    delete window.location;
+    window.location = { href: '' };
 
     render(
       <MemoryRouter>
@@ -66,40 +58,10 @@ describe('Home Component', () => {
       </MemoryRouter>
     );
 
-    expect(jwtDecode).toHaveBeenCalledWith(userToken);
-    expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
-  });
+    // Wait for loading to finish
+    const button = await screen.findByText(/Connect Your Lichess Account/i);
+    fireEvent.click(button);
 
-  test('handles invalid token gracefully', () => {
-    const invalidToken = 'invalid-token';
-    localStorage.setItem('token', invalidToken);
-    jwtDecode.mockImplementation(() => {
-      throw new Error('Invalid token');
-    });
-
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    render(
-      <MemoryRouter>
-        <Home />
-      </MemoryRouter>
-    );
-
-    expect(jwtDecode).toHaveBeenCalledWith(invalidToken);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid token:', expect.any(Error));
-    expect(localStorage.getItem('token')).toBeNull();
-    expect(mockNavigate).not.toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
-  });
-
-  test('does not navigate when no token is present', () => {
-    render(
-      <MemoryRouter>
-        <Home />
-      </MemoryRouter>
-    );
-
-    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(api.initiateLichessOAuth).toHaveBeenCalledWith('fake-token');
   });
 });

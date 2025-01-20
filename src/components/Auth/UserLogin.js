@@ -31,7 +31,7 @@ const UserLogin = () => {
         if (data.token) {
           login(data.token); // Use login from AuthContext
           setMessage('Login successful.');
-          navigate('/dashboard'); // Redirect to user dashboard
+          navigate('/home'); // Redirect to user dashboard
         } else {
           setMessage(data.error || 'Login failed.');
         }

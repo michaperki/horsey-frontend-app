@@ -1,4 +1,3 @@
-// src/components/Navbar.test.js
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -12,6 +11,21 @@ jest.mock('../contexts/AuthContext', () => ({
 }));
 
 describe('Navbar', () => {
+  beforeEach(() => {
+    // Mock global fetch for Lichess connection status
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ connected: false }),
+      })
+    );
+  });
+
+  afterEach(() => {
+    // Restore global fetch
+    global.fetch.mockRestore();
+  });
+
   it('renders the basic links for unauthenticated users', () => {
     useAuth.mockReturnValue({ token: null, user: null, logout: jest.fn() });
 
@@ -21,13 +35,18 @@ describe('Navbar', () => {
       </Router>
     );
 
-    expect(screen.getByText(/home/i)).toBeInTheDocument();
-    expect(screen.getByText(/user login/i)).toBeInTheDocument();
-    expect(screen.getByText(/register/i)).toBeInTheDocument();
-    expect(screen.getByText(/admin login/i)).toBeInTheDocument();
+    // Check for unauthenticated links
+    expect(screen.getByText(/Logo/i)).toBeInTheDocument();
+    expect(screen.getByText(/User Login/i)).toBeInTheDocument();
+    expect(screen.getByText(/Register/i)).toBeInTheDocument();
+    expect(screen.getByText(/Admin Login/i)).toBeInTheDocument();
+
+    // Ensure "Home" and "Lobby" are not present
+    expect(screen.queryByText(/Home/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lobby/i)).not.toBeInTheDocument();
   });
 
-  it('renders user links when a user is logged in', () => {
+  it('renders user links when a user is logged in', async () => {
     useAuth.mockReturnValue({
       token: 'mockToken',
       user: { role: 'user' },
@@ -40,11 +59,15 @@ describe('Navbar', () => {
       </Router>
     );
 
-    expect(screen.getByText(/home/i)).toBeInTheDocument();
-    expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/available bets/i)).toBeInTheDocument();
-    expect(screen.getByText(/profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/logout/i)).toBeInTheDocument();
+    // Check for authenticated user links
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lobby/i)).toBeInTheDocument();
+    expect(screen.getByText(/Profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/Notifications/i)).toBeInTheDocument();
+    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+
+    // Check for Lichess connection status
+    expect(await screen.findByText(/Connect Lichess/i)).toBeInTheDocument();
   });
 
   it('renders admin links when an admin is logged in', () => {
@@ -60,8 +83,13 @@ describe('Navbar', () => {
       </Router>
     );
 
-    expect(screen.getByText(/admin dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/logout/i)).toBeInTheDocument();
+    // Check for admin links
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+
+    // Ensure user-specific links are not present
+    expect(screen.queryByText(/Home/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lobby/i)).not.toBeInTheDocument();
   });
 
   it('calls logout when the logout button is clicked', () => {
@@ -78,14 +106,14 @@ describe('Navbar', () => {
       </Router>
     );
 
-    const logoutButton = screen.getByText(/logout/i);
+    const logoutButton = screen.getByText(/Logout/i);
     fireEvent.click(logoutButton);
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
   it('renders the Lichess connection status correctly', async () => {
-    global.fetch = jest.fn().mockImplementation(() =>
+    global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ connected: true }),
@@ -104,8 +132,8 @@ describe('Navbar', () => {
       </Router>
     );
 
-    expect(await screen.findByText(/lichess connected/i)).toBeInTheDocument();
-
-    global.fetch.mockRestore();
+    // Check for "Lichess Connected"
+    expect(await screen.findByText(/Lichess Connected/i)).toBeInTheDocument();
   });
 });
+

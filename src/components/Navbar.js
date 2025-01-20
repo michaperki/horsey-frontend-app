@@ -44,12 +44,11 @@ const Navbar = () => {
 
   return (
     <nav style={styles.nav}>
-      <Link to="/" style={styles.link}>Home</Link>
+      {/* Navigation for Authenticated Users */}
       {token && user?.role === 'user' && (
         <>
-          <Link to="/dashboard" style={styles.link}>Dashboard</Link>
-          <Link to="/available-bets" style={styles.link}>Available Bets</Link>
-          <Link to="/place-bet" style={styles.link}>Place Bet</Link>
+          <Link to="/home" style={styles.link}>Home</Link>
+          <Link to="/lobby" style={styles.link}>Lobby</Link>
           <Link to="/profile" style={styles.link}>Profile</Link>
           <Link to="/notifications" style={styles.link}>Notifications</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
@@ -65,14 +64,18 @@ const Navbar = () => {
           )}
         </>
       )}
+
       {token && user?.role === 'admin' && (
         <>
           <Link to="/admin/dashboard" style={styles.link}>Admin Dashboard</Link>
           <button onClick={handleLogout} style={styles.button}>Logout</button>
         </>
       )}
+
+      {/* Navigation for Unauthenticated Users */}
       {!token && (
         <>
+          <Link to="/" style={styles.link}>Logo</Link> {/* Moved inside unauthenticated block */}
           <Link to="/login" style={styles.link}>User Login</Link>
           <Link to="/register" style={styles.link}>Register</Link>
           <Link to="/admin/login" style={styles.link}>Admin Login</Link>

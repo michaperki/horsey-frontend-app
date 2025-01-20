@@ -1,9 +1,8 @@
 
-// frontend/src/App.js
-
+// src/App.js
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import Landing from "./pages/Landing"; // Updated import
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
 import Transfer from "./components/Admin/Transfer";
@@ -12,16 +11,17 @@ import PlaceBet from "./components/PlaceBet";
 import Register from './components/Auth/Register';
 import UserLogin from './components/Auth/UserLogin';
 import AdminLogin from './components/Auth/AdminLogin';
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home'; // Updated import
 import AdminDashboard from './pages/AdminDashboard';
+import Lobby from './pages/Lobby'; // New import
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
-import AvailableBets from './components/AvailableBets'; // Import the new component
-import LichessCallback from './components/Auth/LichessCallback'; // Import the new component
-import { SocketProvider } from './contexts/SocketContext'; // Import SocketProvider
-import NotificationsModal from './components/NotificationsModal'; // Import NotificationsModal
+import AvailableBets from './components/AvailableBets'; // May no longer be needed directly
+import LichessCallback from './components/Auth/LichessCallback';
+import { SocketProvider } from './contexts/SocketContext';
+import NotificationsModal from './components/NotificationsModal';
 
 function App() {
   return (
@@ -29,24 +29,24 @@ function App() {
       <Navbar />
       <NotificationsModal /> {/* Include the modal here */}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Landing />} /> {/* Updated route */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/auth/lichess/callback" element={<LichessCallback />} /> {/* New Route */}
         <Route
-          path="/dashboard"
+          path="/home" // Updated route path
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Home />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/available-bets"
+          path="/lobby" // New Lobby route
           element={
             <ProtectedRoute>
-              <AvailableBets />
+              <Lobby />
             </ProtectedRoute>
           }
         />
