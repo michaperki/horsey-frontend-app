@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import LichessConnect from '../components/Auth/LichessConnect';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile, disconnectLichessAccount } from '../services/api'; // Updated import
+import PlaceBet from '../components/PlaceBet';
 
 const Home = () => {
   const { token } = useAuth();
@@ -73,11 +74,12 @@ const Home = () => {
           <button onClick={handleDisconnect} style={styles.disconnectButton} disabled={disconnecting}>
             {disconnecting ? 'Disconnecting...' : 'Disconnect Lichess Account'}
           </button>
+          {/* Render PlaceBet only when Lichess is connected */}
+          <PlaceBet />
         </div>
       ) : (
         <LichessConnect />
       )}
-      {/* Rest of your dashboard components */}
     </div>
   );
 };
