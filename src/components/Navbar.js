@@ -11,7 +11,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchLichessStatus = async () => {
-      if (token) {
+      if (token && user) { // Ensure both token and user are present
         try {
           const response = await fetch('/lichess/status', {
             headers: {
@@ -35,10 +35,11 @@ const Navbar = () => {
     };
 
     fetchLichessStatus();
-  }, [token]);
+  }, [token, user]); // Added 'user' as a dependency
 
   const handleLogout = () => {
     logout();
+    console.log('User has logged out.');
   };
 
   return (
