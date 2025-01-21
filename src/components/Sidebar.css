@@ -1,0 +1,23 @@
+
+.sidebar-container {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-image {
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.sidebar-info h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.sidebar-info p {
+  font-size: 14px;
+  color: #555;
+}

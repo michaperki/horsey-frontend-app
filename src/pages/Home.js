@@ -54,7 +54,7 @@ const Home = () => {
   }
 
   return (
-    <div className="container">
+    <div className="home-container">
       <header className="header">
         <div>Total Games: {statistics.totalGames}</div>
         <div>Wins/Loss: {statistics.wins}/{statistics.losses}</div>
@@ -71,19 +71,7 @@ const Home = () => {
       </header>
 
       <div className="content">
-        <aside className="sidebar">
-          <div className="card">
-            <h2>Play 1v1</h2>
-            <p>Try the most popular game mode!</p>
-            <button
-              className="button"
-              onClick={() => setIsPlaceBetModalOpen(true)} // Open modal on click
-            >
-              Play 1v1
-            </button>
-          </div>
-        </aside>
-
+        {/* Sidebar removed because it's now part of the Layout */}
         <main className="main">
           <h2>Play Ranked</h2>
           <div className="ranked-options">
@@ -95,6 +83,16 @@ const Home = () => {
               <h3>Chess 960</h3>
               <p>Experience the chaos of random piece setups!</p>
             </div>
+          </div>
+
+          {/* "Play 1v1" Button */}
+          <div className="play-1v1-button">
+            <button
+              className="button"
+              onClick={() => setIsPlaceBetModalOpen(true)}
+            >
+              Play 1v1
+            </button>
           </div>
         </main>
       </div>
@@ -108,11 +106,10 @@ const Home = () => {
       {/* PlaceBet Modal */}
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}
-        onClose={() => setIsPlaceBetModalOpen(false)} // Close modal
+        onClose={() => setIsPlaceBetModalOpen(false)}
       />
     </div>
   );
 };
 
 export default Home;
-

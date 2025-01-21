@@ -109,6 +109,31 @@ body {
   transform: scale(1.05);
 }
 
+/* 1v1 Button Styling */
+.play-1v1-button {
+  margin: 20px auto;
+  text-align: center;
+}
+
+.play-1v1-button .button {
+  padding: 15px 25px;
+  background-color: #ff6347; /* Tomato color for distinction */
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.play-1v1-button .button:hover {
+  background-color: #e55340; /* Slightly darker tomato */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
 .footer-button:hover {
   background-color: #218838;
 }
@@ -119,4 +144,5 @@ body {
   display: flex;
   justify-content: space-evenly;
 }
+
 

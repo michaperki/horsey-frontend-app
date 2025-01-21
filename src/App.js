@@ -1,8 +1,7 @@
 
-// src/App.js
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing"; // Updated import
+import Landing from "./pages/Landing";
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
 import Transfer from "./components/Admin/Transfer";
@@ -11,16 +10,16 @@ import PlaceBet from "./components/PlaceBet";
 import Register from './components/Auth/Register';
 import UserLogin from './components/Auth/UserLogin';
 import AdminLogin from './components/Auth/AdminLogin';
-import Home from './pages/Home'; // Updated import
+import Home from './pages/Home';
 import AdminDashboard from './pages/AdminDashboard';
-import Lobby from './pages/Lobby'; // New import
-import Leaderboard from './pages/Leaderboard'; // New import
+import Lobby from './pages/Lobby';
+import Leaderboard from './pages/Leaderboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
-import AvailableBets from './components/AvailableBets'; // May no longer be needed directly
 import LichessCallback from './components/Auth/LichessCallback';
+import Layout from './components/Layout'; // Import Layout
 import { SocketProvider } from './contexts/SocketContext';
 import { TokenProvider } from './contexts/TokenContext';
 import NotificationsModal from './components/NotificationsModal';
@@ -29,63 +28,32 @@ function App() {
   return (
     <SocketProvider>
       <TokenProvider>
-        
         <Navbar />
-        <NotificationsModal /> {/* Include the modal here */}
+        <NotificationsModal />
         <Routes>
-          <Route path="/" element={<Landing />} /> {/* Updated route */}
+          <Route path="/" element={<Landing />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<UserLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/auth/lichess/callback" element={<LichessCallback />} /> {/* New Route */}
+          <Route path="/auth/lichess/callback" element={<LichessCallback />} />
+          
+          {/* Routes with Layout (Persistent Sidebar) */}
           <Route
-            path="/home" // Updated route path
             element={
               <ProtectedRoute>
-                <Home />
+                <Layout />
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="/lobby" // New Lobby route
-            element={
-              <ProtectedRoute>
-                <Lobby />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/leaderboards"
-            element={
-              <ProtectedRoute>
-                <Leaderboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <Notifications />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/place-bet"
-            element={
-              <ProtectedRoute>
-                <PlaceBet />
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route path="/home" element={<Home />} />
+            <Route path="/lobby" element={<Lobby />} />
+            <Route path="/leaderboards" element={<Leaderboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/place-bet" element={<PlaceBet />} />
+          </Route>
+          
+          {/* Admin Routes */}
           <Route
             path="/admin/mint"
             element={
