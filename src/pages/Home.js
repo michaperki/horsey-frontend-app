@@ -1,10 +1,12 @@
 
+// src/pages/Home.js
+
 import React, { useEffect, useState } from 'react';
 import LichessConnect from '../components/Auth/LichessConnect';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile } from '../services/api';
-import PlaceBet from '../components/PlaceBet';
-import './Home.css'; // Importing the CSS file
+import PlaceBetModal from '../components/PlaceBetModal';
+import './Home.css';
 
 const Home = () => {
   const { token } = useAuth();
@@ -12,14 +14,31 @@ const Home = () => {
   const [lichessUsername, setLichessUsername] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const [statistics, setStatistics] = useState({
+    totalGames: 0,
+    wins: 0,
+    losses: 0,
+    winPercentage: '0.00',
+    karma: 0,
+    membership: 'Free',
+    points: 0,
+  });
+
+  // Modal State
+  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profile = await getUserProfile(token);
-        if (profile.lichessUsername) {
+        const response = await getUserProfile(token);
+        const { user, statistics } = response.data;
+
+        if (user.lichessUsername) {
           setLichessConnected(true);
-          setLichessUsername(profile.lichessUsername);
+          setLichessUsername(user.lichessUsername);
         }
+
+        setStatistics(statistics);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       } finally {
@@ -30,43 +49,41 @@ const Home = () => {
     fetchProfile();
   }, [token]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('lichess') === 'connected') {
-      setLichessConnected(true);
-    } else if (params.get('lichess') === 'error') {
-      const message = params.get('message');
-      alert(`Failed to connect Lichess account: ${message}`);
-    }
-  }, []);
-
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="container">
-      {/* Header Section */}
       <header className="header">
-        <div>Total Games: 290</div>
-        <div>Wins/Loss: 55/100</div>
-        <div>Win %: 55.56</div>
-        <div>Karma: 20/20</div>
-        <div>Membership: <a href="#">Become a Member</a></div>
-        <div>Points: 1015</div>
+        <div>Total Games: {statistics.totalGames}</div>
+        <div>Wins/Loss: {statistics.wins}/{statistics.losses}</div>
+        <div>Win %: {statistics.winPercentage}%</div>
+        <div>Karma: {statistics.karma}</div>
+        <div>
+          Membership: {statistics.membership === 'Free' ? (
+            <a href="/membership">Become a Member</a>
+          ) : (
+            'Premium'
+          )}
+        </div>
+        <div>Points: {statistics.points}</div>
       </header>
 
       <div className="content">
-        {/* Sidebar for Play 1v1 */}
         <aside className="sidebar">
           <div className="card">
             <h2>Play 1v1</h2>
             <p>Try the most popular game mode!</p>
-            <button className="button">Play 1v1</button>
+            <button
+              className="button"
+              onClick={() => setIsPlaceBetModalOpen(true)} // Open modal on click
+            >
+              Play 1v1
+            </button>
           </div>
         </aside>
 
-        {/* Main Section */}
         <main className="main">
           <h2>Play Ranked</h2>
           <div className="ranked-options">
@@ -82,12 +99,17 @@ const Home = () => {
         </main>
       </div>
 
-      {/* Footer Section */}
       <footer className="footer">
         <button className="footer-button">Create Room</button>
         <button className="footer-button">Play vs Bots</button>
         <button className="footer-button">Play Ranked / Casual</button>
       </footer>
+
+      {/* PlaceBet Modal */}
+      <PlaceBetModal
+        isOpen={isPlaceBetModalOpen}
+        onClose={() => setIsPlaceBetModalOpen(false)} // Close modal
+      />
     </div>
   );
 };
