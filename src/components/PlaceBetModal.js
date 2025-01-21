@@ -10,11 +10,8 @@ const PlaceBetModal = ({ isOpen, onClose }) => {
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <h2>Place Your Bet</h2>
+        <button onClick={onClose} style={styles.closeButton}>&times;</button>
         <PlaceBet />
-        <button onClick={onClose} style={styles.closeButton}>
-          Close
-        </button>
       </div>
     </div>
   );
@@ -37,19 +34,18 @@ const styles = {
     background: '#fff',
     padding: '20px',
     borderRadius: '8px',
-    width: '400px',
+    width: '500px',
     position: 'relative',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
   },
   closeButton: {
-    marginTop: '20px',
-    padding: '10px 20px',
-    backgroundColor: '#6c757d',
-    color: '#fff',
+    position: 'absolute',
+    top: '10px',
+    right: '15px',
+    fontSize: '24px',
+    background: 'none',
     border: 'none',
-    borderRadius: '4px',
     cursor: 'pointer',
-    fontWeight: 'bold',
   },
 };
 

@@ -16,16 +16,34 @@
   align-items: center;
 }
 
+.navbar__logo a {
+  display: flex;
+  text-decoration: none; /* Remove the underline from the anchor tag */
+  color: inherit; /* Ensure the text color matches the parent */
+}
+
+.navbar__logo a:hover {
+  text-decoration: none; /* Prevent underline on hover */
+}
+
 .navbar__logo-image {
   height: 40px;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .navbar__logo-text {
+  line-height: 1;
+  display: flex;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #fff;
   text-decoration: none;
+  transition: color 0.3s;
+}
+
+.navbar__logo-text:hover {
+  color: #f1f1f1;
 }
 
 .navbar__links {

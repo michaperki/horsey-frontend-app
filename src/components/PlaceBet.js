@@ -1,18 +1,20 @@
+
 // src/components/PlaceBet.js
 
 import React, { useState, useEffect } from "react";
-import { placeBet } from "../services/api"; // Import the placeBet function
-// import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { placeBet } from "../services/api";
 
 const PlaceBet = () => {
-  const [creatorColor, setCreatorColor] = useState("random"); // Default to 'random'
+  const [colorPreference, setColorPreference] = useState("random");
+  const [timeControl, setTimeControl] = useState("5|3");
+  const [variant, setVariant] = useState("standard");
   const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState("");
   const [userBalance, setUserBalance] = useState(0);
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  // const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
+    // Fetch user balance on mount
     const fetchBalance = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -39,17 +41,16 @@ const PlaceBet = () => {
   }, []);
 
   const handlePlaceBet = async () => {
+    setMessage("");
     const token = localStorage.getItem("token");
     if (!token) {
       setMessage("Please log in to place a bet.");
       return;
     }
-
     if (!amount || Number(amount) <= 0) {
       setMessage("Please enter a valid bet amount.");
       return;
     }
-
     if (Number(amount) > userBalance) {
       setMessage("Insufficient balance to place the bet.");
       return;
@@ -57,17 +58,20 @@ const PlaceBet = () => {
 
     setLoading(true);
     try {
-      const newBet = await placeBet(token, { creatorColor, amount: Number(amount) });
+      const response = await placeBet(token, {
+        colorPreference,
+        amount: Number(amount),
+        timeControl,
+        variant,
+      });
       setMessage("Bet placed successfully!");
-
-      // Redirect to the game link if available
-      if (newBet.gameLink) {
-        window.open(newBet.gameLink, "_blank"); // Opens the game link in a new tab
-      }
-
-      setCreatorColor("random");
-      setAmount("");
       setUserBalance((prev) => prev - Number(amount));
+
+      // Reset inputs
+      setColorPreference("random");
+      setTimeControl("5|3");
+      setVariant("standard");
+      setAmount("");
     } catch (error) {
       setMessage(error.message || "Failed to place the bet.");
     } finally {
@@ -79,39 +83,64 @@ const PlaceBet = () => {
     <div style={styles.container}>
       <h2>Place a Bet</h2>
       <p>Your Balance: {userBalance} PTK</p>
-      {/* Removed Game ID input */}
+
+      <label>Color Preference:</label>
       <select
-        value={creatorColor}
-        name="creatorColor"
-        onChange={(e) => setCreatorColor(e.target.value)}
+        value={colorPreference}
+        onChange={(e) => setColorPreference(e.target.value)}
         style={styles.input}
       >
         <option value="white">White</option>
         <option value="black">Black</option>
         <option value="random">Random</option>
       </select>
+
+      <label>Time Control (minutes|increment):</label>
+      <select
+        value={timeControl}
+        onChange={(e) => setTimeControl(e.target.value)}
+        style={styles.input}
+      >
+        <option value="3|2">3|2</option>
+        <option value="5|3">5|3</option>
+        <option value="10|0">10|0</option>
+        <option value="15|10">15|10</option>
+        {/* Add more as needed */}
+      </select>
+
+      <label>Variant:</label>
+      <select
+        value={variant}
+        onChange={(e) => setVariant(e.target.value)}
+        style={styles.input}
+      >
+        <option value="standard">Standard</option>
+        <option value="crazyhouse">Crazyhouse</option>
+        <option value="fischer_random">Fischer Random</option>
+        {/* Add others if desired */}
+      </select>
+
+      <label>Bet Amount:</label>
       <input
         type="number"
-        name="amount"
-        placeholder="Amount to Bet"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         style={styles.input}
       />
+
       <button
-        type="submit"
         onClick={handlePlaceBet}
         style={styles.button}
-        disabled={loading || !amount} // Only disable based on loading and presence of amount
+        disabled={loading || !amount}
       >
         {loading ? "Placing Bet..." : "Place Bet"}
       </button>
+
       {message && <p style={styles.message}>{message}</p>}
     </div>
   );
 };
 
-// Inline Styles for Simplicity
 const styles = {
   container: {
     padding: "20px",
@@ -120,7 +149,7 @@ const styles = {
     border: "1px solid #ccc",
     borderRadius: "8px",
     marginTop: "50px",
-    backgroundColor: "#f1f1f1",
+    backgroundColor: "#f9f9f9",
   },
   input: {
     width: "100%",
@@ -147,3 +176,4 @@ const styles = {
 };
 
 export default PlaceBet;
+
