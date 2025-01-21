@@ -10,7 +10,7 @@ import './Navbar.css'; // External CSS file for better organization
 const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
-  const { tokens, setTokens, fetchTokens, loading: tokensLoading, error: tokensError } = useToken();
+  const { tokens /*, setTokens, fetchTokens, tokensLoading, tokensError */ } = useToken();
   const [lichessConnected, setLichessConnected] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);

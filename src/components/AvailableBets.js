@@ -1,6 +1,6 @@
 
 // src/components/AvailableBets.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { acceptBet } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -10,11 +10,7 @@ const AvailableBets = ({ format }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchAvailableBets();
-  }, [format]);
-
-  const fetchAvailableBets = async () => {
+  const fetchAvailableBets = useCallback(async () => {
     if (!token) {
       setError("Please log in to view available bets.");
       return;
@@ -29,14 +25,17 @@ const AvailableBets = ({ format }) => {
       if (!response.ok) throw new Error("Failed to fetch available bets.");
       const data = await response.json();
 
-      // data should look like: { seekers: [ { id, creator, averageRating, wager, ... }, ... ] }
       setBets(data.seekers || []);
     } catch (err) {
       setError(err.message || "An error occurred.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchAvailableBets();
+  }, [fetchAvailableBets, format]);
 
   const handleAcceptBet = async (betId) => {
     if (!token) {
@@ -124,4 +123,3 @@ const styles = {
 };
 
 export default AvailableBets;
-

@@ -2,7 +2,6 @@
 // src/pages/Home.js
 
 import React, { useEffect, useState } from 'react';
-import LichessConnect from '../components/Auth/LichessConnect';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile } from '../services/api';
 import PlaceBetModal from '../components/PlaceBetModal';
@@ -10,8 +9,6 @@ import './Home.css';
 
 const Home = () => {
   const { token } = useAuth();
-  const [lichessConnected, setLichessConnected] = useState(false);
-  const [lichessUsername, setLichessUsername] = useState('');
   const [loading, setLoading] = useState(true);
 
   const [statistics, setStatistics] = useState({
@@ -24,19 +21,13 @@ const Home = () => {
     points: 0,
   });
 
-  // Modal State
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await getUserProfile(token);
-        const { user, statistics } = response.data;
-
-        if (user.lichessUsername) {
-          setLichessConnected(true);
-          setLichessUsername(user.lichessUsername);
-        }
+        const { statistics } = response.data;
 
         setStatistics(statistics);
       } catch (error) {
@@ -71,7 +62,6 @@ const Home = () => {
       </header>
 
       <div className="content">
-        {/* Sidebar removed because it's now part of the Layout */}
         <main className="main">
           <h2>Play Ranked</h2>
           <div className="ranked-options">
@@ -85,7 +75,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* "Play 1v1" Button */}
           <div className="play-1v1-button">
             <button
               className="button"
@@ -103,7 +92,6 @@ const Home = () => {
         <button className="footer-button">Play Ranked / Casual</button>
       </footer>
 
-      {/* PlaceBet Modal */}
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}
         onClose={() => setIsPlaceBetModalOpen(false)}

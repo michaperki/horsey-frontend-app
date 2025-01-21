@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const NotificationsModal = () => {
   const socket = useSocket();
-  const { user } = useAuth(); // Ensure user information is available
+  // const { user } = useAuth(); // Ensure user information is available
   const [modalContent, setModalContent] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
