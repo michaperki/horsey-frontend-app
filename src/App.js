@@ -14,6 +14,7 @@ import AdminLogin from './components/Auth/AdminLogin';
 import Home from './pages/Home'; // Updated import
 import AdminDashboard from './pages/AdminDashboard';
 import Lobby from './pages/Lobby'; // New import
+import Leaderboard from './pages/Leaderboard'; // New import
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
 import Notifications from './components/Notifications';
@@ -50,6 +51,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Lobby />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaderboards"
+            element={
+              <ProtectedRoute>
+                <Leaderboard />
               </ProtectedRoute>
             }
           />
