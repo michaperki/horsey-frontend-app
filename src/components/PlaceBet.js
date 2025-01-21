@@ -58,6 +58,13 @@ const PlaceBet = () => {
 
     setLoading(true);
     try {
+      const betData = {
+        colorPreference,
+        amount: Number(amount),
+        timeControl,
+        variant,
+      };
+      await placeBet(token, betData); // Use the imported placeBet function
       setMessage("Bet placed successfully!");
       setUserBalance((prev) => prev - Number(amount));
 
