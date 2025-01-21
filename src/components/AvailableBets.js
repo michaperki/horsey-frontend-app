@@ -98,4 +98,27 @@ const AvailableBets = ({ format }) => {
   );
 };
 
-// ... (styles and export remain unchanged)
+const styles = {
+  container: {
+    padding: "20px",
+    backgroundColor: "#f9f9f9",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "10px",
+    backgroundColor: "#fff",
+    textAlign: "left",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  },
+  acceptBtn: {
+    backgroundColor: "#007bff",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    padding: "5px 10px",
+    cursor: "pointer",
+  },
+};
+
+export default AvailableBets;
