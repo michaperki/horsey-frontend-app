@@ -38,9 +38,10 @@ const AvailableBets = ({ format }) => {
       return;
     }
     try {
-      const updatedBet = await acceptBet(betId, opponentColor);
+      await acceptBet(betId, opponentColor); // Removed 'updatedBet'
       setBets((prev) => prev.filter((bet) => bet.id !== betId));
       // Optionally, handle the updatedBet (e.g., navigate to game link)
+      // const updatedBet = await acceptBet(betId, opponentColor);
       // window.location.href = updatedBet.gameLink;
     } catch (err) {
       setError(err.message || "Failed to accept the bet.");
@@ -97,27 +98,4 @@ const AvailableBets = ({ format }) => {
   );
 };
 
-const styles = {
-  container: {
-    padding: "20px",
-    backgroundColor: "#f9f9f9",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "10px",
-    backgroundColor: "#fff",
-    textAlign: "left",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  acceptBtn: {
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    padding: "5px 10px",
-    cursor: "pointer",
-  },
-};
-
-export default AvailableBets;
+// ... (styles and export remain unchanged)
