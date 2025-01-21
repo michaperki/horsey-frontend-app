@@ -26,7 +26,6 @@ export const SocketProvider = ({ children }) => {
     // Initialize Socket.io client with enhanced options
     socketRef.current = io(process.env.REACT_APP_API_URL, {
       auth: { token },
-      transports: ['websocket'],
       reconnectionAttempts: 5, // Customize as needed
       reconnectionDelay: 1000,  // Customize as needed
     });
