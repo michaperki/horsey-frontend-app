@@ -1,47 +1,51 @@
-
 // src/components/Auth/Register.js
 
 import React, { useState } from 'react';
-// import { useAuth } from '../../contexts/AuthContext'; // Import useAuth if needed
+import { register } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth for logging in after registration
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation after registration
 
 const Register = () => {
+  const { login } = useAuth(); // Use the login function from AuthContext
+  const navigate = useNavigate(); // Hook for navigation
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
   });
   const [message, setMessage] = useState('');
-  // const { login } = useAuth(); // Uncomment if you want to log in after registration
+  const [loading, setLoading] = useState(false); // State to manage loading
+  const [error, setError] = useState(''); // State to manage errors
 
   const { username, email, password } = formData;
 
-  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleRegister = async (e) => {
     e.preventDefault(); // Prevent default form submission
+    setLoading(true);
+    setError('');
+    setMessage('');
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const data = await register(formData);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (data.token) {
+        // If the API returns a token upon successful registration
+        login(data.token); // Log the user in
+        navigate('/dashboard'); // Redirect to dashboard or desired page
+      } else {
+        // If no token is returned, just show a success message
         setMessage('Registration successful. You can now log in.');
         setFormData({ username: '', email: '', password: '' });
-        // Optionally, log the user in immediately:
-        // if (data.token) {
-        //   login(data.token);
-        //   navigate('/dashboard');
-        // }
-      } else {
-        setMessage(data.error || 'Registration failed.');
       }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setMessage('An unexpected error occurred.');
+    } catch (err) {
+      // Handle errors returned from the API
+      setError(err.message || 'Registration failed.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,15 +80,18 @@ const Register = () => {
           style={styles.input}
           required
         />
-        <button type="submit" style={styles.button}>Register</button>
+        <button type="submit" style={styles.button} disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p style={{ color: 'green' }}>{message}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
 
 const styles = {
-  container: { 
+  container: {
     padding: '20px',
     maxWidth: '400px',
     margin: 'auto',
@@ -92,7 +99,7 @@ const styles = {
     borderRadius: '8px',
     marginTop: '50px',
   },
-  input: { 
+  input: {
     width: '100%',
     padding: '10px',
     marginBottom: '15px',
@@ -100,7 +107,7 @@ const styles = {
     border: '1px solid #ccc',
     boxSizing: 'border-box',
   },
-  button: { 
+  button: {
     width: '100%',
     padding: '10px',
     backgroundColor: '#007bff',
@@ -113,4 +120,3 @@ const styles = {
 };
 
 export default Register;
-

@@ -3,6 +3,19 @@
 import { apiFetch } from '../utils/api';
 
 /**
+ * Registers a new user.
+ * @param {object} userData - The registration data (username, email, password).
+ * @returns {Promise<object>} - The response data from the API.
+ */
+export const register = async (userData) => {
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  });
+  return data;
+};
+
+/**
  * Fetches the authenticated user's token balance.
  * @returns {Promise<number>} - The user's token balance.
  */
