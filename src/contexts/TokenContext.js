@@ -2,34 +2,34 @@
 // src/contexts/TokenContext.js
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { getUserBalance } from '../services/api';
 
 const TokenContext = createContext();
 
+/**
+ * Provides token-related data and actions to the component tree.
+ */
 export const TokenProvider = ({ children }) => {
   const [tokens, setTokens] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /**
+   * Fetches the user's token balance and updates the state.
+   */
   const fetchTokens = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Please log in to view your tokens.");
+      setError('Please log in to view your tokens.');
       setLoading(false);
       return;
     }
+
     try {
-      const response = await fetch("/tokens/balance/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setTokens(data.balance);
-      } else {
-        setError(`Error: ${data.error}`);
-      }
+      const balance = await getUserBalance();
+      setTokens(balance);
     } catch (err) {
-      console.error("Error fetching tokens:", err);
-      setError("An unexpected error occurred while fetching tokens.");
+      setError(err.message || 'Failed to fetch tokens.');
     } finally {
       setLoading(false);
     }
@@ -37,6 +37,7 @@ export const TokenProvider = ({ children }) => {
 
   useEffect(() => {
     fetchTokens();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -46,4 +47,8 @@ export const TokenProvider = ({ children }) => {
   );
 };
 
+/**
+ * Custom hook to access token context.
+ */
 export const useToken = () => useContext(TokenContext);
+

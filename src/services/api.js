@@ -1,223 +1,117 @@
 
 // src/services/api.js
 
+import { apiFetch } from '../utils/api';
+
 /**
  * Fetches the authenticated user's token balance.
- * @param {string} token - JWT token for authentication.
  * @returns {Promise<number>} - The user's token balance.
  */
-export const getUserBalance = async (token) => {
-  try {
-    const response = await fetch('/tokens/balance/user', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch user balance');
-    }
-
-    const data = await response.json();
-    return data.balance;
-  } catch (error) {
-    console.error('Error fetching user balance:', error);
-    throw error;
-  }
+export const getUserBalance = async () => {
+  const data = await apiFetch('/tokens/balance/user', {
+    method: 'GET',
+  });
+  return data.balance;
 };
 
 /**
  * Fetches the authenticated user's bet history.
- * @param {string} token - JWT token for authentication.
  * @param {object} params - Query parameters for pagination and sorting.
  * @returns {Promise<object>} - An object containing bets data.
  */
-export const getUserBets = async (token, params = {}) => {
-  try {
-    const query = new URLSearchParams(params).toString();
-    const response = await fetch(`/bets/history?${query}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch your bet history');
-    }
-
-    const data = await response.json();
-    console.log("received user bets:,", data)
-    return data;
-  } catch (error) {
-    console.error('Error fetching bet history:', error);
-    throw error;
-  }
+export const getUserBets = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const data = await apiFetch(`/bets/history?${query}`, {
+    method: 'GET',
+  });
+  console.log("received user bets:", data);
+  return data;
 };
 
 /**
  * Places a new bet.
- * @param {string} token - JWT token for authentication.
  * @param {object} betData - Data for the new bet.
  * @returns {Promise<object>} - The newly created bet.
  */
-export const placeBet = async (token, betData) => {
-  try {
-    const { colorPreference, amount, timeControl, variant } = betData; // Destructure required fields
-    const response = await fetch('/bets/place', {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        colorPreference: colorPreference.toLowerCase(), // Normalize to lowercase
-        amount,
-        timeControl,
-        variant,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to place the bet');
-    }
-
-    const data = await response.json();
-    return data.bet;
-  } catch (error) {
-    console.error('Error placing bet:', error);
-    throw error;
-  }
+export const placeBet = async (betData) => {
+  const { colorPreference, amount, timeControl, variant } = betData;
+  const data = await apiFetch('/bets/place', {
+    method: 'POST',
+    body: JSON.stringify({
+      colorPreference: colorPreference.toLowerCase(),
+      amount,
+      timeControl,
+      variant,
+    }),
+  });
+  return data.bet;
 };
 
 /**
  * Accepts a bet.
- * @param {string} token - JWT token for authentication.
  * @param {string} betId - ID of the bet to accept.
  * @param {string} opponentColor - Color preference of the acceptor.
  * @returns {Promise<object>} - The updated bet along with gameLink.
  */
-export const acceptBet = async (token, betId, opponentColor) => {
-  try {
-    const response = await fetch(`/bets/accept/${betId}`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ opponentColor }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to accept the bet');
-    }
-
-    const data = await response.json();
-    return data; // Return the entire response to include gameLink
-  } catch (error) {
-    console.error('Error accepting bet:', error);
-    throw error;
-  }
+export const acceptBet = async (betId, opponentColor) => {
+  const data = await apiFetch(`/bets/accept/${betId}`, {
+    method: 'POST',
+    body: JSON.stringify({ opponentColor }),
+  });
+  return data; // Includes gameLink
 };
 
-
 /**
- * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint,
- * including the user's JWT token as a query parameter.
- * @param {string} token - JWT token for authentication.
+ * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint.
  */
-export const initiateLichessOAuth = (token) => {
+export const initiateLichessOAuth = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = localStorage.getItem('token');
   const encodedToken = encodeURIComponent(token);
   window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
 };
 
 /**
  * Fetches the authenticated user's profile.
- * @param {string} token - JWT token for authentication.
  * @returns {Promise<object>} - The user's profile data.
  */
-export const getUserProfile = async (token) => {
-  try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/profile`, { // Ensure REACT_APP_BACKEND_URL is set
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch user profile');
-    }
-
-    const data = await response.json();
-    return data.user; // Adjust based on your backend's response structure
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    throw error;
-  }
+export const getUserProfile = async () => {
+  const data = await apiFetch('/auth/profile', {
+    method: 'GET',
+    credentials: 'include',
+  });
+  return data.user;
 };
 
 /**
  * Disconnects the user's Lichess account.
- * This would typically involve clearing Lichess-related fields in the backend.
  */
-export const disconnectLichessAccount = async (token) => {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/lichess/disconnect`, {
+export const disconnectLichessAccount = async () => {
+  const data = await apiFetch('/lichess/disconnect', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to disconnect Lichess account.');
-  }
-
-  const data = await response.json();
   return data;
 };
 
-
-export const getUserLichessInfo = async (token) => {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/lichess/user`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+/**
+ * Fetches the authenticated user's Lichess information.
+ */
+export const getUserLichessInfo = async () => {
+  const data = await apiFetch('/lichess/user', {
+    method: 'GET',
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    const error = new Error(errorData.error || 'Failed to fetch Lichess information.');
-    error.status = response.status;
-    throw error;
-  }
-
-  const data = await response.json();
   return data;
 };
 
-export const cancelBet = async (token, betId) => {
-  const response = await fetch(`/bets/cancel/${betId}`, {
+/**
+ * Cancels a bet.
+ * @param {string} betId - ID of the bet to cancel.
+ * @returns {Promise<object>} - The response from the API.
+ */
+export const cancelBet = async (betId) => {
+  const data = await apiFetch(`/bets/cancel/${betId}`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to cancel the bet');
-  }
-
-  return await response.json();
+  return data;
 };
+
