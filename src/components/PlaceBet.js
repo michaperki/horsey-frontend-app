@@ -116,7 +116,7 @@ const PlaceBet = () => {
       >
         <option value="standard">Standard</option>
         <option value="crazyhouse">Crazyhouse</option>
-        <option value="fischer_random">Fischer Random</option>
+        <option value="chess960">Chess 960</option>
         {/* Add others if desired */}
       </select>
 

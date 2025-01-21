@@ -92,7 +92,7 @@ const Home = () => {
               <p>1/10 placement games played</p>
             </div>
             <div className="card">
-              <h3>Fischer Random</h3>
+              <h3>Chess 960</h3>
               <p>Experience the chaos of random piece setups!</p>
             </div>
           </div>

@@ -61,19 +61,24 @@ export const getUserBets = async (token, params = {}) => {
 /**
  * Places a new bet.
  * @param {string} token - JWT token for authentication.
- * @param {object} betData - Data for the new bet (excluding gameId).
+ * @param {object} betData - Data for the new bet.
  * @returns {Promise<object>} - The newly created bet.
  */
 export const placeBet = async (token, betData) => {
   try {
-    const { creatorColor, amount } = betData; // Destructure required fields
+    const { colorPreference, amount, timeControl, variant } = betData; // Destructure required fields
     const response = await fetch('/bets/place', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ creatorColor, amount }), // Exclude gameId
+      body: JSON.stringify({
+        colorPreference: colorPreference.toLowerCase(), // Normalize to lowercase
+        amount,
+        timeControl,
+        variant,
+      }),
     });
 
     if (!response.ok) {
