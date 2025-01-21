@@ -1,9 +1,9 @@
-
 // src/components/Auth/UserLogin.js
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
+import { loginUser } from '../../services/api'; // Import the loginUser function
 
 const UserLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -18,29 +18,19 @@ const UserLogin = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent default form behavior
+    setMessage(''); // Clear previous messages
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (data.token) {
-          login(data.token); // Use login from AuthContext
-          setMessage('Login successful.');
-          navigate('/home'); // Redirect to user dashboard
-        } else {
-          setMessage(data.error || 'Login failed.');
-        }
+      const token = await loginUser({ email, password });
+      if (token) {
+        login(token); // Use login from AuthContext
+        setMessage('Login successful.');
+        navigate('/home'); // Redirect to user dashboard
       } else {
-        setMessage(data.error || 'Login failed.');
+        setMessage('Login failed. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setMessage('An unexpected error occurred.');
+      setMessage(error.message || 'An unexpected error occurred.');
     }
   };
 
@@ -101,4 +91,3 @@ const styles = {
 };
 
 export default UserLogin;
-

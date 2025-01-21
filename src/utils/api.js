@@ -1,4 +1,3 @@
-
 // src/utils/api.js
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
@@ -10,7 +9,10 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || '';
  * @returns {Promise<object>} - The parsed JSON response.
  */
 export const apiFetch = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Remove any trailing slash from API_BASE_URL and leading slash from endpoint
+  const normalizedBaseUrl = API_BASE_URL.replace(/\/+$/, '');
+  const normalizedEndpoint = endpoint.replace(/^\/+/, '');
+  const url = `${normalizedBaseUrl}/${normalizedEndpoint}`;
 
   // Default headers
   const headers = {
@@ -46,4 +48,3 @@ export const apiFetch = async (endpoint, options = {}) => {
     throw error;
   }
 };
-

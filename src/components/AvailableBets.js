@@ -1,7 +1,7 @@
-
 // src/components/AvailableBets.js
+
 import React, { useEffect, useState, useCallback } from "react";
-import { acceptBet } from "../services/api";
+import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
 const AvailableBets = ({ format }) => {
@@ -19,15 +19,10 @@ const AvailableBets = ({ format }) => {
     setError("");
 
     try {
-      const response = await fetch("/bets/seekers", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Failed to fetch available bets.");
-      const data = await response.json();
-
-      setBets(data.seekers || []);
+      const fetchedBets = await getAvailableBets();
+      setBets(fetchedBets);
     } catch (err) {
-      setError(err.message || "An error occurred.");
+      setError(err.message || "An error occurred while fetching available bets.");
     } finally {
       setLoading(false);
     }
@@ -37,22 +32,24 @@ const AvailableBets = ({ format }) => {
     fetchAvailableBets();
   }, [fetchAvailableBets, format]);
 
-  const handleAcceptBet = async (betId) => {
+  const handleAcceptBet = async (betId, opponentColor) => {
     if (!token) {
       setError("Please log in to accept bets.");
       return;
     }
     try {
-      await acceptBet(token, betId);
+      const updatedBet = await acceptBet(betId, opponentColor);
       setBets((prev) => prev.filter((bet) => bet.id !== betId));
+      // Optionally, handle the updatedBet (e.g., navigate to game link)
+      // window.location.href = updatedBet.gameLink;
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to accept the bet.");
     }
   };
 
   return (
     <div style={styles.container}>
-      {loading && <p>Loading...</p>}
+      {loading && <p>Loading available bets...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {bets.length === 0 && !loading && !error && (
         <p>No bets available right now.</p>
@@ -83,8 +80,9 @@ const AvailableBets = ({ format }) => {
                 <td>{bet.wager}</td>
                 <td>{bet.players}</td>
                 <td>
+                  {/* Assuming opponentColor is determined here; adjust as needed */}
                   <button
-                    onClick={() => handleAcceptBet(bet.id)}
+                    onClick={() => handleAcceptBet(bet.id, "white")} // Example opponentColor
                     style={styles.acceptBtn}
                   >
                     Join

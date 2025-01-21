@@ -1,4 +1,3 @@
-
 // src/services/api.js
 
 import { apiFetch } from '../utils/api';
@@ -115,3 +114,41 @@ export const cancelBet = async (betId) => {
   return data;
 };
 
+/**
+ * Fetches available bets for seekers.
+ * @returns {Promise<Array>} - An array of available bets.
+ */
+export const getAvailableBets = async () => {
+  const data = await apiFetch('/bets/seekers', {
+    method: 'GET',
+  });
+  return data.seekers || [];
+};
+
+/**
+ * Logs in a user with provided email and password.
+ * @param {object} credentials - User's login credentials.
+ * @param {string} credentials.email - User's email.
+ * @param {string} credentials.password - User's password.
+ * @returns {Promise<string>} - The JWT token upon successful login.
+ */
+export const loginUser = async (credentials) => {
+  const data = await apiFetch('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
+  return data.token;
+};
+
+/**
+ * Fetches admin-specific data.
+ * @returns {Promise<object>} - Admin dashboard data.
+ */
+export const getAdminDashboardData = async () => {
+  const data = await apiFetch('/admin/dashboard', {
+    method: 'GET',
+  });
+  return data;
+};
+
+// Add more API functions as needed following the above pattern
