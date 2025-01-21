@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSocket } from '../contexts/SocketContext';
-import { useAuth } from '../contexts/AuthContext';
+//import { useAuth } from '../contexts/AuthContext';
 
 const NotificationsModal = () => {
   const socket = useSocket();
@@ -45,13 +45,6 @@ const NotificationsModal = () => {
   const handleClose = () => {
     setIsOpen(false);
     setModalContent(null);
-  };
-
-  const handleOpenGame = () => {
-    if (modalContent?.gameLink) {
-      window.open(modalContent.gameLink, '_blank');
-      handleClose();
-    }
   };
 
   if (!isOpen || !modalContent) return null;

@@ -58,12 +58,6 @@ const PlaceBet = () => {
 
     setLoading(true);
     try {
-      const response = await placeBet(token, {
-        colorPreference,
-        amount: Number(amount),
-        timeControl,
-        variant,
-      });
       setMessage("Bet placed successfully!");
       setUserBalance((prev) => prev - Number(amount));
 
