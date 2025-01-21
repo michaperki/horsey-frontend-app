@@ -1,3 +1,4 @@
+
 // src/components/AvailableBets.js
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -19,14 +20,15 @@ const AvailableBets = ({ format }) => {
     setError("");
 
     try {
-      const fetchedBets = await getAvailableBets();
+      // Modify the API call to include the format if needed
+      const fetchedBets = await getAvailableBets(format);
       setBets(fetchedBets);
     } catch (err) {
       setError(err.message || "An error occurred while fetching available bets.");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, format]);
 
   useEffect(() => {
     fetchAvailableBets();
@@ -40,9 +42,6 @@ const AvailableBets = ({ format }) => {
     try {
       await acceptBet(betId, opponentColor); // Removed 'updatedBet'
       setBets((prev) => prev.filter((bet) => bet.id !== betId));
-      // Optionally, handle the updatedBet (e.g., navigate to game link)
-      // const updatedBet = await acceptBet(betId, opponentColor);
-      // window.location.href = updatedBet.gameLink;
     } catch (err) {
       setError(err.message || "Failed to accept the bet.");
     }
@@ -122,3 +121,4 @@ const styles = {
 };
 
 export default AvailableBets;
+

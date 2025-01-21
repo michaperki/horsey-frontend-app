@@ -4,22 +4,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useToken } from '../contexts/TokenContext'; // Import the TokenContext
+import { useToken } from '../contexts/TokenContext';
 import {
   getLichessStatus,
   getUserData,
-} from '../services/api'; // Import the new API functions
-import './Navbar.css'; // External CSS file for better organization
+  initiateLichessOAuth, // Ensure this is imported
+} from '../services/api';
+import './Navbar.css';
 
 const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
-  const { tokens } = useToken(); // Use tokens from TokenContext
+  const { tokens } = useToken();
   const [lichessConnected, setLichessConnected] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,11 +35,9 @@ const Navbar = () => {
           // Fetch user data including notifications
           const userData = await getUserData();
           setNotificationsCount(userData.notifications || 0);
-          // If there are other user data to handle, process them here
         } catch (err) {
           console.error('Error fetching Navbar data:', err);
           if (err.message === 'Unauthorized') {
-            // Handle unauthorized access by logging out
             logout();
             navigate('/login');
           } else {
@@ -48,7 +47,6 @@ const Navbar = () => {
           setLoading(false);
         }
       } else {
-        // If not authenticated, reset states
         setLichessConnected(false);
         setNotificationsCount(0);
         setLoading(false);
@@ -66,6 +64,15 @@ const Navbar = () => {
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleConnectLichess = () => {
+    try {
+      initiateLichessOAuth(); // Trigger OAuth flow
+    } catch (err) {
+      console.error('Error initiating Lichess OAuth:', err);
+      setError('Failed to initiate connection. Please try again.');
+    }
   };
 
   return (
@@ -87,7 +94,13 @@ const Navbar = () => {
             <Link to="/leaderboards" className="navbar__link">Leaderboards</Link>
             <Link to="/store" className="navbar__link">Store</Link>
             {!lichessConnected && (
-              <Link to="/connect-lichess" className="navbar__link">Connect Lichess</Link>
+              <button
+                onClick={handleConnectLichess}
+                className="navbar__connect-button" // Unique CSS class
+                disabled={loading}
+              >
+                {loading ? 'Connecting...' : 'Connect Lichess'}
+              </button>
             )}
           </>
         )}
@@ -118,9 +131,8 @@ const Navbar = () => {
             </div>
             <div className="navbar__icon-container">
               <img src="/assets/coin-icon.svg" alt="Coins" className="navbar__icon" />
-              <span className="navbar__coin-count">{tokens}</span> {/* Use tokens from context */}
+              <span className="navbar__coin-count">{tokens}</span>
             </div>
-            {/* Add more icons as needed */}
           </div>
           <div className="navbar__user-info" onClick={toggleDropdown}>
             <img src={user.avatar || "/assets/default-avatar.png"} alt="User Avatar" className="navbar__avatar" />

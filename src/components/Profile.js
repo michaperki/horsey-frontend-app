@@ -1,3 +1,4 @@
+
 // src/components/Profile.js
 
 import React, { useEffect, useState } from 'react';
@@ -5,8 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getUserBalance, getUserBets, getUserLichessInfo } from '../services/api';
 import YourBets from './YourBets';
 import LichessInfo from './LichessInfo';
-import DisconnectLichess from './Auth/DisconnectLichess';
-import LichessConnect from './Auth/LichessConnect'; // Existing component
+import DisconnectLichess from './Auth/DisconnectLichess'; // Retained if disconnect functionality is needed
 
 const Profile = () => {
   const { token } = useAuth(); // Access the auth token from context
@@ -153,10 +153,8 @@ const Profile = () => {
             <DisconnectLichess onDisconnect={handleLichessChange} />
           </>
         ) : (
-          <>
-            <p>Your Lichess account is not connected.</p>
-            <LichessConnect /> {/* Existing Connect Component */}
-          </>
+          <p>Your Lichess account is not connected.</p>
+          // Removed <LichessConnect /> component
         )}
       </section>
 
@@ -203,3 +201,4 @@ const styles = {
 };
 
 export default Profile;
+

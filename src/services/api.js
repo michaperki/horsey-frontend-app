@@ -74,16 +74,6 @@ export const acceptBet = async (betId, opponentColor) => {
 };
 
 /**
- * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint.
- */
-export const initiateLichessOAuth = () => {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  const token = localStorage.getItem('token');
-  const encodedToken = encodeURIComponent(token);
-  window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
-};
-
-/**
  * Fetches the authenticated user's profile.
  * @returns {Promise<object>} - The user's profile data.
  */
@@ -184,4 +174,26 @@ export const getUserData = async () => {
     method: 'GET',
   });
   return data;
+};
+
+
+/**
+ * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint.
+ */
+export const initiateLichessOAuth = () => {
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const token = localStorage.getItem('token');
+  
+  if (!backendUrl) {
+    console.error('Backend URL is not defined in environment variables.');
+    return;
+  }
+
+  if (!token) {
+    console.error('User token not found. Ensure the user is authenticated.');
+    return;
+  }
+
+  const encodedToken = encodeURIComponent(token);
+  window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
 };

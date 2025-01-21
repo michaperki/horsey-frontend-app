@@ -63,6 +63,35 @@
   color: #d1d1d1;
 }
 
+/* New Styles for Connect Lichess Button */
+.navbar__connect-button {
+  background-color: #28a745; /* Lichess-like green */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  /* Optional: Add a subtle box-shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar__connect-button:hover {
+  background-color: #218838; /* Darker green on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.navbar__connect-button:active {
+  transform: translateY(0); /* Remove lift on click */
+}
+
+.navbar__connect-button:disabled {
+  background-color: #6c757d; /* Gray background when disabled */
+  cursor: not-allowed;
+  transform: none;
+}
+
 .navbar__user-section {
   display: flex;
   align-items: center;
@@ -159,3 +188,23 @@
 .navbar__dropdown-item:hover {
   background-color: #f1f1f1;
 }
+
+/* Loading and Error States */
+.navbar__status {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffc107;
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.navbar__status--error {
+  background-color: #dc3545;
+  color: #fff;
+}
+
