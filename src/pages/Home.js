@@ -27,7 +27,7 @@ const Home = () => {
     const fetchProfile = async () => {
       try {
         const response = await getUserProfile(token);
-        const { statistics } = response.data;
+        const { statistics } = response;
 
         setStatistics(statistics);
       } catch (error) {

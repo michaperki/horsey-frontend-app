@@ -92,7 +92,7 @@ export const getUserProfile = async () => {
     method: 'GET',
     credentials: 'include',
   });
-  return data.user;
+  return data;
 };
 
 /**
@@ -164,4 +164,24 @@ export const getAdminDashboardData = async () => {
   return data;
 };
 
-// Add more API functions as needed following the above pattern
+/**
+ * Fetches the authenticated user's Lichess connection status.
+ * @returns {Promise<boolean>} - True if connected, else false.
+ */
+export const getLichessStatus = async () => {
+  const data = await apiFetch('/lichess/status', {
+    method: 'GET',
+  });
+  return data.connected;
+};
+
+/**
+ * Fetches the authenticated user's data, including notifications.
+ * @returns {Promise<object>} - User data containing notifications and other info.
+ */
+export const getUserData = async () => {
+  const data = await apiFetch('/user/data', {
+    method: 'GET',
+  });
+  return data;
+};

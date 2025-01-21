@@ -5,66 +5,57 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToken } from '../contexts/TokenContext'; // Import the TokenContext
+import {
+  getLichessStatus,
+  getUserData,
+} from '../services/api'; // Import the new API functions
 import './Navbar.css'; // External CSS file for better organization
 
 const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
-  const { tokens /*, setTokens, fetchTokens, tokensLoading, tokensError */ } = useToken();
+  const { tokens } = useToken(); // Use tokens from TokenContext
   const [lichessConnected, setLichessConnected] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
 
   useEffect(() => {
-    const fetchLichessStatus = async () => {
+    const fetchData = async () => {
       if (token && user) {
+        setLoading(true);
+        setError(null);
         try {
-          const response = await fetch('/lichess/status', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // Fetch Lichess connection status
+          const isConnected = await getLichessStatus();
+          setLichessConnected(isConnected);
 
-          if (response.ok) {
-            const data = await response.json();
-            setLichessConnected(data.connected);
-          } else if (response.status === 401) {
-            console.warn('Unauthorized. Logging out.');
+          // Fetch user data including notifications
+          const userData = await getUserData();
+          setNotificationsCount(userData.notifications || 0);
+          // If there are other user data to handle, process them here
+        } catch (err) {
+          console.error('Error fetching Navbar data:', err);
+          if (err.message === 'Unauthorized') {
+            // Handle unauthorized access by logging out
             logout();
             navigate('/login');
+          } else {
+            setError('Failed to load data. Please try again.');
           }
-        } catch (error) {
-          console.error('Error fetching Lichess status:', error);
+        } finally {
+          setLoading(false);
         }
+      } else {
+        // If not authenticated, reset states
+        setLichessConnected(false);
+        setNotificationsCount(0);
+        setLoading(false);
       }
     };
 
-    const fetchUserNotifications = async () => {
-      if (token && user) {
-        try {
-          const response = await fetch('/user/data', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setNotificationsCount(data.notifications);
-            // Assuming tokens are handled by TokenContext
-          } else if (response.status === 401) {
-            console.warn('Unauthorized. Logging out.');
-            logout();
-            navigate('/login');
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
-      }
-    };
-
-    fetchLichessStatus();
-    fetchUserNotifications();
+    fetchData();
   }, [token, user, logout, navigate]);
 
   const handleLogout = () => {
@@ -146,6 +137,18 @@ const Navbar = () => {
               <button onClick={handleLogout} className="navbar__dropdown-item">Logout</button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Loading and Error States */}
+      {loading && (
+        <div className="navbar__status">
+          <span>Loading...</span>
+        </div>
+      )}
+      {error && (
+        <div className="navbar__status navbar__status--error">
+          <span>{error}</span>
         </div>
       )}
     </nav>
