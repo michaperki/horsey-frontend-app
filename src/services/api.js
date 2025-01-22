@@ -43,20 +43,53 @@ export const getUserBets = async (params = {}) => {
 /**
  * Places a new bet.
  * @param {object} betData - Data for the new bet.
+ * @param {string} betData.colorPreference - Color preference (e.g., 'Random', 'White', 'Black').
+ * @param {number} betData.amount - Amount to bet.
+ * @param {string} betData.timeControl - Time control in the format "minutes|increment".
+ * @param {string} betData.variant - Game variant (e.g., 'Standard').
  * @returns {Promise<object>} - The newly created bet.
  */
 export const placeBet = async (betData) => {
   const { colorPreference, amount, timeControl, variant } = betData;
-  const data = await apiFetch('/bets/place', {
-    method: 'POST',
-    body: JSON.stringify({
-      colorPreference: colorPreference.toLowerCase(),
-      amount,
-      timeControl,
-      variant,
-    }),
-  });
-  return data.bet;
+
+  // Validate that colorPreference is a string before calling toLowerCase()
+  if (typeof colorPreference !== 'string') {
+    throw new Error('Color Preference must be a valid string.');
+  }
+
+  // Optionally, validate other fields as well
+  if (typeof amount !== 'number' || amount <= 0) {
+    throw new Error('Bet Amount must be a positive number.');
+  }
+
+  // Updated validation for timeControl as a string
+  if (
+    !timeControl ||
+    typeof timeControl !== 'string' ||
+    !/^\d+\|\d+$/.test(timeControl)
+  ) {
+    throw new Error('Time Control must be a string in the format "minutes|increment".');
+  }
+
+  if (typeof variant !== 'string') {
+    throw new Error('Variant must be a valid string.');
+  }
+
+  try {
+    const data = await apiFetch('/bets/place', {
+      method: 'POST',
+      body: JSON.stringify({
+        colorPreference: colorPreference.toLowerCase(),
+        amount,
+        timeControl,
+        variant,
+      }),
+    });
+    return data.bet;
+  } catch (error) {
+    console.error('Error placing bet:', error);
+    throw error;
+  }
 };
 
 /**

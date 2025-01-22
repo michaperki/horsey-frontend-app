@@ -1,8 +1,7 @@
-
 // src/components/PlaceBet.js
 
 import React, { useState, useEffect } from "react";
-import { placeBet } from "../services/api";
+import { placeBet, getUserBalance } from "../services/api";
 
 const PlaceBet = () => {
   const [colorPreference, setColorPreference] = useState("random");
@@ -14,26 +13,14 @@ const PlaceBet = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch user balance on mount
+    // Fetch user balance on mount using the API service function
     const fetchBalance = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setMessage("Please log in to view your balance.");
-        return;
-      }
       try {
-        const response = await fetch("/tokens/balance/user", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setUserBalance(data.balance);
-        } else {
-          setMessage(`Error: ${data.error}`);
-        }
+        const balance = await getUserBalance();
+        setUserBalance(balance);
       } catch (error) {
         console.error("Error fetching balance:", error);
-        setMessage("An unexpected error occurred while fetching your balance.");
+        setMessage(error.message || "An unexpected error occurred while fetching your balance.");
       }
     };
 
@@ -42,11 +29,6 @@ const PlaceBet = () => {
 
   const handlePlaceBet = async () => {
     setMessage("");
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setMessage("Please log in to place a bet.");
-      return;
-    }
     if (!amount || Number(amount) <= 0) {
       setMessage("Please enter a valid bet amount.");
       return;
@@ -64,7 +46,7 @@ const PlaceBet = () => {
         timeControl,
         variant,
       };
-      await placeBet(token, betData); // Use the imported placeBet function
+      await placeBet(betData); // Corrected function call
       setMessage("Bet placed successfully!");
       setUserBalance((prev) => prev - Number(amount));
 
@@ -74,7 +56,11 @@ const PlaceBet = () => {
       setVariant("standard");
       setAmount("");
     } catch (error) {
-      setMessage(error.message || "Failed to place the bet.");
+      if (error.response && error.response.data && error.response.data.error) {
+        setMessage(`Error: ${error.response.data.error}`);
+      } else {
+        setMessage(error.message || "Failed to place the bet.");
+      }
     } finally {
       setLoading(false);
     }
@@ -127,6 +113,7 @@ const PlaceBet = () => {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         style={styles.input}
+        min="1"
       />
 
       <button
@@ -177,4 +164,3 @@ const styles = {
 };
 
 export default PlaceBet;
-
