@@ -1,3 +1,4 @@
+
 // src/services/api.js
 
 import { apiFetch } from '../utils/api';
@@ -209,7 +210,6 @@ export const getUserData = async () => {
   return data;
 };
 
-
 /**
  * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint.
  */
@@ -230,3 +230,4 @@ export const initiateLichessOAuth = () => {
   const encodedToken = encodeURIComponent(token);
   window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
 };
+
