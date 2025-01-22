@@ -1,13 +1,17 @@
+
 // src/components/LichessInfo.js
 
 import React from 'react';
 import PropTypes from 'prop-types';
 
 const LichessInfo = ({ info }) => {
-  const connectedDate = info.connectedAt ? new Date(info.connectedAt).toLocaleString() : "N/A";
+  const connectedDate = info.connectedAt
+    ? new Date(info.connectedAt).toLocaleString()
+    : "N/A";
 
-  // Extract ratings from lichessRatings object
-  const ratings = info.ratings || {};
+  // Access standard and variant ratings
+  const standardRatings = (info.ratings && info.ratings.standard) || {};
+  const variantRatings = (info.ratings && info.ratings.variants) || {};
 
   return (
     <div style={styles.container}>
@@ -16,15 +20,13 @@ const LichessInfo = ({ info }) => {
       </p>
       <p>
         <strong>Connected Since:</strong>{" "}
-        <span data-testid="connected-date">
-          {connectedDate}
-        </span>
+        <span data-testid="connected-date">{connectedDate}</span>
       </p>
-      
-      {/* Display Ratings */}
+
+      {/* Display Standard Ratings */}
       <div style={styles.ratingsContainer}>
-        <h4>Ratings:</h4>
-        {Object.keys(ratings).length > 0 ? (
+        <h4>Standard Ratings:</h4>
+        {Object.keys(standardRatings).length > 0 ? (
           <table style={styles.table}>
             <thead>
               <tr>
@@ -33,8 +35,11 @@ const LichessInfo = ({ info }) => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(ratings).map(([gameType, rating]) => (
-                <tr key={gameType} style={gameType === 'classical' ? styles.highlightRow : {}}>
+              {Object.entries(standardRatings).map(([gameType, rating]) => (
+                <tr
+                  key={gameType}
+                  style={gameType === 'classical' ? styles.highlightRow : {}}
+                >
                   <td style={styles.td}>{capitalizeFirstLetter(gameType)}</td>
                   <td style={styles.td}>{rating !== null ? rating : 'N/A'}</td>
                 </tr>
@@ -42,14 +47,39 @@ const LichessInfo = ({ info }) => {
             </tbody>
           </table>
         ) : (
-          <p>No ratings available.</p>
+          <p>No standard ratings available.</p>
+        )}
+      </div>
+
+      {/* Display Variant Ratings */}
+      <div style={styles.ratingsContainer}>
+        <h4>Variant Ratings:</h4>
+        {Object.keys(variantRatings).length > 0 ? (
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Variant</th>
+                <th style={styles.th}>Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(variantRatings).map(([variant, rating]) => (
+                <tr key={variant} style={styles.highlightRow}>
+                  <td style={styles.td}>{capitalizeFirstLetter(variant)}</td>
+                  <td style={styles.td}>{rating !== null ? rating : 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No variant ratings available.</p>
         )}
       </div>
     </div>
   );
 };
 
-// Helper function to capitalize game type names
+// Helper function to capitalize the first letter
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
@@ -58,12 +88,10 @@ LichessInfo.propTypes = {
   info: PropTypes.shape({
     username: PropTypes.string.isRequired,
     connectedAt: PropTypes.string,
-    ratings: PropTypes.objectOf(
-      PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.oneOf([null]),
-      ])
-    ),
+    ratings: PropTypes.shape({
+      standard: PropTypes.objectOf(PropTypes.number),
+      variants: PropTypes.objectOf(PropTypes.number),
+    }),
   }).isRequired,
 };
 
@@ -100,6 +128,10 @@ const styles = {
   highlightRow: {
     backgroundColor: '#d1e7dd', // Light green background for primary rating
   },
+  error: {
+    color: 'red',
+  },
 };
 
 export default LichessInfo;
+
