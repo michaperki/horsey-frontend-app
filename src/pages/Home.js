@@ -49,7 +49,7 @@ const Home = () => {
       <header className="header">
         <div>Total Games: {statistics.totalGames}</div>
         <div>Wins/Loss: {statistics.wins}/{statistics.losses}</div>
-        <div>Win %: {statistics.winPercentage}%</div>
+        <div>ROI: {statistics.winPercentage}%</div>
         <div>Karma: {statistics.karma}</div>
         <div>
           Membership: {statistics.membership === 'Free' ? (
@@ -63,7 +63,6 @@ const Home = () => {
 
       <div className="content">
         <main className="main">
-          <h2>Play Ranked</h2>
           <div className="ranked-options">
             <div className="card">
               <h3>4 Player</h3>

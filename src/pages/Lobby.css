@@ -1,7 +1,6 @@
 
 .lobby-container {
   padding: 20px;
-  background-color: #fff;
   border-radius: 8px;
 }
 
@@ -13,6 +12,7 @@
 }
 
 .tab-button {
+  color: white;
   padding: 10px 20px;
   border: none;
   border-bottom: 2px solid transparent;

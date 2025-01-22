@@ -1,3 +1,5 @@
+
+/* Subtle Two-Color Checkerboard Background */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +7,27 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Checkerboard Effect */
+  background-color: #0a2a4d; /* Base dark blue */
+  background-image:
+    linear-gradient(45deg, #0a355c 25%, transparent 25%, transparent 75%, #0a355c 75%),
+    linear-gradient(45deg, #0a355c 25%, #0a2a4d 25%, #0a2a4d 75%, #0a355c 75%);
+  background-size: 480px 480px; /* Large squares */
+  background-position: 0 0, 240px 240px; /* Offset for proper checkerboard */
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+@media (max-width: 768px) {
+  body {
+    background-size: 320px 320px; /* Adjusted for smaller screens */
+    background-position: 0 0, 160px 160px;
+  }
+}
+
+@media (min-width: 1200px) {
+  body {
+    background-size: 600px 600px; /* Adjusted for larger screens */
+    background-position: 0 0, 300px 300px;
+  }
 }

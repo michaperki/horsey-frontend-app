@@ -19,7 +19,6 @@ const Lobby = () => {
 
   return (
     <div className="lobby-container">
-      <h1>Lobby</h1>
       <div className="tabs">
         {["1v1", "Sit and Go", "Tournament"].map((tab) => (
           <button

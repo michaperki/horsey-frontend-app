@@ -10,7 +10,6 @@
   flex: 1;
   padding: 20px;
   gap: 20px;
-  background-color: #eef2f7;
 }
 
 .sidebar {
@@ -19,5 +18,6 @@
 
 .main-content {
   flex: 1;
+  background: transparent;
 }
 

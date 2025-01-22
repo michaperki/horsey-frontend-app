@@ -146,7 +146,7 @@ const Navbar = () => {
             <div className="navbar__dropdown">
               <Link to="/profile" className="navbar__dropdown-item">Profile</Link>
               <Link to="/settings" className="navbar__dropdown-item">Settings</Link>
-              <button onClick={handleLogout} className="navbar__dropdown-item">Logout</button>
+              <button onClick={handleLogout} className="navbar__dropdown-item logout">Logout</button>
             </div>
           )}
         </div>

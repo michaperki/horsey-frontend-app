@@ -1,16 +1,22 @@
 
 /* src/components/Navbar.css */
 
+/* Navbar Container */
 .navbar {
+  background-image: inherit; /* Inherits the body's background pattern */
+  background-position: 0 0; /* Aligns with body background */
+  background-size: inherit;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Adds a subtle divider */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Adds depth */
+  color: #fff;
+  padding: 10px 20px;
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #007bff; /* Vibrant blue background */
-  color: #fff;
-  position: relative;
 }
 
+/* Logo Section */
 .navbar__logo {
   display: flex;
   align-items: center;
@@ -20,10 +26,12 @@
   display: flex;
   text-decoration: none; /* Remove the underline from the anchor tag */
   color: inherit; /* Ensure the text color matches the parent */
+  transition: color 0.3s;
 }
 
 .navbar__logo a:hover {
   text-decoration: none; /* Prevent underline on hover */
+  color: #f1f1f1; /* Change color on hover */
 }
 
 .navbar__logo-image {
@@ -42,10 +50,7 @@
   transition: color 0.3s;
 }
 
-.navbar__logo-text:hover {
-  color: #f1f1f1;
-}
-
+/* Navigation Links */
 .navbar__links {
   display: flex;
   gap: 20px;
@@ -63,7 +68,7 @@
   color: #d1d1d1;
 }
 
-/* New Styles for Connect Lichess Button */
+/* Connect Lichess Button */
 .navbar__connect-button {
   background-color: #28a745; /* Lichess-like green */
   color: #fff;
@@ -73,8 +78,7 @@
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  /* Optional: Add a subtle box-shadow for depth */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle box-shadow for depth */
 }
 
 .navbar__connect-button:hover {
@@ -92,6 +96,7 @@
   transform: none;
 }
 
+/* User Section */
 .navbar__user-section {
   display: flex;
   align-items: center;
@@ -103,10 +108,14 @@
   align-items: center;
   gap: 15px;
   margin-right: 20px;
+  filter: brightness(0) invert(1); /* Makes the icons white */
 }
 
 .navbar__icon-container {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .navbar__icon {
@@ -129,6 +138,9 @@
 .navbar__coin-count {
   margin-left: 5px;
   font-size: 16px;
+  display: inline-block;
+  line-height: 24px;
+  vertical-align: middle;
 }
 
 .navbar__user-info {
@@ -164,6 +176,7 @@
   font-size: 12px;
 }
 
+/* Dropdown Menu */
 .navbar__dropdown {
   position: absolute;
   top: 60px;
@@ -174,6 +187,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   z-index: 1000;
+  min-width: 150px; /* Ensures consistent width */
+  padding: 15px 10px; /* Add more padding */
 }
 
 .navbar__dropdown-item {
@@ -183,10 +198,11 @@
   color: #333;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 16px;
 }
 
 .navbar__dropdown-item:hover {
-  background-color: #f1f1f1;
+  background-color: #f1f1f1; /* Slight hover effect */
 }
 
 /* Loading and Error States */
@@ -208,3 +224,23 @@
   color: #fff;
 }
 
+/* Logout Button Styling */
+.navbar__dropdown-item.logout {
+  background-color: #d9534f; /* Bootstrap Danger Red */
+  color: #fff; /* White text for contrast */
+  font-weight: bold; /* Bold text for emphasis */
+  text-align: center; /* Center-align the text */
+  border-top: 1px solid #f1f1f1; /* Subtle separator */
+  padding: 10px 20px; /* Consistent padding */
+  transition: background-color 0.3s, transform 0.2s;
+  border-radius: 4px; /* Rounded corners for a modern look */
+}
+
+.navbar__dropdown-item.logout:hover {
+  background-color: #c9302c; /* Darker red for hover effect */
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.navbar__dropdown-item.logout:active {
+  transform: translateY(0); /* Remove lift on click */
+}
