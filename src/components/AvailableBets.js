@@ -4,6 +4,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import "./AvailableBets.css";
+import { format } from "timeago.js"; // Importing timeago.js for formatting time
 
 const AvailableBets = () => {
   const { token } = useAuth();
@@ -53,16 +55,12 @@ const AvailableBets = () => {
    */
   const getRating = (bet) => {
     const { variant, creatorRatings } = bet;
-    if (!creatorRatings) return "N/A";
+    if (!creatorRatings) return "unrated";
 
     if (variant.toLowerCase() === "standard") {
-      return creatorRatings.standard && creatorRatings.standard.blitz
-        ? creatorRatings.standard.blitz
-        : "N/A";
+      return creatorRatings.standard?.blitz || "unrated";
     } else {
-      return creatorRatings.variants && creatorRatings.variants[variant.toLowerCase()] !== undefined
-        ? creatorRatings.variants[variant.toLowerCase()]
-        : "N/A";
+      return creatorRatings.variants?.[variant.toLowerCase()] || "unrated";
     }
   };
 
@@ -84,51 +82,55 @@ const AvailableBets = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="available-bets-container">
       <h2>Available Bets</h2>
       {loading && <p>Loading available bets...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {bets.length === 0 && !loading && !error && (
         <p>No bets available right now.</p>
       )}
 
       {bets.length > 0 && (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th>Seeker</th>
-              <th>Rating</th>
-              <th>Color Preference</th>
-              <th>Time Control</th>
-              <th>Variant</th>
-              <th>Wager (PTK)</th>
-              <th>Players</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bets.map((bet) => (
-              <tr key={bet.id}>
-                <td>{bet.creator}</td>
-                <td>{getRating(bet)}</td>
-                <td>{capitalizeFirstLetter(bet.colorPreference)}</td>
-                <td>{formatTimeControl(bet.timeControl)}</td>
-                <td>{capitalizeFirstLetter(bet.variant)}</td>
-                <td>{bet.wager}</td>
-                <td>{bet.players}</td>
-                <td>
-                  <button
-                    onClick={() => handleAcceptBet(bet.id, bet.colorPreference)}
-                    style={styles.acceptBtn}
-                    disabled={actionLoading[bet.id]}
-                  >
-                    {actionLoading[bet.id] ? "Joining..." : "Join"}
-                  </button>
-                </td>
+        <div className="table-wrapper">
+          <table className="available-bets-table">
+            <thead>
+              <tr>
+                <th>Seeker</th>
+                <th>Rating</th>
+                <th>Color</th>
+                <th>Time Control</th>
+                <th>Variant</th>
+                <th>Wager (PTK)</th>
+                <th>Time Elapsed</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {bets.map((bet) => (
+                <tr key={bet.id}>
+                  <td>{bet.creatorLichessUsername || bet.creator}</td>
+                  <td>{getRating(bet)}</td>
+                  <td>{capitalizeFirstLetter(bet.colorPreference)}</td>
+                  <td>{formatTimeControl(bet.timeControl)}</td>
+                  <td>{capitalizeFirstLetter(bet.variant)}</td>
+                  <td>{bet.wager}</td>
+                  <td>{format(bet.createdAt)}</td>
+                  <td>
+                    <button
+                      onClick={() => handleAcceptBet(bet.id, bet.colorPreference)}
+                      className={`join-button ${
+                        actionLoading[bet.id] ? "loading" : ""
+                      }`}
+                      disabled={actionLoading[bet.id]}
+                    >
+                      {actionLoading[bet.id] ? "Joining..." : "Join"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
@@ -152,31 +154,7 @@ const capitalizeFirstLetter = (str) => {
 const formatTimeControl = (timeControl) => {
   if (!timeControl) return "N/A";
   const [minutes, increment] = timeControl.split("|");
-  return `${minutes} +${increment}`;
-};
-
-const styles = {
-  container: {
-    padding: "20px",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "8px",
-    maxWidth: "1000px",
-    margin: "auto",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "20px",
-  },
-  acceptBtn: {
-    padding: "5px 10px",
-    backgroundColor: "#28a745",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
+  return `${minutes}+${increment}`;
 };
 
 export default AvailableBets;

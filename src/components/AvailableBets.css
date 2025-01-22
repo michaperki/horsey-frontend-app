@@ -1,0 +1,94 @@
+
+/* src/components/AvailableBets.css */
+
+/* General container styling */
+.available-bets-container {
+  padding: 20px;
+  background: #002a56;
+  border-radius: 10px;
+  max-width: 1200px;
+  margin: 40px auto; /* Added top margin for spacing */
+  color: white;
+  font-family: Arial, sans-serif;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.available-bets-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Error message styling */
+.error-message {
+  color: #ff4d4f;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Table styling */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.available-bets-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #003b6f;
+  color: white;
+  margin-top: 10px;
+  text-align: center;
+  min-width: 800px; /* Ensures table doesn't get too narrow */
+}
+
+.available-bets-table thead {
+  background: #00509e;
+  text-transform: uppercase;
+}
+
+.available-bets-table th,
+.available-bets-table td {
+  padding: 12px 15px;
+  border: 1px solid #004080;
+}
+
+.available-bets-table tbody tr:nth-child(odd) {
+  background: #003b6f;
+}
+
+.available-bets-table tbody tr:nth-child(even) {
+  background: #004d80;
+}
+
+/* Hover effect for table rows */
+.available-bets-table tbody tr:hover {
+  background: #00509e;
+  transition: background 0.3s ease;
+}
+
+/* Button styling */
+.join-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  background: #28a745; /* Green color for "Join" */
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-weight: bold;
+}
+
+.join-button:hover {
+  background: #218838;
+}
+
+.join-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.join-button.loading {
+  background: #ffc107; /* Yellow color to indicate loading */
+  cursor: progress;
+}
+
