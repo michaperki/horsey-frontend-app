@@ -14,16 +14,7 @@ const NotificationsModal = () => {
   useEffect(() => {
     if (!socket) return;
 
-    // Listen for 'betCreated' event
-    socket.on('betCreated', (data) => {
-      console.log('Received betCreated event:', data); // Debugging
-      setModalContent({
-        title: 'Bet Placed',
-        message: data.message,
-        gameLink: data.bet.gameLink, // Ensure gameLink is part of the event data
-      });
-      setIsOpen(true);
-    });
+    // Removed 'betCreated' event listener as it's now handled by PlaceBet component
 
     // Listen for 'betAccepted' event
     socket.on('betAccepted', (data) => {
@@ -37,7 +28,7 @@ const NotificationsModal = () => {
     });
 
     return () => {
-      socket.off('betCreated');
+      // Removed socket.off('betCreated');
       socket.off('betAccepted');
     };
   }, [socket]);

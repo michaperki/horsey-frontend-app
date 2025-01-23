@@ -29,7 +29,8 @@
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "run:code2prompt": "code2prompt ./ --exclude=\"node_modules/**,**/package-lock.json,**/*.txt,**/*.test.js,**/*.css\" --tokens"
   },
   "eslintConfig": {
     "extends": [

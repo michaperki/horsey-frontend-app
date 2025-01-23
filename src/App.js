@@ -1,14 +1,14 @@
 
 // src/App.js
 
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Mint from "./components/Admin/Mint";
 import Balance from "./components/Admin/Balance";
 import Transfer from "./components/Admin/Transfer";
 import ValidateResult from "./components/Admin/ValidateResult";
-import PlaceBet from "./components/PlaceBet";
+import PlaceBet from "./components/PlaceBet"; // Updated import
 import Register from './components/Auth/Register';
 import UserLogin from './components/Auth/UserLogin';
 import AdminLogin from './components/Auth/AdminLogin';
@@ -26,6 +26,8 @@ import { TokenProvider } from './contexts/TokenContext';
 import NotificationsModal from './components/NotificationsModal';
 
 function App() {
+  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
+
   return (
     <SocketProvider>
       <TokenProvider>
@@ -42,7 +44,7 @@ function App() {
           <Route
             element={
               <ProtectedRoute>
-                <Layout />
+                <Layout onOpenPlaceBet={() => setIsPlaceBetModalOpen(true)} /> {/* Pass handler to Layout or relevant component */}
               </ProtectedRoute>
             }
           >
@@ -51,7 +53,7 @@ function App() {
             <Route path="/leaderboards" element={<Leaderboard />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/place-bet" element={<PlaceBet />} />
+            {/* Removed separate route for PlaceBet */}
           </Route>
           
           {/* Admin Routes */}
@@ -95,6 +97,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Optionally, you can keep the /place-bet route if you want to access it as a separate page */}
+          <Route path="/place-bet" element={<PlaceBet isOpen={true} onClose={() => {}} />} />
         </Routes>
       </TokenProvider>
     </SocketProvider>

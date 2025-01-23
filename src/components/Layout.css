@@ -22,7 +22,6 @@
   flex: 0 0 200px; /* Fixed width */
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
@@ -33,7 +32,6 @@
   flex-direction: column; /* Arrange children vertically */
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden; /* Maintain layout integrity */
   /* Remove justify-content: space-between; */
   align-self: flex-start; /* Prevent sidebar from stretching */

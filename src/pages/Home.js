@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile } from '../services/api';
-import PlaceBetModal from '../components/PlaceBetModal';
 import StatCard from '../components/StatCard';
 import './Home.css';
 
@@ -43,8 +42,6 @@ const Home = () => {
     points: 0,
     username: 'User',
   });
-
-  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -128,16 +125,11 @@ const Home = () => {
             </div>
             <div className="card">
               <h3>Chess 960</h3>
-              <p>Explore the chaos of random piece setups!</p>
+              <p>Experience the chaos of random piece setups!</p>
             </div>
           </div>
         </main>
       </div>
-
-      <PlaceBetModal
-        isOpen={isPlaceBetModalOpen}
-        onClose={() => setIsPlaceBetModalOpen(false)}
-      />
     </div>
   );
 };

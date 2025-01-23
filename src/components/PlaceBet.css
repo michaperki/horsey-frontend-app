@@ -1,0 +1,163 @@
+
+/* General Container Styles */
+.place-bet-container {
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9fafb; /* Subtle, light background for contrast */
+}
+
+/* Open Button Styles */
+.place-bet-open-button {
+  padding: 14px 28px;
+  background-color: #ff9800; /* Bright orange for attention */
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 20px; /* Larger text for prominence */
+  font-weight: bold;
+  margin: 20px auto;
+  display: block; /* Center button horizontally */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.place-bet-open-button:hover {
+  background-color: #fb8c00; /* Slightly darker orange for hover */
+  transform: scale(1.1); /* Increase size slightly on hover */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.place-bet-open-button:focus {
+  outline: none;
+  background-color: #f57c00; /* Darker focus color */
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5);
+}
+
+/* Overlay Styles */
+.place-bet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(10, 10, 10, 0.8); /* Darker overlay for better contrast */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Styles */
+.place-bet-modal {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Close Button Styles */
+.place-bet-close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.3s ease;
+}
+
+.place-bet-close-button:hover {
+  color: #000;
+}
+
+/* Input and Select Styles */
+.place-bet-input,
+.place-bet-select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.place-bet-input:focus,
+.place-bet-select:focus {
+  border-color: #ff9800; /* Match button color */
+  outline: none;
+}
+
+/* Primary Button Styles */
+.place-bet-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #4caf50; /* Green for high visibility */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.place-bet-button:hover {
+  background-color: #43a047;
+  transform: scale(1.02);
+}
+
+.place-bet-button:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+/* Modal Success Button */
+.place-bet-modal-button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: #00796b; /* Calm teal for success */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.place-bet-modal-button:hover {
+  background-color: #004d40;
+  transform: scale(1.02);
+}
+
+/* Message Styles */
+.place-bet-message {
+  margin-top: 10px;
+  color: #d32f2f; /* Red for error messages */
+  font-weight: bold;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

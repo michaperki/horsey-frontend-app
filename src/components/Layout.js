@@ -5,7 +5,7 @@ import React from 'react';
 import Navbar from './Navbar'; // Import Navbar
 import Bulletin from './Bulletin'; // Left sidebar
 import Sidebar from './Sidebar'; // Right sidebar
-import Play1v1Button from './Play1v1Button';
+import PlaceBet from './PlaceBet'
 import Footer from './Footer';
 import { Outlet } from 'react-router-dom';
 import './Layout.css';
@@ -31,7 +31,7 @@ const Layout = () => {
         <aside className="sidebar">
           <Sidebar />
           <div className="play1v1-button-container">
-            <Play1v1Button />
+            <PlaceBet />
           </div>
         </aside>
       </div>
