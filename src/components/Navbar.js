@@ -79,7 +79,7 @@ const Navbar = () => {
     <nav className="navbar">
       {/* Logo */}
       <div className="navbar__logo">
-        <Link to="/home">
+        <Link to={token ? "/home" : "/"}>
           <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
           <span className="navbar__logo-text">Horsey</span>
         </Link>
@@ -113,10 +113,8 @@ const Navbar = () => {
 
         {!token && (
           <>
-            <Link to="/" className="navbar__link">Home</Link>
-            <Link to="/login" className="navbar__link">User Login</Link>
+            <Link to="/login" className="navbar__link">Login</Link>
             <Link to="/register" className="navbar__link">Register</Link>
-            <Link to="/admin/login" className="navbar__link">Admin Login</Link>
           </>
         )}
       </div>

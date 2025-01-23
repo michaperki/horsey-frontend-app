@@ -1,0 +1,82 @@
+
+/* General styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff; /* White text for logo */
+}
+
+/* Hero section */
+.hero-section {
+  text-align: center;
+  padding: 100px 20px;
+  color: #ffffff; /* White text for hero section */
+}
+
+.hero-section h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #ffffff; /* White text for the main heading */
+}
+
+.hero-section p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #ffffff; /* White text for paragraph */
+}
+
+.cta-button {
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: #ff4500;
+  border: none;
+  border-radius: 5px;
+  color: #ffffff; /* White text for button */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #e03e00;
+}
+
+/* Live stats section */
+.live-stats {
+  text-align: center;
+  margin: 50px 0;
+  color: #ffffff; /* White text for stats */
+}
+
+.live-stats h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #ffffff; /* White text for stats heading */
+}
+
+.live-stats p {
+  font-size: 18px;
+  margin: 5px 0;
+  color: #ffffff; /* White text for stats paragraph */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 36px;
+  }
+
+  .hero-section p {
+    font-size: 16px;
+  }
+
+  .cta-button {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
+}
+

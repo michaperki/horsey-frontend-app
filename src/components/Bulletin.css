@@ -1,0 +1,23 @@
+
+.bulletin-container {
+  background-color: #f0f8ff; /* Light blue background */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bulletin-container h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.bulletin-container ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  color: #333;
+}
+
+.bulletin-container li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}

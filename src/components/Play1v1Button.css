@@ -1,0 +1,31 @@
+
+/* Play1v1Button positioning and style */
+.play1v1-button-container {
+  margin-top: 20px; /* Adds spacing above the button */
+  text-align: center; /* Center the button horizontally if needed */
+}
+
+.play-1v1-button .button {
+  padding: 20px 30px;
+  background-color: #ff4500;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.play-1v1-button .button:hover {
+  background-color: #e03e1e;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.25);
+}
+
+.play-1v1-button .button:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+

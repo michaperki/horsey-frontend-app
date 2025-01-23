@@ -5,7 +5,27 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile } from '../services/api';
 import PlaceBetModal from '../components/PlaceBetModal';
+import StatCard from '../components/StatCard';
 import './Home.css';
+
+// Import necessary Font Awesome icons
+import {
+  faGamepad,
+  faTrophy,
+  faCoins,
+  faBalanceScale,
+  faDollarSign,
+  faChartLine,
+  faPercentage,
+  faArrowUp,
+  faArrowDown,
+  faMedal,
+  faCrown,
+  faHeart,
+  faSmile,
+  faStar,
+  faGift,
+} from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
   const { token } = useAuth();
@@ -13,12 +33,15 @@ const Home = () => {
 
   const [statistics, setStatistics] = useState({
     totalGames: 0,
-    wins: 0,
-    losses: 0,
-    winPercentage: '0.00',
+    averageWager: 0,
+    totalWagered: 0,
+    averageROI: '0.00',
+    totalWinnings: 0,
+    totalLosses: 0,
     karma: 0,
     membership: 'Free',
     points: 0,
+    username: 'User',
   });
 
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
@@ -27,9 +50,9 @@ const Home = () => {
     const fetchProfile = async () => {
       try {
         const response = await getUserProfile(token);
-        const { statistics } = response;
+        const { statistics, username } = response;
 
-        setStatistics(statistics);
+        setStatistics({ ...statistics, username });
       } catch (error) {
         console.error('Error fetching user profile:', error);
       } finally {
@@ -41,55 +64,75 @@ const Home = () => {
   }, [token]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (
     <div className="home-container">
       <header className="header">
-        <div>Total Games: {statistics.totalGames}</div>
-        <div>Wins/Loss: {statistics.wins}/{statistics.losses}</div>
-        <div>ROI: {statistics.winPercentage}%</div>
-        <div>Karma: {statistics.karma}</div>
-        <div>
-          Membership: {statistics.membership === 'Free' ? (
-            <a href="/membership">Become a Member</a>
-          ) : (
-            'Premium'
-          )}
+        <div className="stats-grid">
+          <StatCard
+            title="Total Games Played"
+            value={statistics.totalGames}
+            icon={faGamepad}
+          />
+          <StatCard
+            title="Average Wager"
+            value={`${statistics.averageWager} PTK`}
+            icon={faCoins}
+          />
+          <StatCard
+            title="Total Wagered"
+            value={`${statistics.totalWagered} PTK`}
+            icon={faDollarSign}
+          />
+          <StatCard
+            title="Average ROI"
+            value={`${statistics.averageROI}%`}
+            icon={faChartLine}
+          />
+          <StatCard
+            title="Total Winnings"
+            value={`${statistics.totalWinnings} PTK`}
+            icon={faTrophy}
+          />
+          <StatCard
+            title="Total Losses"
+            value={`${statistics.totalLosses} PTK`}
+            icon={faArrowDown}
+          />
         </div>
-        <div>Points: {statistics.points}</div>
+        <div className="additional-info">
+          <div className="info-item">
+            Membership: {statistics.membership === 'Free' ? (
+              <a href="/membership">Become a Member</a>
+            ) : (
+              'Premium'
+            )}
+          </div>
+          <div className="info-item">Karma: {statistics.karma}</div>
+          <div className="info-item">Points: {statistics.points}</div>
+        </div>
       </header>
 
       <div className="content">
         <main className="main">
           <div className="ranked-options">
             <div className="card">
-              <h3>4 Player</h3>
-              <p>1/10 placement games played</p>
+              <h3>Classic Blitz</h3>
+              <p>Our most popular game mode!</p>
+            </div>
+            <div className="card">
+              <h3>Crazy House</h3>
+              <p>Experience the dynamic gameplay of Crazy House!</p>
             </div>
             <div className="card">
               <h3>Chess 960</h3>
-              <p>Experience the chaos of random piece setups!</p>
+              <p>Explore the chaos of random piece setups!</p>
             </div>
-          </div>
-
-          <div className="play-1v1-button">
-            <button
-              className="button"
-              onClick={() => setIsPlaceBetModalOpen(true)}
-            >
-              Play 1v1
-            </button>
           </div>
         </main>
       </div>
-
-      <footer className="footer">
-        <button className="footer-button">Create Room</button>
-        <button className="footer-button">Play vs Bots</button>
-        <button className="footer-button">Play Ranked / Casual</button>
-      </footer>
 
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}
@@ -100,3 +143,4 @@ const Home = () => {
 };
 
 export default Home;
+

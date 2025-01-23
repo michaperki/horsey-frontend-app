@@ -1,23 +1,51 @@
 
+/* Layout Container */
 .layout-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* Ensures the container fills the viewport height */
+  /* Remove overflow: hidden to allow footer visibility */
+  /* overflow: hidden; */ /* <-- Remove this line */
 }
 
+/* Layout Content */
 .layout-content {
   display: flex;
-  flex: 1;
+  flex: 1; /* Allows the content to expand and fill available space */
   padding: 20px;
   gap: 20px;
+  /* Remove overflow: auto if you don't want internal scrolling */
+  /* overflow: auto; */ /* <-- Optional: Remove or keep based on your needs */
 }
 
+/* Left Sidebar (Bulletin) */
+.bulletin {
+  flex: 0 0 200px; /* Slightly smaller width than before */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+/* Right Sidebar */
 .sidebar {
-  flex: 0 0 250px; /* Fixed width for the sidebar */
+  flex: 0 0 300px; /* Keep it wider for its content */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
 }
 
+/* Main Content */
 .main-content {
   flex: 1;
   background: transparent;
+  /* Ensure no margins or padding push content beyond available space */
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
