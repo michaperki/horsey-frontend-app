@@ -7,8 +7,6 @@ const Sidebar = () => {
     <div className="sidebar-container">
       {/* Example content: Replace with your actual content */}
       <img src="/assets/sidebar.jpg" alt="Sidebar Ad" className="sidebar-image" />
-      <div className="sidebar-info">
-      </div>
     </div>
   );
 };

@@ -2,7 +2,8 @@
 // src/components/Layout.js
 
 import React from 'react';
-import Bulletin from './Bulletin'; // New Bulletin component
+import Navbar from './Navbar'; // Import Navbar
+import Bulletin from './Bulletin'; // Left sidebar
 import Sidebar from './Sidebar'; // Right sidebar
 import Play1v1Button from './Play1v1Button';
 import Footer from './Footer';
@@ -12,12 +13,16 @@ import './Layout.css';
 const Layout = () => {
   return (
     <div className="layout-container">
+      {/* Navbar at the top */}
+      <Navbar />
+      
       <div className="layout-content">
-        {/* Left Sidebar transformed to Bulletin */}
+        {/* Left Sidebar */}
         <aside className="bulletin">
           <Bulletin />
         </aside>
         
+        {/* Main Content */}
         <main className="main-content">
           <Outlet />
         </main>
@@ -30,9 +35,12 @@ const Layout = () => {
           </div>
         </aside>
       </div>
+      
+      {/* Footer at the bottom */}
       <Footer />
     </div>
   );
 };
 
 export default Layout;
+

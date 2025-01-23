@@ -1,26 +1,25 @@
 
+/* src/components/Layout.css */
+
 /* Layout Container */
 .layout-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Ensures the container fills the viewport height */
-  /* Remove overflow: hidden to allow footer visibility */
-  /* overflow: hidden; */ /* <-- Remove this line */
+  min-height: 100vh; /* Full viewport height */
 }
 
 /* Layout Content */
 .layout-content {
   display: flex;
-  flex: 1; /* Allows the content to expand and fill available space */
+  flex: 1; /* Expands to fill available space */
   padding: 20px;
   gap: 20px;
-  /* Remove overflow: auto if you don't want internal scrolling */
-  /* overflow: auto; */ /* <-- Optional: Remove or keep based on your needs */
+  align-items: stretch; /* Ensure children stretch to fill the container vertically */
 }
 
 /* Left Sidebar (Bulletin) */
 .bulletin {
-  flex: 0 0 200px; /* Slightly smaller width than before */
+  flex: 0 0 200px; /* Fixed width */
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -29,11 +28,23 @@
 
 /* Right Sidebar */
 .sidebar {
-  flex: 0 0 300px; /* Keep it wider for its content */
+  flex: 0 0 300px; /* Fixed width */
+  display: flex;
+  flex-direction: column; /* Arrange children vertically */
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
+  overflow: hidden; /* Maintain layout integrity */
+  /* Remove justify-content: space-between; */
+  align-self: flex-start; /* Prevent sidebar from stretching */
+  /* Optionally set a minimum height if needed */
+}
+
+/* Play1v1 Button Container */
+.play1v1-button-container {
+  margin-top: auto; /* Pushes the button to the bottom */
+  text-align: center; /* Center horizontally */
+  /* Remove any conflicting margin-top properties */
 }
 
 /* Main Content */
@@ -43,9 +54,96 @@
   /* Ensure no margins or padding push content beyond available space */
 }
 
+/* Footer */
 .footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+  padding: 10px 20px; /* Adjust as needed */
+  background-color: transparent; /* Set background to transparent or desired color */
+  color: #fff;
+  border-radius: 8px;
+  /* Remove margin-top: auto; */
+  /* Instead, let Flexbox handle its placement */
+}
+
+/* Footer Container */
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Footer Sections */
+.footer-left,
+.footer-middle,
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-left {
+  gap: 10px; /* Reduced spacing between version and language */
+}
+
+.version {
+  font-size: 12px; /* Smaller font size */
+}
+
+.language-selector {
+  font-size: 12px;
+  cursor: pointer; /* Indicates it's interactive */
+  text-decoration: underline;
+}
+
+.footer-middle {
+  gap: 15px; /* Reduced gap between navigation links */
+  margin: 10px 0; /* Vertical spacing on smaller screens */
+}
+
+.footer-middle a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px; /* Smaller font size */
+  transition: color 0.3s;
+}
+
+.footer-middle a:hover {
+  color: #ffeb3b;
+}
+
+.footer-right {
+  gap: 10px; /* Reduced spacing between icons */
+}
+
+.social-icon img {
+  width: 20px; /* Smaller icon size */
+  height: 20px;
+  filter: brightness(0) invert(1); /* Make the icons white */
+  transition: transform 0.2s;
+}
+
+.social-icon img:hover {
+  transform: scale(1.1); /* Slight zoom on hover for interactivity */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-middle {
+    justify-content: center;
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .footer-right {
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 10px;
+  }
 }
 

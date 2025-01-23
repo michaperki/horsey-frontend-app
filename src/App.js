@@ -1,4 +1,6 @@
 
+// src/App.js
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
@@ -17,7 +19,6 @@ import Leaderboard from './pages/Leaderboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProfilePage from './pages/Profile';
 import Notifications from './components/Notifications';
-import Navbar from './components/Navbar';
 import LichessCallback from './components/Auth/LichessCallback';
 import Layout from './components/Layout'; // Import Layout
 import { SocketProvider } from './contexts/SocketContext';
@@ -28,7 +29,7 @@ function App() {
   return (
     <SocketProvider>
       <TokenProvider>
-        <Navbar />
+        {/* Navbar is now part of Layout */}
         <NotificationsModal />
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -37,7 +38,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/auth/lichess/callback" element={<LichessCallback />} />
           
-          {/* Routes with Layout (Persistent Sidebar) */}
+          {/* Routes with Layout (Persistent Navbar, Sidebar, and Footer) */}
           <Route
             element={
               <ProtectedRoute>
