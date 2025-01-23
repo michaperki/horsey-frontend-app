@@ -1,7 +1,7 @@
 
 // src/components/Navbar.js
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToken } from '../contexts/TokenContext';
@@ -21,6 +21,10 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Refs for the user info and dropdown
+  const userInfoRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +67,7 @@ const Navbar = () => {
   };
 
   const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+    setShowDropdown((prev) => !prev);
   };
 
   const handleConnectLichess = () => {
@@ -75,11 +79,39 @@ const Navbar = () => {
     }
   };
 
+  // Handler to close the dropdown
+  const closeDropdown = () => {
+    setShowDropdown(false);
+  };
+
+  // Handler to detect clicks outside the dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showDropdown &&
+        userInfoRef.current &&
+        !userInfoRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    // Bind the event listener
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
+
   return (
     <nav className="navbar">
       {/* Logo */}
       <div className="navbar__logo">
-        <Link to={token ? "/home" : "/"}>
+        <Link to={token ? "/home" : "/"} onClick={closeDropdown}>
           <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
           <span className="navbar__logo-text">Horsey</span>
         </Link>
@@ -89,10 +121,10 @@ const Navbar = () => {
       <div className="navbar__links">
         {token && user?.role === 'user' && (
           <>
-            <Link to="/home" className="navbar__link">Home</Link>
-            <Link to="/lobby" className="navbar__link">Lobby</Link>
-            <Link to="/leaderboards" className="navbar__link">Leaderboards</Link>
-            <Link to="/store" className="navbar__link">Store</Link>
+            <Link to="/home" className="navbar__link" onClick={closeDropdown}>Home</Link>
+            <Link to="/lobby" className="navbar__link" onClick={closeDropdown}>Lobby</Link>
+            <Link to="/leaderboards" className="navbar__link" onClick={closeDropdown}>Leaderboards</Link>
+            <Link to="/store" className="navbar__link" onClick={closeDropdown}>Store</Link>
             {!lichessConnected && (
               <button
                 onClick={handleConnectLichess}
@@ -107,14 +139,14 @@ const Navbar = () => {
 
         {token && user?.role === 'admin' && (
           <>
-            <Link to="/admin/dashboard" className="navbar__link">Admin Dashboard</Link>
+            <Link to="/admin/dashboard" className="navbar__link" onClick={closeDropdown}>Admin Dashboard</Link>
           </>
         )}
 
         {!token && (
           <>
-            <Link to="/login" className="navbar__link">Login</Link>
-            <Link to="/register" className="navbar__link">Register</Link>
+            <Link to="/login" className="navbar__link" onClick={closeDropdown}>Login</Link>
+            <Link to="/register" className="navbar__link" onClick={closeDropdown}>Register</Link>
           </>
         )}
       </div>
@@ -132,7 +164,11 @@ const Navbar = () => {
               <span className="navbar__coin-count">{tokens}</span>
             </div>
           </div>
-          <div className="navbar__user-info" onClick={toggleDropdown}>
+          <div
+            className="navbar__user-info"
+            onClick={toggleDropdown}
+            ref={userInfoRef} // Attach ref here
+          >
             <img src={user.avatar || "/assets/default-avatar.png"} alt="User Avatar" className="navbar__avatar" />
             <div className="navbar__user-text">
               <span className="navbar__username">{user.username}</span>
@@ -141,10 +177,10 @@ const Navbar = () => {
             <span className="navbar__dropdown-arrow">▼</span>
           </div>
           {showDropdown && (
-            <div className="navbar__dropdown">
-              <Link to="/profile" className="navbar__dropdown-item">Profile</Link>
-              <Link to="/settings" className="navbar__dropdown-item">Settings</Link>
-              <button onClick={handleLogout} className="navbar__dropdown-item logout">Logout</button>
+            <div className="navbar__dropdown" ref={dropdownRef}> {/* Attach ref here */}
+              <Link to="/profile" className="navbar__dropdown-item" onClick={closeDropdown}>Profile</Link>
+              <Link to="/settings" className="navbar__dropdown-item" onClick={closeDropdown}>Settings</Link>
+              <button onClick={() => { handleLogout(); closeDropdown(); }} className="navbar__dropdown-item logout">Logout</button>
             </div>
           )}
         </div>

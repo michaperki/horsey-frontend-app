@@ -15,7 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Lobby from './pages/Lobby';
 import Leaderboard from './pages/Leaderboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import Profile from './components/Profile';
+import ProfilePage from './pages/Profile';
 import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
 import LichessCallback from './components/Auth/LichessCallback';
@@ -48,7 +48,7 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/lobby" element={<Lobby />} />
             <Route path="/leaderboards" element={<Leaderboard />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/place-bet" element={<PlaceBet />} />
           </Route>

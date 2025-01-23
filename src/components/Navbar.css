@@ -3,6 +3,7 @@
 
 /* Navbar Container */
 .navbar {
+  background-color: #0a2a4d;
   background-image: inherit; /* Inherits the body's background pattern */
   background-position: 0 0; /* Aligns with body background */
   background-size: inherit;
