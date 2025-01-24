@@ -8,38 +8,69 @@
   min-height: 100vh; /* Full viewport height */
 }
 
+/* App Wrapper */
+.app-wrapper {
+  max-width: 1200px; /* Adjust as needed */
+  width: 100%; /* Ensure it uses full available width */
+  margin: 0 auto;
+  padding: 10px; /* Reduced padding for better space utilization */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Add spacing between major sections */
+  flex: 1; /* Allow app-wrapper to grow and fill space */
+}
+
 /* Layout Content */
 .layout-content {
   display: flex;
   flex: 1; /* Expands to fill available space */
-  padding: 20px;
+  padding: 10px; /* Reduced padding */
   gap: 20px;
   align-items: stretch; /* Ensure children stretch to fill the container vertically */
+  /* Removed overflow: hidden to allow content to expand */
 }
 
 /* Left Sidebar (Bulletin) */
 .bulletin {
-  flex: 0 0 200px; /* Fixed width */
+  flex: 0 0 150px; /* Reduced width from 200px to 150px */
   padding: 15px;
   border-radius: 8px;
   overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
+@media (max-width: 1024px) {
+  .bulletin {
+    flex: 0 0 120px;
+  }
+  
+  .sidebar {
+    flex: 0 0 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bulletin {
+    display: none; /* Hide left sidebar on smaller screens */
+  }
+  
+  .sidebar {
+    flex: 0 0 150px; /* Further reduce sidebar width */
+  }
+}
+
 /* Right Sidebar */
 .sidebar {
-  flex: 0 0 300px; /* Fixed width */
+  flex: 0 0 250px; /* Reduced width from 300px to 250px */
   display: flex;
   flex-direction: column; /* Arrange children vertically */
   padding: 15px;
   border-radius: 8px;
   overflow: hidden; /* Maintain layout integrity */
-  /* Remove justify-content: space-between; */
   align-self: flex-start; /* Prevent sidebar from stretching */
-  /* Optionally set a minimum height if needed */
 }
 
-/* Play1v1 Button Container */
-.play1v1-button-container {
+/* PlaceBet Button Container */
+.placebet-button-container {
   margin-top: auto; /* Pushes the button to the bottom */
   text-align: center; /* Center horizontally */
   /* Remove any conflicting margin-top properties */
@@ -49,7 +80,9 @@
 .main-content {
   flex: 1;
   background: transparent;
-  /* Ensure no margins or padding push content beyond available space */
+  /* Removed overflow: hidden to allow content to expand */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Footer */
@@ -58,8 +91,6 @@
   background-color: transparent; /* Set background to transparent or desired color */
   color: #fff;
   border-radius: 8px;
-  /* Remove margin-top: auto; */
-  /* Instead, let Flexbox handle its placement */
 }
 
 /* Footer Container */
@@ -69,6 +100,7 @@
   align-items: center;
   flex-wrap: wrap; /* Allows wrapping on smaller screens */
   max-width: 1200px;
+  width: 100%; /* Ensure it fills the footer */
   margin: 0 auto;
 }
 

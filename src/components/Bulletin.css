@@ -1,22 +1,30 @@
 
+/* src/components/Bulletin.css */
+
 .bulletin-container {
   background-color: #f0f8ff; /* Light blue background */
-  padding: 15px;
+  padding: 10px; /* Reduced padding */
   border-radius: 8px;
+  max-width: 100%; /* Ensure it doesn't exceed parent width */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  box-sizing: border-box; /* Include padding in width calculations */
 }
 
 .bulletin-container h3 {
-  font-size: 18px;
+  font-size: 14px;
   margin-bottom: 10px;
 }
 
 .bulletin-container ul {
   list-style-type: disc;
-  margin-left: 20px;
+  padding-left: 15px; /* Use padding instead of margin */
+  margin: 0; /* Remove default margin */
   color: #333;
 }
 
 .bulletin-container li {
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 12px;
+  word-wrap: break-word; /* Ensure long words break to prevent overflow */
 }
+

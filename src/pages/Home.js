@@ -7,24 +7,8 @@ import { getUserProfile } from '../services/api';
 import StatCard from '../components/StatCard';
 import './Home.css';
 
-// Import necessary Font Awesome icons
-import {
-  faGamepad,
-  faTrophy,
-  faCoins,
-  faBalanceScale,
-  faDollarSign,
-  faChartLine,
-  faPercentage,
-  faArrowUp,
-  faArrowDown,
-  faMedal,
-  faCrown,
-  faHeart,
-  faSmile,
-  faStar,
-  faGift,
-} from '@fortawesome/free-solid-svg-icons';
+// Import React Icons for Home Options
+import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 
 const Home = () => {
   const { token } = useAuth();
@@ -68,35 +52,23 @@ const Home = () => {
     <div className="home-container">
       <header className="header">
         <div className="stats-grid">
-          <StatCard
-            title="Total Games Played"
-            value={statistics.totalGames}
-            icon={faGamepad}
-          />
+          <StatCard title="Total Games Played" value={statistics.totalGames} />
           <StatCard
             title="Average Wager"
             value={`${statistics.averageWager} PTK`}
-            icon={faCoins}
           />
           <StatCard
             title="Total Wagered"
             value={`${statistics.totalWagered} PTK`}
-            icon={faDollarSign}
           />
-          <StatCard
-            title="Average ROI"
-            value={`${statistics.averageROI}%`}
-            icon={faChartLine}
-          />
+          <StatCard title="Average ROI" value={`${statistics.averageROI}%`} />
           <StatCard
             title="Total Winnings"
             value={`${statistics.totalWinnings} PTK`}
-            icon={faTrophy}
           />
           <StatCard
             title="Total Losses"
             value={`${statistics.totalLosses} PTK`}
-            icon={faArrowDown}
           />
         </div>
         <div className="additional-info">
@@ -114,18 +86,27 @@ const Home = () => {
 
       <div className="content">
         <main className="main">
-          <div className="ranked-options">
+          <div className="home-options">
             <div className="card">
-              <h3>Classic Blitz</h3>
-              <p>Our most popular game mode!</p>
+              <div className="icon"><FaChessKnight /></div>
+              <div>
+                <h3>Classic Blitz</h3>
+                <p>Our most popular game mode!</p>
+              </div>
             </div>
             <div className="card">
-              <h3>Crazy House</h3>
-              <p>Experience the dynamic gameplay of Crazy House!</p>
+              <div className="icon"><FaChessKing /></div>
+              <div>
+                <h3>Crazy House</h3>
+                <p>Place pieces that you capture!</p>
+              </div>
             </div>
             <div className="card">
-              <h3>Chess 960</h3>
-              <p>Experience the chaos of random piece setups!</p>
+              <div className="icon"><FaCoins /></div>
+              <div>
+                <h3>Play for Horsey Coins</h3>
+                <button className="get-coins-button">Get Coins</button>
+              </div>
             </div>
           </div>
         </main>
@@ -135,4 +116,3 @@ const Home = () => {
 };
 
 export default Home;
-

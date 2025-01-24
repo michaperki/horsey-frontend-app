@@ -7,6 +7,19 @@ import { useAuth } from "../contexts/AuthContext";
 import "./AvailableBets.css";
 import { format } from "timeago.js"; // Importing timeago.js for formatting time
 
+// Import React Icons
+import { 
+  FaUser, 
+  FaStar, 
+  FaClock, 
+  FaPuzzlePiece, 
+  FaMoneyBill, 
+  FaHourglassHalf, 
+  FaSignInAlt, 
+  FaChessPawn, 
+  FaDice 
+} from "react-icons/fa";
+
 const AvailableBets = () => {
   const { token } = useAuth();
   const [bets, setBets] = useState([]);
@@ -51,7 +64,7 @@ const AvailableBets = () => {
   /**
    * Retrieves the appropriate rating based on the variant and available data.
    * @param {object} bet - The bet object.
-   * @returns {number|string} - The rating or "N/A".
+   * @returns {number|string} - The rating or "unrated".
    */
   const getRating = (bet) => {
     const { variant, creatorRatings } = bet;
@@ -61,6 +74,24 @@ const AvailableBets = () => {
       return creatorRatings.standard?.blitz || "unrated";
     } else {
       return creatorRatings.variants?.[variant.toLowerCase()] || "unrated";
+    }
+  };
+
+  /**
+   * Renders the appropriate icon based on the color preference.
+   * @param {string} colorPreference - The color preference of the bet.
+   * @returns {JSX.Element} - The corresponding icon.
+   */
+  const renderColorIcon = (colorPreference) => {
+    switch (colorPreference.toLowerCase()) {
+      case "white":
+        return <FaChessPawn color="white" aria-label="White Pawn" />;
+      case "black":
+        return <FaChessPawn color="black" aria-label="Black Pawn" />;
+      case "random":
+        return <FaDice color="#ffc107" aria-label="Random Color" />; // Golden color for dice
+      default:
+        return <FaDice color="#6c757d" aria-label="Unknown Color" />; // Fallback icon
     }
   };
 
@@ -95,39 +126,69 @@ const AvailableBets = () => {
           <table className="available-bets-table">
             <thead>
               <tr>
-                <th>Seeker</th>
-                <th>Rating</th>
-                <th>Color</th>
-                <th>Time Control</th>
-                <th>Variant</th>
-                <th>Wager (PTK)</th>
-                <th>Time Elapsed</th>
-                <th>Action</th>
+                <th title="Seeker" className="header-icon">
+                  <FaUser />
+                </th>
+                <th title="Rating" className="header-icon">
+                  <FaStar />
+                </th>
+                <th title="Color" className="header-icon">
+                  <FaChessPawn />
+                </th>
+                <th title="Time Control" className="header-icon">
+                  <FaClock />
+                </th>
+                <th title="Variant" className="header-icon">
+                  <FaPuzzlePiece />
+                </th>
+                <th title="Wager (PTK)" className="header-icon">
+                  <FaMoneyBill />
+                </th>
+                <th title="Time Elapsed" className="header-icon">
+                  <FaHourglassHalf />
+                </th>
+                <th title="Action" className="header-icon">
+                  <FaSignInAlt />
+                </th>
               </tr>
             </thead>
             <tbody>
-              {bets.map((bet) => (
-                <tr key={bet.id}>
-                  <td>{bet.creatorLichessUsername || bet.creator}</td>
-                  <td>{getRating(bet)}</td>
-                  <td>{capitalizeFirstLetter(bet.colorPreference)}</td>
-                  <td>{formatTimeControl(bet.timeControl)}</td>
-                  <td>{capitalizeFirstLetter(bet.variant)}</td>
-                  <td>{bet.wager}</td>
-                  <td>{format(bet.createdAt)}</td>
-                  <td>
-                    <button
-                      onClick={() => handleAcceptBet(bet.id, bet.colorPreference)}
-                      className={`join-button ${
-                        actionLoading[bet.id] ? "loading" : ""
-                      }`}
-                      disabled={actionLoading[bet.id]}
-                    >
-                      {actionLoading[bet.id] ? "Joining..." : "Join"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {bets.map((bet) => {
+                const {
+                  id,
+                  creatorLichessUsername,
+                  creator,
+                  colorPreference,
+                  timeControl,
+                  variant,
+                  wager,
+                  createdAt,
+                  creatorRatings,
+                } = bet;
+
+                return (
+                  <tr key={id}>
+                    <td>{creatorLichessUsername || creator}</td>
+                    <td>{getRating(bet)}</td>
+                    <td>{renderColorIcon(colorPreference)}</td> {/* Updated Line */}
+                    <td>{formatTimeControl(timeControl)}</td>
+                    <td>{capitalizeFirstLetter(variant)}</td>
+                    <td>{wager}</td>
+                    <td>{format(createdAt)}</td>
+                    <td>
+                      <button
+                        onClick={() => handleAcceptBet(id, colorPreference)}
+                        className={`join-button ${actionLoading[id] ? "loading" : ""}`}
+                        disabled={actionLoading[id]}
+                        title="Join Bet"
+                        aria-label="Join Bet"
+                      >
+                        {actionLoading[id] ? "Joining..." : <FaSignInAlt />}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
