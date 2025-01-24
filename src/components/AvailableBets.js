@@ -1,9 +1,9 @@
 
-// src/components/AvailableBets.js
-
 import React, { useEffect, useState, useCallback } from "react";
 import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useToken } from "../contexts/TokenContext"; // Import useToken
+import { useSelectedToken } from '../contexts/SelectedTokenContext'; // Import the custom hook
 import "./AvailableBets.css";
 import { format } from "timeago.js"; // Importing timeago.js for formatting time
 
@@ -22,32 +22,53 @@ import {
 
 const AvailableBets = () => {
   const { token } = useAuth();
+  const { tokenBalance, sweepstakesBalance, loading: tokenLoading, error: tokenError } = useToken(); // Destructure balances and states
+  const { selectedToken } = useSelectedToken(); // Consume selected token
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState({}); // To handle loading state for individual bets
+
 
   const fetchAvailableBets = useCallback(async () => {
     if (!token) {
       setError("Please log in to view available bets.");
       return;
     }
+    if (tokenLoading) {
+      return;
+    }
+    if (tokenError) {
+      setError("Failed to load your balances. Please try again.");
+      return;
+    }
     setLoading(true);
     setError("");
 
     try {
-      const fetchedBets = await getAvailableBets();
-      setBets(fetchedBets);
+      const fetchedBets = await getAvailableBets(selectedToken); // Pass selectedToken as currencyType
+
+      const filteredBets = fetchedBets.filter((bet) => {
+        if (bet.currencyType === "token") {
+          return bet.wager <= tokenBalance;
+        } else if (bet.currencyType === "sweepstakes") {
+          return bet.wager <= sweepstakesBalance;
+        }
+        return false;
+      });
+
+      setBets(filteredBets);
     } catch (err) {
       setError(err.message || "An error occurred while fetching available bets.");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken]);
 
-  useEffect(() => {
-    fetchAvailableBets();
-  }, [fetchAvailableBets]);
+    useEffect(() => {
+      fetchAvailableBets();
+      // Optionally, set up polling or websocket listeners to update balances in real-time
+    }, [fetchAvailableBets]);
 
   /**
    * Determines the opponent's color based on the bet's color preference.
@@ -121,6 +142,10 @@ const AvailableBets = () => {
         <p>No bets available right now.</p>
       )}
 
+      {/* Optionally, inform users if some bets are hidden */}
+      {/* Assuming you have access to fetchedBets.length */}
+      {/* <p>Showing {bets.length} of {fetchedBets.length} available bets.</p> */}
+
       {bets.length > 0 && (
         <div className="table-wrapper">
           <table className="available-bets-table">
@@ -135,13 +160,16 @@ const AvailableBets = () => {
                 <th title="Color" className="header-icon">
                   <FaChessPawn />
                 </th>
+                <th title="Currency" className="header-icon">
+                  <FaMoneyBill />
+                </th>
                 <th title="Time Control" className="header-icon">
                   <FaClock />
                 </th>
                 <th title="Variant" className="header-icon">
                   <FaPuzzlePiece />
                 </th>
-                <th title="Wager (PTK)" className="header-icon">
+                <th title="Wager" className="header-icon">
                   <FaMoneyBill />
                 </th>
                 <th title="Time Elapsed" className="header-icon">
@@ -162,18 +190,19 @@ const AvailableBets = () => {
                   timeControl,
                   variant,
                   wager,
+                  currencyType,
                   createdAt,
-                  // creatorRatings, // Removed
                 } = bet;
 
                 return (
                   <tr key={id}>
                     <td>{creatorLichessUsername || creator}</td>
                     <td>{getRating(bet)}</td>
-                    <td>{renderColorIcon(colorPreference)}</td> {/* Updated Line */}
+                    <td>{renderColorIcon(colorPreference)}</td>
+                    <td>{currencyType.toUpperCase()}</td>
                     <td>{formatTimeControl(timeControl)}</td>
                     <td>{capitalizeFirstLetter(variant)}</td>
-                    <td>{wager}</td>
+                    <td>{wager} {currencyType.toUpperCase()}</td>
                     <td>{format(createdAt)}</td>
                     <td>
                       <button

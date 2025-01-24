@@ -167,8 +167,9 @@ export const cancelBet = async (betId) => {
  * Fetches available bets for seekers.
  * @returns {Promise<Array>} - An array of available bets.
  */
-export const getAvailableBets = async () => {
-  const data = await apiFetch('/bets/seekers', {
+export const getAvailableBets = async (currencyType) => {
+  const query = currencyType ? `?currencyType=${currencyType}` : '';
+  const data = await apiFetch(`/bets/seekers${query}`, {
     method: 'GET',
   });
   return data.seekers || [];

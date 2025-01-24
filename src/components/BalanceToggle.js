@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import './BalanceToggle.css';
 import { FaCoins } from 'react-icons/fa'; // Importing a coin icon
+import { useSelectedToken } from '../contexts/SelectedTokenContext'; // Import the custom hook
 
 const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
   // Define the two currencies
@@ -10,12 +11,12 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
     { id: 'sweepstakes', label: 'SWP', balance: sweepstakesBalance, icon: <FaCoins /> },
   ];
 
-  // State to track the selected currency
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[0].id);
+  // Consume the SelectedTokenContext
+  const { selectedToken, updateSelectedToken } = useSelectedToken();
 
   // Handler to switch currency
   const handleToggle = (currencyId) => {
-    setSelectedCurrency(currencyId);
+    updateSelectedToken(currencyId);
   };
 
   const formatBalance = (balance) => {
@@ -31,7 +32,7 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
 
   // Find the selected currency details
   const currentCurrency = currencies.find(
-    (currency) => currency.id === selectedCurrency
+    (currency) => currency.id === selectedToken
   );
 
   return (
@@ -41,7 +42,7 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
           <button
             key={currency.id}
             className={`balance-toggle__button ${
-              selectedCurrency === currency.id ? 'active' : ''
+              selectedToken === currency.id ? 'active' : ''
             }`}
             onClick={() => handleToggle(currency.id)}
           >
