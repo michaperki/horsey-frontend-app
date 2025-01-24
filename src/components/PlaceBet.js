@@ -50,7 +50,7 @@ const PlaceBet = () => {
         timeControl,
         variant,
       };
-      const bet = await placeBet(betData);
+      await placeBet(betData);
       setModalMessage("Bet placed successfully!");
       setIsModalOpen(true);
 

@@ -9,7 +9,7 @@ import {
   initiateLichessOAuth,
 } from '../services/api';
 import BalanceToggle from './BalanceToggle';
-import { FaBell, FaTrophy } from 'react-icons/fa'; // Importing additional icons
+import { FaBell } from 'react-icons/fa'; // Importing additional icons
 import './Navbar.css';
 
 const Navbar = () => {
@@ -21,7 +21,6 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { tokenBalance: scBalance, sweepstakesBalance: gcBalance } = useToken();
   // Refs for the user info and dropdown
   const userInfoRef = useRef(null);
   const dropdownRef = useRef(null);
