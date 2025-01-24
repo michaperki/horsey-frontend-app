@@ -18,6 +18,17 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
     setSelectedCurrency(currencyId);
   };
 
+  const formatBalance = (balance) => {
+    if (balance >= 1000) {
+      return Number(balance)
+        .toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        });
+    }
+    return Number(balance).toFixed(2);
+  };
+
   // Find the selected currency details
   const currentCurrency = currencies.find(
     (currency) => currency.id === selectedCurrency
@@ -42,7 +53,7 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
       <div className="balance-toggle__display">
         <FaCoins className="balance-toggle__icon" />
         <span className="balance-toggle__amount">
-          {currentCurrency.balance} {currentCurrency.label}
+          {formatBalance(currentCurrency.balance)} {currentCurrency.label}
         </span>
       </div>
       <button className="balance-toggle__get-coins" onClick={onGetCoins}>

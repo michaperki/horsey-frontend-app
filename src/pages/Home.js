@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile } from '../services/api';
 import StatCard from '../components/StatCard';
 import './Home.css';
-
+import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton styles
 // Import React Icons for Home Options
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 

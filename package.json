@@ -15,6 +15,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-icons": "^5.4.0",
+    "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1",
     "react-tooltip": "^5.28.0",
@@ -31,7 +32,7 @@
     "format": "prettier --write src/",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "run:code2prompt": "code2prompt ./ --exclude=\"node_modules/**,**/package-lock.json,**/*.txt,**/*.test.js,**/*.css\" --tokens"
+    "run:code2prompt": "code2prompt ./ --exclude=\"node_modules/**,**/package-lock.json,**/*.txt,**/*.test.js,**/*.css,**/*.spec.js,**/*.json,**/*.svg,**/*.html\" --tokens"
   },
   "eslintConfig": {
     "extends": [

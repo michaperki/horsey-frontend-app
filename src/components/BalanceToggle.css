@@ -60,6 +60,9 @@
 .balance-toggle__amount {
   font-size: 16px;
   font-weight: bold;
+  min-width: 120px; /* Fixed width to prevent shifting */
+  text-align: right; /* Aligns text for better appearance */
+  white-space: nowrap; /* Prevents wrapping */
 }
 
 .balance-toggle__get-coins {
