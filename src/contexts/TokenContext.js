@@ -2,46 +2,70 @@
 // src/contexts/TokenContext.js
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getUserBalance } from '../services/api';
+import { getUserBalances } from '../services/api'; // Updated import
 
 const TokenContext = createContext();
 
 /**
- * Provides token-related data and actions to the component tree.
+ * Provides token and sweepstakes balances to the component tree.
  */
 export const TokenProvider = ({ children }) => {
-  const [tokens, setTokens] = useState(0);
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [sweepstakesBalance, setSweepstakesBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   /**
-   * Fetches the user's token balance and updates the state.
+   * Fetches the user's balances and updates the state.
    */
-  const fetchTokens = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('Please log in to view your tokens.');
-      setLoading(false);
-      return;
-    }
-
+  const fetchBalances = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const balance = await getUserBalance();
-      setTokens(balance);
+      const { tokenBalance, sweepstakesBalance } = await getUserBalances();
+      setTokenBalance(tokenBalance);
+      setSweepstakesBalance(sweepstakesBalance);
     } catch (err) {
-      setError(err.message || 'Failed to fetch tokens.');
+      console.error('Failed to fetch balances:', err);
+      setError('Failed to load balances. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTokens();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchBalances();
+    // Optionally, set up polling or websocket listeners to update balances in real-time
   }, []);
 
+  /**
+   * Updates the token balance (e.g., after placing a bet).
+   * @param {number} newBalance - The updated token balance.
+   */
+  const updateTokenBalance = (newBalance) => {
+    setTokenBalance(newBalance);
+  };
+
+  /**
+   * Updates the sweepstakes balance (e.g., after placing a bet).
+   * @param {number} newBalance - The updated sweepstakes balance.
+   */
+  const updateSweepstakesBalance = (newBalance) => {
+    setSweepstakesBalance(newBalance);
+  };
+
   return (
-    <TokenContext.Provider value={{ tokens, setTokens, fetchTokens, loading, error }}>
+    <TokenContext.Provider
+      value={{
+        tokenBalance,
+        sweepstakesBalance,
+        loading,
+        error,
+        fetchBalances,
+        updateTokenBalance,
+        updateSweepstakesBalance,
+      }}
+    >
       {children}
     </TokenContext.Provider>
   );
@@ -49,6 +73,7 @@ export const TokenProvider = ({ children }) => {
 
 /**
  * Custom hook to access token context.
+ * @returns {object} - The token context value.
  */
 export const useToken = () => useContext(TokenContext);
 

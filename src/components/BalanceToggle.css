@@ -1,0 +1,96 @@
+
+.balance-toggle {
+  display: flex;
+  align-items: center;
+  background-color: #0a2a4d; /* Match Navbar's dark background */
+  border: 1px solid #1c3d6b;
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #fff;
+  gap: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.balance-toggle__switch {
+  display: flex;
+  gap: 10px;
+}
+
+.balance-toggle__button {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.balance-toggle__button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.balance-toggle__button.active {
+  background-color: #28a745; /* Highlight color */
+  color: #fff;
+}
+
+.balance-toggle__label {
+  font-weight: bold;
+}
+
+.balance-toggle__display {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #1c3d6b;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.balance-toggle__icon {
+  color: #ffd700; /* Gold color for the coin icon */
+  font-size: 18px;
+}
+
+.balance-toggle__amount {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.balance-toggle__get-coins {
+  background-color: #ffc107; /* Amber color for the button */
+  color: #0a2a4d;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.balance-toggle__get-coins:hover {
+  background-color: #e0a800; /* Darker amber on hover */
+}
+
+@media (max-width: 600px) {
+  .balance-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .balance-toggle__switch {
+    gap: 5px;
+  }
+
+  .balance-toggle__get-coins {
+    width: 100%;
+    text-align: center;
+  }
+}
+

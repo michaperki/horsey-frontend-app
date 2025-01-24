@@ -1,6 +1,4 @@
 
-// src/components/Navbar.js
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,20 +6,22 @@ import { useToken } from '../contexts/TokenContext';
 import {
   getLichessStatus,
   getUserData,
-  initiateLichessOAuth, // Ensure this is imported
+  initiateLichessOAuth,
 } from '../services/api';
+import BalanceToggle from './BalanceToggle';
+import { FaBell, FaTrophy } from 'react-icons/fa'; // Importing additional icons
 import './Navbar.css';
 
 const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
-  const { tokens } = useToken();
+  const { tokenBalance, sweepstakesBalance } = useToken();
   const [lichessConnected, setLichessConnected] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { tokenBalance: scBalance, sweepstakesBalance: gcBalance } = useToken();
   // Refs for the user info and dropdown
   const userInfoRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -77,6 +77,11 @@ const Navbar = () => {
       console.error('Error initiating Lichess OAuth:', err);
       setError('Failed to initiate connection. Please try again.');
     }
+  };
+
+  const handleGetCoins = () => {
+    console.log('Redirect to Get Coins Page');
+    navigate('/get-coins'); // Example navigation to Get Coins page
   };
 
   // Handler to close the dropdown
@@ -151,17 +156,22 @@ const Navbar = () => {
         )}
       </div>
 
+      {/* Balance Toggle */}
+      {token && user && (
+        <BalanceToggle
+          tokenBalance={tokenBalance.toFixed(2)} // Ensure the balance is formatted
+          sweepstakesBalance={sweepstakesBalance.toLocaleString()} // Format large numbers with commas
+          onGetCoins={handleGetCoins}
+        />
+      )}
+
       {/* Icons and User Info */}
       {token && user && (
         <div className="navbar__user-section">
           <div className="navbar__icons">
             <div className="navbar__icon-container">
-              <img src="/assets/bell-icon.svg" alt="Notifications" className="navbar__icon" />
+              <FaBell className="navbar__icon" />
               {notificationsCount > 0 && <span className="navbar__badge">{notificationsCount}</span>}
-            </div>
-            <div className="navbar__icon-container">
-              <img src="/assets/coin-icon.svg" alt="Coins" className="navbar__icon" />
-              <span className="navbar__coin-count">{tokens}</span>
             </div>
           </div>
           <div

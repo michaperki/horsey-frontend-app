@@ -17,14 +17,18 @@ export const register = async (userData) => {
 };
 
 /**
- * Fetches the authenticated user's token balance.
- * @returns {Promise<number>} - The user's token balance.
+ * Fetches the authenticated user's balances.
+ * @returns {Promise<object>} - An object containing tokenBalance and sweepstakesBalance.
  */
-export const getUserBalance = async () => {
+export const getUserBalances = async () => {
   const data = await apiFetch('/tokens/balance/user', {
     method: 'GET',
   });
-  return data.balance;
+  // Assume the backend returns { tokenBalance, sweepstakesBalance }
+  return {
+    tokenBalance: data.tokenBalance,
+    sweepstakesBalance: data.sweepstakesBalance,
+  };
 };
 
 /**
@@ -37,43 +41,50 @@ export const getUserBets = async (params = {}) => {
   const data = await apiFetch(`/bets/history?${query}`, {
     method: 'GET',
   });
-  console.log("received user bets:", data);
+  console.log("Received user bets:", data);
   return data;
 };
 
 /**
  * Places a new bet.
  * @param {object} betData - Data for the new bet.
- * @param {string} betData.colorPreference - Color preference (e.g., 'Random', 'White', 'Black').
+ * @param {string} betData.colorPreference - Color preference (e.g., 'random', 'white', 'black').
  * @param {number} betData.amount - Amount to bet.
  * @param {string} betData.timeControl - Time control in the format "minutes|increment".
- * @param {string} betData.variant - Game variant (e.g., 'Standard').
+ * @param {string} betData.variant - Game variant (e.g., 'standard').
+ * @param {string} betData.currencyType - Currency type ('token' or 'sweepstakes').
  * @returns {Promise<object>} - The newly created bet.
  */
 export const placeBet = async (betData) => {
-  const { colorPreference, amount, timeControl, variant } = betData;
+  const { colorPreference, amount, timeControl, variant, currencyType } = betData;
 
-  // Validate that colorPreference is a string before calling toLowerCase()
-  if (typeof colorPreference !== 'string') {
-    throw new Error('Color Preference must be a valid string.');
+  // Validate input
+  const validColorPreferences = ['white', 'black', 'random'];
+  const validVariants = ['standard', 'crazyhouse', 'chess960'];
+  const validCurrencyTypes = ['token', 'sweepstakes'];
+
+  if (!validColorPreferences.includes(colorPreference)) {
+    throw new Error('Invalid color preference.');
   }
 
-  // Optionally, validate other fields as well
+  if (!validVariants.includes(variant)) {
+    throw new Error('Invalid game variant.');
+  }
+
+  if (!validCurrencyTypes.includes(currencyType)) {
+    throw new Error('Invalid currency type.');
+  }
+
   if (typeof amount !== 'number' || amount <= 0) {
-    throw new Error('Bet Amount must be a positive number.');
+    throw new Error('Bet amount must be a positive number.');
   }
 
-  // Updated validation for timeControl as a string
   if (
     !timeControl ||
     typeof timeControl !== 'string' ||
     !/^\d+\|\d+$/.test(timeControl)
   ) {
     throw new Error('Time Control must be a string in the format "minutes|increment".');
-  }
-
-  if (typeof variant !== 'string') {
-    throw new Error('Variant must be a valid string.');
   }
 
   try {
@@ -84,6 +95,7 @@ export const placeBet = async (betData) => {
         amount,
         timeControl,
         variant,
+        currencyType, // Include currencyType in the request body
       }),
     });
     return data.bet;
@@ -96,13 +108,13 @@ export const placeBet = async (betData) => {
 /**
  * Accepts a bet.
  * @param {string} betId - ID of the bet to accept.
- * @param {string} opponentColor - Color preference of the acceptor.
+ * @param {string} currencyType - Currency type ('token' or 'sweepstakes').
  * @returns {Promise<object>} - The updated bet along with gameLink.
  */
-export const acceptBet = async (betId, opponentColor) => {
+export const acceptBet = async (betId, currencyType) => {
   const data = await apiFetch(`/bets/accept/${betId}`, {
     method: 'POST',
-    body: JSON.stringify({ opponentColor }),
+    body: JSON.stringify({ currencyType }), // Pass currencyType if needed
   });
   return data; // Includes gameLink
 };
