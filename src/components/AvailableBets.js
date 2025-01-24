@@ -1,13 +1,13 @@
 
 // src/components/AvailableBets.js
-//
+
 import React, { useEffect, useState, useCallback } from "react";
 import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useToken } from "../contexts/TokenContext"; // Import useToken
 import { useSelectedToken } from '../contexts/SelectedTokenContext'; // Import the custom hook
 import "./AvailableBets.css";
-import { format } from "timeago.js"; // Importing timeago.js for formatting time
+import { formatDistanceToNow } from "date-fns"; // Importing date-fns for formatting time
 
 // Import React Icons
 import { 
@@ -30,7 +30,6 @@ const AvailableBets = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState({}); // To handle loading state for individual bets
-
 
   const fetchAvailableBets = useCallback(async () => {
     if (!token) {
@@ -201,7 +200,7 @@ const AvailableBets = () => {
                     <td>{wager} {currencyType.toUpperCase()}</td>
                     <td>{formatTimeControl(timeControl)}</td>
                     <td>{capitalizeFirstLetter(variant)}</td>
-                    <td>{format(createdAt)}</td>
+                    <td>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</td>
                     <td>
                       <button
                         onClick={() => handleAcceptBet(id, colorPreference)}
@@ -246,3 +245,4 @@ const formatTimeControl = (timeControl) => {
 };
 
 export default AvailableBets;
+

@@ -10,7 +10,6 @@ const Store = () => {
   const [products, setProducts] = useState([]);
   const [purchaseLoading, setPurchaseLoading] = useState(false); // Track loading state for purchase
   const [paymentMethod, setPaymentMethod] = useState('stripe'); // Default to stripe
-  const [amount, setAmount] = useState(10); // Default to $10 purchase
 
   // Fetch products from the API
   useEffect(() => {
