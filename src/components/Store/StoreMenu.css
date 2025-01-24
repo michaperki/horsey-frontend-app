@@ -1,0 +1,41 @@
+
+/* src/components/Store/StoreMenu.css */
+
+.store-menu {
+  background-color: #1a3a5b;
+  padding: 15px;
+  border-radius: 8px;
+  color: white;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.store-menu h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.store-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.store-menu li {
+  margin-bottom: 10px;
+}
+
+.store-menu button {
+  background: none;
+  border: none;
+  color: #ffeb3b;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  padding: 5px 0;
+}
+
+.store-menu button:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,91 @@
+
+/* src/components/Store/ProductCard.css */
+
+.store-product-card {
+  background-color: #415471;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px; /* Increased max-width for horizontal layout */
+  padding: 15px;
+  display: flex; /* Enable flex layout */
+  align-items: center; /* Vertically center items */
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  width: 40%; /* Adjusted width for horizontal layout */
+  height: auto; /* Allow height to adjust based on image */
+  object-fit: contain;
+  border-radius: 4px;
+  margin-right: 20px; /* Space between image and content */
+}
+
+.product-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take up remaining space */
+}
+
+.product-name {
+  font-size: 24px; /* Slightly larger font for prominence */
+  margin-bottom: 10px;
+  color: #ffeb3b;
+}
+
+.product-description {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.purchase-button {
+  background-color: #0074cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: flex-start; /* Align button to the start */
+}
+
+.purchase-button:hover {
+  background-color: #005999;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .store-product-card {
+    flex-direction: column; /* Stack vertically on smaller screens */
+    max-width: 100%;
+  }
+
+  .product-image {
+    width: 80%;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .product-details {
+    align-items: center;
+    text-align: center;
+  }
+
+  .purchase-button {
+    align-self: center;
+  }
+}
+

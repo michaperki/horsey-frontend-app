@@ -37,7 +37,7 @@
   padding: 10px; /* Reduced padding */
   gap: 20px;
   align-items: stretch; /* Ensure children stretch to fill the container vertically */
-  /* Removed overflow: hidden to allow content to expand */
+  overflow: hidden; /* Prevent overflow from child elements */
 }
 
 /* Left Sidebar (Bulletin) */

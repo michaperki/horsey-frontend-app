@@ -11,8 +11,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* Remove overflow: hidden to allow scrolling if necessary */
-  overflow-x: hidden;
+  /* Allow vertical scrolling only if necessary */
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;

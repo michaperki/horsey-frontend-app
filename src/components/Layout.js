@@ -15,19 +15,19 @@ const Layout = () => {
     <div className="layout-container">
       {/* Navbar at the top */}
       <Navbar />
-      
+
       <div className="app-wrapper">
         <div className="layout-content">
           {/* Left Sidebar */}
           <aside className="bulletin">
             <Bulletin />
           </aside>
-          
+
           {/* Main Content */}
           <main className="main-content">
             <Outlet />
           </main>
-          
+
           {/* Right Sidebar */}
           <aside className="sidebar">
             <Sidebar />
@@ -37,7 +37,7 @@ const Layout = () => {
           </aside>
         </div>
       </div>
-      
+
       {/* Footer at the bottom */}
       <Footer />
     </div>

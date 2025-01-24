@@ -1,0 +1,17 @@
+
+/* src/components/Store/PaymentMethodSelector.css */
+
+.payment-method-selector {
+  margin: 10px 0;
+  color: white;
+}
+
+.payment-method-selector label {
+  font-size: 18px;
+}
+
+.payment-method-selector select {
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 16px;
+}
