@@ -1,0 +1,119 @@
+
+/* Store Container */
+.store-container {
+  padding: 20px;
+  color: white;
+  background-color: #0a2a4d;
+  text-align: center;
+}
+
+/* Store Title */
+.store-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #ffeb3b;
+}
+
+/* Products Grid */
+.store-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-bottom: 20px;
+}
+
+/* Individual Product Card */
+.store-product-card {
+  background-color: #415471;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Product Image */
+.product-image {
+  width: 80%; /* Reduce the width */
+  height: 120px; /* Adjust the height */
+  object-fit: contain; /* Ensure the image maintains its aspect ratio */
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* Product Name */
+.product-name {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #ffeb3b;
+}
+
+/* Product Description */
+.product-description {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+/* Product Price */
+.product-price {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Purchase Button */
+.purchase-button {
+  background-color: #0074cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.purchase-button:hover {
+  background-color: #005999;
+}
+
+/* Loading State */
+.store-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  font-size: 24px;
+  color: #0074cc;
+}
+
+/* Store Note */
+.store-note {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 20px;
+}
+
+.payment-method-selector, .amount-selector {
+  margin: 10px 0;
+  color: white;
+}
+
+.payment-method-selector label, .amount-selector label {
+  font-size: 18px;
+}
+
+.amount-selector input {
+  width: 80px;
+  padding: 5px;
+  font-size: 16px;
+}

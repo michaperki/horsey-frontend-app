@@ -25,6 +25,7 @@ import { SocketProvider } from './contexts/SocketContext';
 import { TokenProvider } from './contexts/TokenContext';
 import { SelectedTokenProvider } from './contexts/SelectedTokenContext'; // Import the provider
 import NotificationsModal from './components/NotificationsModal';
+import Store from './pages/Store'; // Import the Store component
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
             <Route path="/login" element={<UserLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/auth/lichess/callback" element={<LichessCallback />} />
-            
+
             {/* Routes with Layout (Persistent Navbar, Sidebar, and Footer) */}
             <Route
               element={
@@ -53,9 +54,10 @@ function App() {
               <Route path="/leaderboards" element={<Leaderboard />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/store" element={<Store />} /> {/* Added Store Route */}
               {/* Removed separate route for PlaceBet */}
             </Route>
-            
+
             {/* Admin Routes */}
             <Route
               path="/admin/mint"

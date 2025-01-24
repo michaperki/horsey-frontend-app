@@ -244,3 +244,31 @@ export const initiateLichessOAuth = () => {
   window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
 };
 
+
+/**
+ * Initiates a purchase with the specified payment method and amount.
+ * @param {string} paymentMethod - Payment method (e.g., 'stripe', 'crypto').
+ * @param {number} amount - Amount to purchase.
+ * @returns {Promise<object>} - The response data with updated balances.
+ */
+export const purchaseTokens = async (paymentMethod, amount) => {
+  const data = await apiFetch('/payments/purchase', {
+    method: 'POST',
+    body: JSON.stringify({
+      paymentMethod,
+      amount
+    }),
+  });
+  return data; // Returns updated user balances or error message
+};
+
+/**
+ * Fetches the list of available products from the store.
+ * @returns {Promise<Array>} - An array of products available for purchase.
+ */
+export const fetchProducts = async () => {
+  const data = await apiFetch('/store/products', {
+    method: 'GET',
+  });
+  return data.products; // Assuming the backend response contains a 'products' array
+};

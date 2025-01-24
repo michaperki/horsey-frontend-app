@@ -204,8 +204,8 @@ const Navbar = () => {
         {/* Balance Toggle */}
         {token && user && (
           <BalanceToggle
-            tokenBalance={tokenBalance.toFixed(2)} // Ensure the balance is formatted
-            sweepstakesBalance={sweepstakesBalance.toLocaleString()} // Format large numbers with commas
+            tokenBalance={tokenBalance} // Pass the raw number
+            sweepstakesBalance={sweepstakesBalance} // Pass the raw number
             onGetCoins={handleGetCoins}
           />
         )}
