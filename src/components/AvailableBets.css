@@ -3,8 +3,6 @@
 
 /* General container styling */
 .available-bets-container {
-  padding: 20px;
-  background: #002a56;
   border-radius: 10px;
   max-width: 900px; /* Set a maximum width */
   width: 90%; /* Allow some flexibility */
@@ -39,7 +37,6 @@
   border-collapse: collapse;
   background: #003b6f;
   color: white;
-  margin-top: 10px;
   text-align: center;
   table-layout: fixed; /* Fixed layout for consistent column widths */
   font-size: 0.85em; /* Reduced font size */
@@ -60,13 +57,6 @@
   white-space: nowrap; /* Prevent wrapping */
   text-align: center; /* Center horizontally */
   vertical-align: middle; /* Center vertically */
-}
-
-/* Remove flex from header-icon */
-.header-icon {
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
 }
 
 /* Icon styling in headers */

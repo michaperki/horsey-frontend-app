@@ -1,7 +1,7 @@
 
 // src/App.js
 
-import React, { useState } from "react";
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Mint from "./components/Admin/Mint";

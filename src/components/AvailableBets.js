@@ -163,7 +163,7 @@ const AvailableBets = () => {
                   variant,
                   wager,
                   createdAt,
-                  creatorRatings,
+                  // creatorRatings, // Removed
                 } = bet;
 
                 return (
