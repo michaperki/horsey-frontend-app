@@ -26,9 +26,11 @@
   margin: 10px 0;
 }
 
-/* Table wrapper for responsiveness */
+/* Table wrapper for responsiveness and scroll */
 .table-wrapper {
-  overflow-x: auto;
+  max-height: 400px; /* Set desired max height */
+  overflow-y: auto; /* Add vertical scrollbar if content exceeds max height */
+  overflow-x: auto; /* Retain horizontal scrollbar for small screens */
 }
 
 /* Table styling */
@@ -120,16 +122,16 @@
   .available-bets-table th:nth-child(5),
   .available-bets-table td:nth-child(5), /* Variant */
   .available-bets-table th:nth-child(6),
-  .available-bets-table td:nth-child(6)  /* Wager */ {
+  .available-bets-table td:nth-child(6)  /* Time Elapsed */ {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
   .available-bets-table th:nth-child(4),
-  .available-bets-table td:nth-child(4), /* Time Control */
+  .available-bets-table td:nth-child(4), /* Wager (Currency) */
   .available-bets-table th:nth-child(7),
-  .available-bets-table td:nth-child(7)  /* Time Elapsed */ {
+  .available-bets-table td:nth-child(7)  /* Action */ {
     display: none;
   }
 

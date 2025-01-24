@@ -1,4 +1,6 @@
 
+// src/components/AvailableBets.js
+//
 import React, { useEffect, useState, useCallback } from "react";
 import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -65,10 +67,10 @@ const AvailableBets = () => {
     }
   }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken]);
 
-    useEffect(() => {
-      fetchAvailableBets();
-      // Optionally, set up polling or websocket listeners to update balances in real-time
-    }, [fetchAvailableBets]);
+  useEffect(() => {
+    fetchAvailableBets();
+    // Optionally, set up polling or websocket listeners to update balances in real-time
+  }, [fetchAvailableBets]);
 
   /**
    * Determines the opponent's color based on the bet's color preference.
@@ -160,7 +162,7 @@ const AvailableBets = () => {
                 <th title="Color" className="header-icon">
                   <FaChessPawn />
                 </th>
-                <th title="Currency" className="header-icon">
+                <th title="Wager (Currency)" className="header-icon">
                   <FaMoneyBill />
                 </th>
                 <th title="Time Control" className="header-icon">
@@ -168,9 +170,6 @@ const AvailableBets = () => {
                 </th>
                 <th title="Variant" className="header-icon">
                   <FaPuzzlePiece />
-                </th>
-                <th title="Wager" className="header-icon">
-                  <FaMoneyBill />
                 </th>
                 <th title="Time Elapsed" className="header-icon">
                   <FaHourglassHalf />
@@ -199,10 +198,9 @@ const AvailableBets = () => {
                     <td>{creatorLichessUsername || creator}</td>
                     <td>{getRating(bet)}</td>
                     <td>{renderColorIcon(colorPreference)}</td>
-                    <td>{currencyType.toUpperCase()}</td>
+                    <td>{wager} {currencyType.toUpperCase()}</td>
                     <td>{formatTimeControl(timeControl)}</td>
                     <td>{capitalizeFirstLetter(variant)}</td>
-                    <td>{wager} {currencyType.toUpperCase()}</td>
                     <td>{format(createdAt)}</td>
                     <td>
                       <button
@@ -248,4 +246,3 @@ const formatTimeControl = (timeControl) => {
 };
 
 export default AvailableBets;
-

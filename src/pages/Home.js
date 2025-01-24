@@ -23,7 +23,6 @@ const Home = () => {
     totalLosses: 0,
     karma: 0,
     membership: 'Free',
-    points: 0,
     username: 'User',
   });
 
@@ -80,7 +79,6 @@ const Home = () => {
             )}
           </div>
           <div className="info-item">Karma: {statistics.karma}</div>
-          <div className="info-item">Points: {statistics.points}</div>
         </div>
       </header>
 

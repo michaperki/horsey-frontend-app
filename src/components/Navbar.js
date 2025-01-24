@@ -1,4 +1,6 @@
 
+/* src/components/Navbar.js */
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,7 +11,19 @@ import {
   initiateLichessOAuth,
 } from '../services/api';
 import BalanceToggle from './BalanceToggle';
-import { FaBell } from 'react-icons/fa'; // Importing additional icons
+import {
+  FaBell,
+  FaSpinner,
+  FaHome,
+  FaUsers,
+  FaTrophy,
+  FaStore,
+  FaBars,
+  FaTimes,
+  FaChess,
+  FaSignInAlt,
+  FaUserPlus,
+} from 'react-icons/fa'; // Import additional icons
 import './Navbar.css';
 
 const Navbar = () => {
@@ -19,8 +33,9 @@ const Navbar = () => {
   const [lichessConnected, setLichessConnected] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
   // Refs for the user info and dropdown
   const userInfoRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -69,6 +84,10 @@ const Navbar = () => {
     setShowDropdown((prev) => !prev);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev);
+  };
+
   const handleConnectLichess = () => {
     try {
       initiateLichessOAuth(); // Trigger OAuth flow
@@ -113,96 +132,125 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      {/* Logo */}
-      <div className="navbar__logo">
-        <Link to={token ? "/home" : "/"} onClick={closeDropdown}>
-          <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
-          <span className="navbar__logo-text">Horsey</span>
-        </Link>
-      </div>
+      <div className="navbar__container">
+        {/* Logo */}
+        <div className="navbar__logo">
+          <Link to={token ? "/home" : "/"} onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+            <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
+            <span className="navbar__logo-text">Horsey</span>
+          </Link>
+        </div>
 
-      {/* Navigation Links */}
-      <div className="navbar__links">
-        {token && user?.role === 'user' && (
-          <>
-            <Link to="/home" className="navbar__link" onClick={closeDropdown}>Home</Link>
-            <Link to="/lobby" className="navbar__link" onClick={closeDropdown}>Lobby</Link>
-            <Link to="/leaderboards" className="navbar__link" onClick={closeDropdown}>Leaderboards</Link>
-            <Link to="/store" className="navbar__link" onClick={closeDropdown}>Store</Link>
-            {!lichessConnected && (
-              <button
-                onClick={handleConnectLichess}
-                className="navbar__connect-button" // Unique CSS class
-                disabled={loading}
-              >
-                {loading ? 'Connecting...' : 'Connect Lichess'}
-              </button>
-            )}
-          </>
-        )}
+        {/* Hamburger Menu Icon */}
+        <div className="navbar__hamburger" onClick={toggleMobileMenu} aria-label="Toggle navigation menu">
+          {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+        </div>
 
-        {token && user?.role === 'admin' && (
-          <>
-            <Link to="/admin/dashboard" className="navbar__link" onClick={closeDropdown}>Admin Dashboard</Link>
-          </>
-        )}
+        {/* Navigation Links */}
+        <div className={`navbar__links ${isMobileMenuOpen ? 'navbar__links--active' : ''}`}>
+          {token && user?.role === 'user' && (
+            <>
+              <Link to="/home" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaHome title="Home" aria-label="Home" />
+              </Link>
+              <Link to="/lobby" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaUsers title="Lobby" aria-label="Lobby" />
+              </Link>
+              <Link to="/leaderboards" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaTrophy title="Leaderboards" aria-label="Leaderboards" />
+              </Link>
+              <Link to="/store" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaStore title="Store" aria-label="Store" />
+              </Link>
+              {!lichessConnected && (
+                <button
+                  onClick={handleConnectLichess}
+                  className="navbar__connect-button"
+                  disabled={loading}
+                  aria-busy={loading} // Accessibility attribute
+                  title="Connect Lichess"
+                  aria-label="Connect Lichess"
+                >
+                  {loading ? (
+                    <FaSpinner className="spinner" aria-label="Connecting" />
+                  ) : (
+                    <FaChess />
+                  )}
+                </button>
+              )}
+            </>
+          )}
 
-        {!token && (
-          <>
-            <Link to="/login" className="navbar__link" onClick={closeDropdown}>Login</Link>
-            <Link to="/register" className="navbar__link" onClick={closeDropdown}>Register</Link>
-          </>
-        )}
-      </div>
+          {token && user?.role === 'admin' && (
+            <>
+              <Link to="/admin/dashboard" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaTrophy title="Admin Dashboard" aria-label="Admin Dashboard" />
+              </Link>
+            </>
+          )}
 
-      {/* Balance Toggle */}
-      {token && user && (
-        <BalanceToggle
-          tokenBalance={tokenBalance.toFixed(2)} // Ensure the balance is formatted
-          sweepstakesBalance={sweepstakesBalance.toLocaleString()} // Format large numbers with commas
-          onGetCoins={handleGetCoins}
-        />
-      )}
-
-      {/* Icons and User Info */}
-      {token && user && (
-        <div className="navbar__user-section">
-          <div className="navbar__icons">
-            <div className="navbar__icon-container">
-              <FaBell className="navbar__icon" />
-              {notificationsCount > 0 && <span className="navbar__badge">{notificationsCount}</span>}
-            </div>
-          </div>
-          <div
-            className="navbar__user-info"
-            onClick={toggleDropdown}
-            ref={userInfoRef} // Attach ref here
-          >
-            <img src={user.avatar || "/assets/default-avatar.png"} alt="User Avatar" className="navbar__avatar" />
-            <div className="navbar__user-text">
-              <span className="navbar__username">{user.username}</span>
-              <span className="navbar__karma">Karma: {user.karma}</span>
-            </div>
-            <span className="navbar__dropdown-arrow">▼</span>
-          </div>
-          {showDropdown && (
-            <div className="navbar__dropdown" ref={dropdownRef}> {/* Attach ref here */}
-              <Link to="/profile" className="navbar__dropdown-item" onClick={closeDropdown}>Profile</Link>
-              <Link to="/settings" className="navbar__dropdown-item" onClick={closeDropdown}>Settings</Link>
-              <button onClick={() => { handleLogout(); closeDropdown(); }} className="navbar__dropdown-item logout">Logout</button>
-            </div>
+          {!token && (
+            <>
+              <Link to="/login" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaSignInAlt title="Login" aria-label="Login" />
+              </Link>
+              <Link to="/register" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaUserPlus title="Register" aria-label="Register" />
+              </Link>
+            </>
           )}
         </div>
-      )}
 
-      {/* Loading and Error States */}
-      {loading && (
-        <div className="navbar__status">
-          <span>Loading...</span>
-        </div>
-      )}
+        {/* Balance Toggle */}
+        {token && user && (
+          <BalanceToggle
+            tokenBalance={tokenBalance.toFixed(2)} // Ensure the balance is formatted
+            sweepstakesBalance={sweepstakesBalance.toLocaleString()} // Format large numbers with commas
+            onGetCoins={handleGetCoins}
+          />
+        )}
+
+        {/* Icons and User Info */}
+        {token && user && (
+          <div className="navbar__user-section">
+            <div className="navbar__icons">
+              <div className="navbar__icon-container">
+                <FaBell className="navbar__icon" title="Notifications" aria-label="Notifications" />
+                {notificationsCount > 0 && <span className="navbar__badge">{notificationsCount}</span>}
+              </div>
+            </div>
+            <div
+              className="navbar__user-info"
+              onClick={toggleDropdown}
+              ref={userInfoRef} // Attach ref here
+              tabIndex={0} // Make it focusable for accessibility
+              onKeyDown={(e) => { if (e.key === 'Enter') toggleDropdown(); }} // Handle Enter key
+              aria-haspopup="true"
+              aria-expanded={showDropdown}
+            >
+              <img src={user.avatar || "/assets/default-avatar.png"} alt="User Avatar" className="navbar__avatar" />
+              <span className="navbar__dropdown-arrow">▼</span>
+            </div>
+            {showDropdown && (
+              <div className="navbar__dropdown" ref={dropdownRef} role="menu">
+                <Link to="/profile" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
+                  Profile
+                </Link>
+                <Link to="/settings" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
+                  Settings
+                </Link>
+                <button onClick={() => { handleLogout(); closeDropdown(); setIsMobileMenuOpen(false); }} className="navbar__dropdown-item logout" role="menuitem">
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Error State */}
       {error && (
-        <div className="navbar__status navbar__status--error">
+        <div className="navbar__status navbar__status--error" role="alert">
           <span>{error}</span>
         </div>
       )}

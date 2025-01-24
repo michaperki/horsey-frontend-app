@@ -1,4 +1,3 @@
-
 /* src/components/Layout.css */
 
 /* Layout Container */
@@ -18,6 +17,17 @@
   flex-direction: column;
   gap: 20px; /* Add spacing between major sections */
   flex: 1; /* Allow app-wrapper to grow and fill space */
+}
+
+/* Reusable Container */
+.container {
+  max-width: 1200px; /* Same as .app-wrapper */
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 10px; /* Adjust horizontal padding as needed */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* Layout Content */

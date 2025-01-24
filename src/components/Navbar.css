@@ -1,20 +1,37 @@
 
 /* src/components/Navbar.css */
 
+/* Spinner Styling */
+.spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+  color: #fff;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Navbar Container */
 .navbar {
   background-color: #0a2a4d;
-  background-image: inherit; /* Inherits the body's background pattern */
-  background-position: 0 0; /* Aligns with body background */
-  background-size: inherit;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Adds a subtle divider */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Adds depth */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   color: #fff;
-  padding: 10px 20px;
+  padding: 10px 20px; /* Adjusted horizontal padding */
   position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center the .container */
   align-items: center;
+}
+
+.navbar__container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Logo Section */
@@ -25,14 +42,13 @@
 
 .navbar__logo a {
   display: flex;
-  text-decoration: none; /* Remove the underline from the anchor tag */
-  color: inherit; /* Ensure the text color matches the parent */
+  text-decoration: none;
+  color: inherit;
   transition: color 0.3s;
 }
 
 .navbar__logo a:hover {
-  text-decoration: none; /* Prevent underline on hover */
-  color: #f1f1f1; /* Change color on hover */
+  color: #f1f1f1;
 }
 
 .navbar__logo-image {
@@ -51,10 +67,34 @@
   transition: color 0.3s;
 }
 
+/* Hamburger Menu */
+.navbar__hamburger {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.navbar__hamburger:focus {
+  outline: none;
+}
+
 /* Navigation Links */
 .navbar__links {
   display: flex;
   gap: 20px;
+  align-items: center;
+}
+
+.navbar__links--active {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background-color: #0a2a4d;
+  padding: 20px 0;
 }
 
 .navbar__link {
@@ -69,32 +109,126 @@
   color: #d1d1d1;
 }
 
+.navbar__link svg {
+  width: 24px;
+  height: 24px;
+}
+
 /* Connect Lichess Button */
 .navbar__connect-button {
-  background-color: #28a745; /* Lichess-like green */
+  background-color: #28a745;
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  font-size: 18px;
+  padding: 8px 12px;
+  font-size: 16px;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle box-shadow for depth */
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .navbar__connect-button:hover {
-  background-color: #218838; /* Darker green on hover */
-  transform: translateY(-2px); /* Slight lift effect */
+  background-color: #218838;
+  transform: translateY(-2px);
 }
 
 .navbar__connect-button:active {
-  transform: translateY(0); /* Remove lift on click */
+  transform: translateY(0);
 }
 
 .navbar__connect-button:disabled {
-  background-color: #6c757d; /* Gray background when disabled */
+  background-color: #6c757d;
   cursor: not-allowed;
   transform: none;
+}
+
+.navbar__connect-button svg {
+  animation: none; /* Disable spin for the icon itself */
+}
+
+/* Balance Toggle */
+.balance-toggle {
+  display: flex;
+  align-items: center;
+  background-color: #0a2a4d; /* Match Navbar's dark background */
+  border: 1px solid #1c3d6b;
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #fff;
+  gap: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.balance-toggle__switch {
+  display: flex;
+  gap: 10px;
+}
+
+.balance-toggle__button {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.balance-toggle__button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.balance-toggle__button.active {
+  background-color: #28a745; /* Highlight color */
+  color: #fff;
+}
+
+.balance-toggle__label {
+  font-weight: bold;
+}
+
+.balance-toggle__display {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #1c3d6b;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.balance-toggle__icon {
+  color: #ffd700; /* Gold color for the coin icon */
+  font-size: 18px;
+}
+
+.balance-toggle__amount {
+  font-size: 16px;
+  font-weight: bold;
+  min-width: 120px; /* Fixed width to prevent shifting */
+  text-align: right; /* Aligns text for better appearance */
+  white-space: nowrap; /* Prevents wrapping */
+}
+
+.balance-toggle__get-coins {
+  background-color: #ffc107; /* Amber color for the button */
+  color: #0a2a4d;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.balance-toggle__get-coins:hover {
+  background-color: #e0a800; /* Darker amber on hover */
 }
 
 /* User Section */
@@ -109,7 +243,7 @@
   align-items: center;
   gap: 15px;
   margin-right: 20px;
-  filter: brightness(0) invert(1); /* Makes the icons white */
+  filter: brightness(0) invert(1);
 }
 
 .navbar__icon-container {
@@ -136,14 +270,6 @@
   font-size: 12px;
 }
 
-.navbar__coin-count {
-  margin-left: 5px;
-  font-size: 16px;
-  display: inline-block;
-  line-height: 24px;
-  vertical-align: middle;
-}
-
 .navbar__user-info {
   display: flex;
   align-items: center;
@@ -155,21 +281,6 @@
   height: 35px;
   border-radius: 50%;
   margin-right: 10px;
-}
-
-.navbar__user-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.navbar__username {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.navbar__karma {
-  font-size: 14px;
-  opacity: 0.8;
 }
 
 .navbar__dropdown-arrow {
@@ -188,13 +299,15 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   z-index: 1000;
-  min-width: 150px; /* Ensures consistent width */
-  padding: 15px 10px; /* Add more padding */
+  min-width: 150px;
+  padding: 10px 0;
 }
 
 .navbar__dropdown-item {
   padding: 10px 20px;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
   color: #333;
   cursor: pointer;
@@ -203,45 +316,83 @@
 }
 
 .navbar__dropdown-item:hover {
-  background-color: #f1f1f1; /* Slight hover effect */
+  background-color: #f1f1f1;
 }
 
-/* Loading and Error States */
+.navbar__dropdown-item.logout {
+  background-color: #d9534f;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  border-top: 1px solid #f1f1f1;
+  padding: 10px 20px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.navbar__dropdown-item.logout:hover {
+  background-color: #c9302c;
+  transform: translateY(-1px);
+}
+
+.navbar__dropdown-item.logout:active {
+  transform: translateY(0);
+}
+
+/* Error State */
 .navbar__status {
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #ffc107;
-  color: #333;
+  background-color: #dc3545;
+  color: #fff;
   padding: 8px 16px;
   border-radius: 4px;
   margin-top: 8px;
   font-size: 14px;
+  z-index: 1001;
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
 }
 
-.navbar__status--error {
-  background-color: #dc3545;
-  color: #fff;
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
-/* Logout Button Styling */
-.navbar__dropdown-item.logout {
-  background-color: #d9534f; /* Bootstrap Danger Red */
-  color: #fff; /* White text for contrast */
-  font-weight: bold; /* Bold text for emphasis */
-  text-align: center; /* Center-align the text */
-  border-top: 1px solid #f1f1f1; /* Subtle separator */
-  padding: 10px 20px; /* Consistent padding */
-  transition: background-color 0.3s, transform 0.2s;
-  border-radius: 4px; /* Rounded corners for a modern look */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar__hamburger {
+    display: block;
+  }
+
+  .navbar__links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar__links--active {
+    display: flex;
+  }
+
+  .navbar__links .navbar__link {
+    padding: 10px 20px;
+    font-size: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar__links .navbar__link:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .balance-toggle {
+    display: none; /* Hide balance toggle on mobile for space */
+  }
+
+  .navbar__user-section {
+    margin-left: auto;
+  }
 }
 
-.navbar__dropdown-item.logout:hover {
-  background-color: #c9302c; /* Darker red for hover effect */
-  transform: translateY(-1px); /* Slight lift effect */
-}
-
-.navbar__dropdown-item.logout:active {
-  transform: translateY(0); /* Remove lift on click */
-}

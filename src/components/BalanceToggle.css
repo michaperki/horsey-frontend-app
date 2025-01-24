@@ -2,67 +2,50 @@
 .balance-toggle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background-color: #0a2a4d; /* Match Navbar's dark background */
   border: 1px solid #1c3d6b;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 10px 15px;
   color: #fff;
-  gap: 15px;
+  cursor: pointer; /* Indicates the component is clickable */
   font-family: Arial, sans-serif;
+  transition: background-color 0.3s;
 }
 
-.balance-toggle__switch {
-  display: flex;
-  gap: 10px;
-}
-
-.balance-toggle__button {
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.balance-toggle__button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.balance-toggle__button.active {
-  background-color: #28a745; /* Highlight color */
-  color: #fff;
-}
-
-.balance-toggle__label {
-  font-weight: bold;
+.balance-toggle:hover {
+  background-color: #142a5e; /* Slightly lighter on hover */
 }
 
 .balance-toggle__display {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background-color: #1c3d6b;
-  padding: 5px 10px;
-  border-radius: 4px;
+  gap: 10px;
 }
 
 .balance-toggle__icon {
   color: #ffd700; /* Gold color for the coin icon */
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .balance-toggle__amount {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   min-width: 120px; /* Fixed width to prevent shifting */
   text-align: right; /* Aligns text for better appearance */
   white-space: nowrap; /* Prevents wrapping */
+}
+
+.balance-toggle__active-currency {
+  color: #fff;
+  font-size: 18px;
+  margin-left: 5px;
+}
+
+.balance-toggle__inactive-currency {
+  color: #ccc;
+  font-size: 14px;
+  margin-left: 5px;
 }
 
 .balance-toggle__get-coins {
@@ -85,9 +68,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+    cursor: default; /* Remove pointer cursor on mobile for better UX */
   }
 
-  .balance-toggle__switch {
+  .balance-toggle__display {
     gap: 5px;
   }
 
