@@ -2,7 +2,7 @@
 // frontend/src/pages/Landing.js
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // Ensure this is correctly imported
+import { jwtDecode } from "jwt-decode"; // Corrected import
 import "./Landing.css"; // Link to the CSS file
 
 const Landing = () => {
@@ -30,9 +30,14 @@ const Landing = () => {
       <div className="hero-section">
         <h1>Welcome to Horsey</h1>
         <p>Bet, Play, Win. Join the ultimate chess gaming experience!</p>
-        <button className="cta-button" onClick={() => navigate("/register")}>
-          Get Started
-        </button>
+        <div className="hero-buttons">
+          <button className="cta-button" onClick={() => navigate("/register")}>
+            Get Started
+          </button>
+          <button className="login-button" onClick={() => navigate("/login")}>
+            Login
+          </button>
+        </div>
       </div>
       <div className="live-stats">
         <h3>Live Stats</h3>
@@ -44,3 +49,4 @@ const Landing = () => {
 };
 
 export default Landing;
+

@@ -1,4 +1,6 @@
 
+/* frontend/src/pages/Landing.css */
+
 /* General styles */
 body {
   margin: 0;
@@ -30,6 +32,12 @@ body {
   color: #ffffff; /* White text for paragraph */
 }
 
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
 .cta-button {
   padding: 15px 30px;
   font-size: 18px;
@@ -43,6 +51,27 @@ body {
 
 .cta-button:hover {
   background-color: #e03e00;
+}
+
+.login-button {
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 5px;
+  color: #ffffff; /* White text for button */
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #ffffff;
+  color: #0a2a4d;
+}
+
+.login-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
 }
 
 /* Live stats section */
@@ -74,9 +103,20 @@ body {
     font-size: 16px;
   }
 
-  .cta-button {
+  .cta-button,
+  .login-button {
     font-size: 16px;
     padding: 10px 20px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login-button {
+    width: 100%;
+    text-align: center;
   }
 }
 

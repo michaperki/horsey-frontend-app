@@ -26,8 +26,6 @@ import { TokenProvider } from './contexts/TokenContext';
 import NotificationsModal from './components/NotificationsModal';
 
 function App() {
-  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
-
   return (
     <SocketProvider>
       <TokenProvider>
@@ -44,7 +42,7 @@ function App() {
           <Route
             element={
               <ProtectedRoute>
-                <Layout onOpenPlaceBet={() => setIsPlaceBetModalOpen(true)} /> {/* Pass handler to Layout or relevant component */}
+                <Layout />
               </ProtectedRoute>
             }
           >
