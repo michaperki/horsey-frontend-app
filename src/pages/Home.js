@@ -61,8 +61,6 @@ const Home = () => {
         message: 'Membership coming soon!',
         type: 'membership', // You can define a new type if needed
       });
-      // Optionally, provide user feedback
-      alert('Notification triggered: "Membership coming soon!"');
     } catch (error) {
       console.error('Error creating notification:', error);
       setButtonError('Failed to trigger notification. Please try again.');

@@ -70,11 +70,6 @@ export const SocketProvider = ({ children }) => {
       console.error('Socket.io encountered an error:', error);
     });
 
-    // Optionally, listen to any custom events for additional debugging
-    currentSocket.on('notification', (data) => {
-      console.log('Received notification:', data);
-    });
-
     return () => {
       if (currentSocket) {
         console.log('Disconnecting Socket.io client.');
