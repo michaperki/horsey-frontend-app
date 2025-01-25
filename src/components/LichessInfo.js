@@ -3,11 +3,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { formatDate } from '../utils/formatDate'; // Import the utility function
 
 const LichessInfo = ({ info }) => {
-  const connectedDate = info.connectedAt
-    ? new Date(info.connectedAt).toLocaleString()
-    : "N/A";
+  const connectedDate = formatDate(info.connectedAt);
 
   // Access standard and variant ratings
   const standardRatings = (info.ratings && info.ratings.standard) || {};
