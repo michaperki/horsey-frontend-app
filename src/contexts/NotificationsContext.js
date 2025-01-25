@@ -2,7 +2,7 @@
 // frontend/src/contexts/NotificationsContext.js
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import { useSocket } from './SocketContext'; // Import useSocket
 import { useAuth } from './AuthContext';
 import {
   fetchNotifications,
@@ -16,6 +16,7 @@ export const useNotifications = () => useContext(NotificationsContext);
 
 export const NotificationsProvider = ({ children }) => {
   const { token, user } = useAuth();
+  const socket = useSocket(); // Use the shared socket
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -43,36 +44,22 @@ export const NotificationsProvider = ({ children }) => {
     getNotifications();
   }, [token, user]);
 
-  // Setup Socket.io connection
+  // Listen for notification events using the shared socket
   useEffect(() => {
-    if (token && user) {
-      const newSocket = io(process.env.REACT_APP_SOCKET_URL || '/', {
-        auth: { token },
-      });
-
-      newSocket.on('connect', () => {
-        console.log('Connected to Socket.io server');
-      });
-
-      newSocket.on('notification', (notification) => {
+    if (socket && token && user) {
+      const handleNotification = (notification) => {
         console.log('Received notification:', notification);
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
-      });
+      };
 
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from Socket.io server');
-      });
-
-      newSocket.on('connect_error', (err) => {
-        console.error('Socket.io connection error:', err.message);
-      });
+      socket.on('notification', handleNotification);
 
       return () => {
-        newSocket.disconnect();
+        socket.off('notification', handleNotification);
       };
     }
-  }, [token, user]);
+  }, [socket, token, user]);
 
   const markAsRead = async (notificationId) => {
     try {
@@ -110,3 +97,4 @@ export const NotificationsProvider = ({ children }) => {
     </NotificationsContext.Provider>
   );
 };
+
