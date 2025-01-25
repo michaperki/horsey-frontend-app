@@ -96,7 +96,7 @@ const Navbar = () => {
 
   const handleGetCoins = () => {
     console.log('Redirect to Get Coins Page');
-    navigate('/get-coins'); // Example navigation to Get Coins page
+    navigate('/store'); // Example navigation to Get Coins page
   };
 
   // Handler to close the dropdown

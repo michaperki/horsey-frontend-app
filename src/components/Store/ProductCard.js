@@ -7,16 +7,20 @@ import './ProductCard.css';
 const ProductCard = ({ product, onPurchase, purchaseLoading }) => {
   return (
     <div className="store-product-card">
-      <img
-        src={`/images/${product.imageFileName}`}
-        alt={product.name}
-        className="product-image"
-      />
+      <div className="product-image-wrapper">
+        <img
+          src={`/images/${product.imageFileName}`}
+          alt={product.name}
+          className="product-image"
+        />
+      </div>
       <div className="product-details">
         <h3 className="product-name">{product.name}</h3>
         <p className="product-description">{product.description}</p>
         <div className="product-price">
-          Price: ${product.priceInUSD} | Player Tokens: {product.playerTokens} | Sweepstakes Tokens: {product.sweepstakesTokens}
+          <p><strong>Price:</strong> ${product.priceInUSD}</p>
+          <p><strong>Player Tokens:</strong> {product.playerTokens}</p>
+          <p><strong>Sweepstakes Tokens:</strong> {product.sweepstakesTokens}</p>
         </div>
         <button
           className="purchase-button"
@@ -31,4 +35,3 @@ const ProductCard = ({ product, onPurchase, purchaseLoading }) => {
 };
 
 export default ProductCard;
-
