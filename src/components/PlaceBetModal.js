@@ -97,9 +97,11 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
     <div className="place-bet-overlay" onClick={handleCloseModal}>
       <div
         className="place-bet-modal"
+        role="dialog" // Added ARIA role for accessibility
+        aria-modal="true"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
       >
-        <button onClick={handleCloseModal} className="place-bet-close-button">
+        <button onClick={handleCloseModal} className="place-bet-close-button" aria-label="Close Modal">
           &times;
         </button>
         {/* If modalMessage is set, show success message; otherwise, show the form */}
@@ -188,7 +190,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
             <button
               onClick={handlePlaceBet}
               className="place-bet-button"
-              disabled={loading || !amount}
+              disabled={loading} // Removed !amount to allow validation
             >
               {loading ? "Placing Bet..." : "Place Bet"}
             </button>
@@ -203,3 +205,4 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
 };
 
 export default PlaceBetModal;
+

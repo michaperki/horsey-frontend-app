@@ -18,17 +18,17 @@ const PlaceBet = () => {
 
   return (
     <>
-      {/* Button to Open Place Bet Modal */}
       <button className="place-bet-open-button" onClick={handleOpenModal}>
         Place a Bet
       </button>
 
-      {/* PlaceBetModal Component */}
-      <PlaceBetModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        preSelectedVariant={null} // No pre-selected variant when opened from the button
-      />
+      {isModalOpen && ( // Conditionally render PlaceBetModal
+        <PlaceBetModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          preSelectedVariant={null}
+        />
+      )}
     </>
   );
 };
