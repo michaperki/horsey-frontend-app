@@ -1,20 +1,15 @@
 
-/* frontend/src/components/Notifications.css */
-
-.notification_container {
+/* Base Styles */
+.notifications-container {
   padding: 20px;
-  max-width: 600px;
-  margin: auto;
   background-color: #f9f9f9;
   border-radius: 8px;
   margin-top: 50px;
+  max-height: 60vh;
 }
 
-h2 {
-  color: white;
-}
-
-.markAllButton {
+/* Button Styles */
+.mark-all-button {
   background-color: #0a2a4d;
   color: #fff;
   border: none;
@@ -24,28 +19,39 @@ h2 {
   margin-bottom: 10px;
 }
 
-.list {
-  list-style: none;
-  padding: 0;
+.mark-all-button:hover {
+  background-color: #09407a;
 }
 
-.read {
+/* List Styles */
+.notification-list {
+  list-style: none;
+  padding: 0;
+  overflow: auto;
+  max-height: 30vh;
+  margin: 0;
+}
+
+/* Individual Notification Styles */
+.notification-read {
   background-color: #fff;
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
-.unread {
+.notification-unread {
   background-color: #e6f7ff;
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
-.message {
+/* Notification Message Styles */
+.notification-message {
   font-size: 16px;
 }
 
-.meta {
+/* Metadata and Buttons */
+.notification-meta {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
@@ -53,7 +59,7 @@ h2 {
   margin-top: 5px;
 }
 
-.markButton {
+.mark-button {
   background-color: #28a745;
   color: #fff;
   border: none;
@@ -62,3 +68,46 @@ h2 {
   cursor: pointer;
   font-size: 12px;
 }
+
+.mark-button:hover {
+  background-color: #218838;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .notifications-container {
+    padding: 15px;
+    margin-top: 30px;
+    max-height: 70vh;
+  }
+
+  .notification-list {
+    max-height: 50vh;
+  }
+
+  .mark-all-button {
+    padding: 6px 10px;
+  }
+
+  .mark-button {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-container {
+    padding: 10px;
+    margin-top: 20px;
+    max-height: 80vh;
+  }
+
+  .notification-message {
+    font-size: 14px;
+  }
+
+  .notification-meta {
+    font-size: 10px;
+  }
+}
+
