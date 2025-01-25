@@ -23,7 +23,8 @@ import LichessCallback from './components/Auth/LichessCallback';
 import Layout from './components/Layout'; // Import Layout
 import { SocketProvider } from './contexts/SocketContext';
 import { TokenProvider } from './contexts/TokenContext';
-import { SelectedTokenProvider } from './contexts/SelectedTokenContext'; // Import the provider
+import { SelectedTokenProvider } from './contexts/SelectedTokenContext';
+import { NotificationsProvider } from './contexts/NotificationsContext';
 import NotificationsModal from './components/NotificationsModal';
 import Store from './pages/Store'; // Import the Store component
 
@@ -32,76 +33,78 @@ function App() {
     <SocketProvider>
       <TokenProvider>
         <SelectedTokenProvider>
-          {/* Navbar is now part of Layout */}
-          <NotificationsModal />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<UserLogin />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/auth/lichess/callback" element={<LichessCallback />} />
+          <NotificationsProvider>
+            {/* Navbar is now part of Layout */}
+            <NotificationsModal />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<UserLogin />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/auth/lichess/callback" element={<LichessCallback />} />
 
-            {/* Routes with Layout (Persistent Navbar, Sidebar, and Footer) */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/home" element={<Home />} />
-              <Route path="/lobby" element={<Lobby />} />
-              <Route path="/leaderboards" element={<Leaderboard />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/store" element={<Store />} /> {/* Added Store Route */}
-              {/* Removed separate route for PlaceBet */}
-            </Route>
+              {/* Routes with Layout (Persistent Navbar, Sidebar, and Footer) */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/home" element={<Home />} />
+                <Route path="/lobby" element={<Lobby />} />
+                <Route path="/leaderboards" element={<Leaderboard />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/store" element={<Store />} /> {/* Added Store Route */}
+                {/* Removed separate route for PlaceBet */}
+              </Route>
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin/mint"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <Mint />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/balance"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <Balance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/transfer"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <Transfer />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/validate-result"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <ValidateResult />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            {/* Optionally, you can keep the /place-bet route if you want to access it as a separate page */}
-            <Route path="/place-bet" element={<PlaceBet isOpen={true} onClose={() => {}} />} />
-          </Routes>
+              {/* Admin Routes */}
+              <Route
+                path="/admin/mint"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <Mint />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/balance"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <Balance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/transfer"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <Transfer />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/validate-result"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <ValidateResult />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Optionally, you can keep the /place-bet route if you want to access it as a separate page */}
+              <Route path="/place-bet" element={<PlaceBet isOpen={true} onClose={() => {}} />} />
+            </Routes>
+          </NotificationsProvider>
         </SelectedTokenProvider>
       </TokenProvider>
     </SocketProvider>

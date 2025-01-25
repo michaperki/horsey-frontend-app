@@ -243,12 +243,11 @@
   align-items: center;
   gap: 15px;
   margin-right: 20px;
-  filter: brightness(0) invert(1);
 }
 
 .navbar__icon-container {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
 }
@@ -257,17 +256,30 @@
   width: 24px;
   height: 24px;
   cursor: pointer;
+  color: #fff; /* Matches the navbar text color */
+  transition: transform 0.2s;
+}
+
+.navbar__icon:hover {
+  transform: scale(1.1);
 }
 
 .navbar__badge {
   position: absolute;
   top: -5px;
-  right: -10px;
-  background-color: red;
+  right: -5px;
+  background-color: #ff3b3b; /* Brighter red for better visibility */
   color: #fff;
-  border-radius: 50%;
-  padding: 2px 6px;
   font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0a2a4d; /* Matches navbar background for a cleaner look */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .navbar__user-info {
@@ -395,4 +407,5 @@
     margin-left: auto;
   }
 }
+
 

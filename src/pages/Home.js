@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserProfile } from '../services/api';
+import { getUserProfile, createNotification } from '../services/api'; // Import createNotification
 import StatCard from '../components/StatCard';
 import './Home.css';
 import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton styles
@@ -13,6 +13,8 @@ import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 const Home = () => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(false); // Loading state for the button
+  const [buttonError, setButtonError] = useState(null); // Error state for the button
 
   const [statistics, setStatistics] = useState({
     totalGames: 0,
@@ -43,6 +45,24 @@ const Home = () => {
     fetchProfile();
   }, [token]);
 
+  const handleBecomeMember = async () => {
+    setButtonLoading(true);
+    setButtonError(null);
+    try {
+      await createNotification({
+        message: 'Membership coming soon!',
+        type: 'membership', // You can define a new type if needed
+      });
+      // Optionally, provide user feedback
+      alert('Notification triggered: "Membership coming soon!"');
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      setButtonError('Failed to trigger notification. Please try again.');
+    } finally {
+      setButtonLoading(false);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -72,11 +92,19 @@ const Home = () => {
         </div>
         <div className="additional-info">
           <div className="info-item">
-            Membership: {statistics.membership === 'Free' ? (
-              <a href="/membership">Become a Member</a>
+            Membership:{' '}
+            {statistics.membership === 'Free' ? (
+              <button
+                className="become-member-button"
+                onClick={handleBecomeMember}
+                disabled={buttonLoading}
+              >
+                {buttonLoading ? 'Processing...' : 'Become a Member'}
+              </button>
             ) : (
               'Premium'
             )}
+            {buttonError && <p className="error-message">{buttonError}</p>}
           </div>
           <div className="info-item">Karma: {statistics.karma}</div>
         </div>
@@ -114,3 +142,4 @@ const Home = () => {
 };
 
 export default Home;
+

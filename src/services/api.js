@@ -272,3 +272,18 @@ export const fetchProducts = async () => {
   });
   return data.products; // Assuming the backend response contains a 'products' array
 };
+
+/**
+ * Creates a new notification for the authenticated user.
+ * @param {object} notificationData - Data for the new notification.
+ * @param {string} notificationData.message - The notification message.
+ * @param {string} [notificationData.type] - The type of notification.
+ * @returns {Promise<object>} - The response data from the API.
+ */
+export const createNotification = async (notificationData) => {
+  const data = await apiFetch('/notifications', {
+    method: 'POST',
+    body: JSON.stringify(notificationData),
+  });
+  return data;
+};

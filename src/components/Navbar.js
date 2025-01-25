@@ -7,7 +7,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToken } from '../contexts/TokenContext';
 import {
   getLichessStatus,
-  getUserData,
   initiateLichessOAuth,
 } from '../services/api';
 import BalanceToggle from './BalanceToggle';
@@ -23,7 +22,8 @@ import {
   FaChess,
   FaSignInAlt,
   FaUserPlus,
-} from 'react-icons/fa'; // Import additional icons
+} from 'react-icons/fa';
+import { useNotifications } from '../contexts/NotificationsContext';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -31,7 +31,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { tokenBalance, sweepstakesBalance } = useToken();
   const [lichessConnected, setLichessConnected] = useState(false);
-  const [notificationsCount, setNotificationsCount] = useState(0);
+  const { unreadCount } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,9 +50,7 @@ const Navbar = () => {
           const isConnected = await getLichessStatus();
           setLichessConnected(isConnected);
 
-          // Fetch user data including notifications
-          const userData = await getUserData();
-          setNotificationsCount(userData.notifications || 0);
+          // Additional data fetching can be done here if needed
         } catch (err) {
           console.error('Error fetching Navbar data:', err);
           if (err.message === 'Unauthorized') {
@@ -66,7 +64,6 @@ const Navbar = () => {
         }
       } else {
         setLichessConnected(false);
-        setNotificationsCount(0);
         setLoading(false);
       }
     };
@@ -216,7 +213,7 @@ const Navbar = () => {
             <div className="navbar__icons">
               <div className="navbar__icon-container">
                 <FaBell className="navbar__icon" title="Notifications" aria-label="Notifications" />
-                {notificationsCount > 0 && <span className="navbar__badge">{notificationsCount}</span>}
+                {unreadCount > 0 && <span className="navbar__badge">{unreadCount}</span>}
               </div>
             </div>
             <div
@@ -238,6 +235,9 @@ const Navbar = () => {
                 </Link>
                 <Link to="/settings" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
                   Settings
+                </Link>
+                <Link to="/notifications" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
+                  Notifications {unreadCount > 0 && `(${unreadCount})`}
                 </Link>
                 <button onClick={() => { handleLogout(); closeDropdown(); setIsMobileMenuOpen(false); }} className="navbar__dropdown-item logout" role="menuitem">
                   Logout

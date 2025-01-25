@@ -1,0 +1,60 @@
+
+/* frontend/src/components/Notifications.css */
+
+.container {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 50px;
+}
+
+.markAllButton {
+  background-color: #0a2a4d;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.read {
+  background-color: #fff;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.unread {
+  background-color: #e6f7ff;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.message {
+  font-size: 16px;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  margin-top: 5px;
+}
+
+.markButton {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}

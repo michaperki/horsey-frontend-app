@@ -1,7 +1,6 @@
 
 /* src/pages/Home.css */
 
-
 /* General Home Container */
 .home-container {
   padding: 10px;
@@ -65,6 +64,36 @@
   color: #fff;
 }
 
+/* Error Message for Button */
+.error-message {
+  color: #ffeb3b;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Button for Becoming a Member */
+.become-member-button {
+  padding: 8px 16px;
+  background-color: #415471;
+  color: #ffeb3b;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.become-member-button:hover {
+  background-color: #2c3e50;
+  transform: translateY(-2px);
+}
+
+.become-member-button:disabled {
+  background-color: #3a3f47;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
 /* Home Options Section */
 .home-options {
   display: flex;
@@ -125,3 +154,4 @@
 .get-coins-button:hover {
   background-color: #005999;
 }
+
