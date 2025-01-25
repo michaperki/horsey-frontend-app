@@ -5,10 +5,12 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile, createNotification } from '../services/api'; // Import createNotification
 import StatCard from '../components/StatCard';
+import PlaceBetModal from '../components/PlaceBetModal'; // Import PlaceBetModal
 import './Home.css';
 import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton styles
 // Import React Icons for Home Options
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Home = () => {
   const { token } = useAuth();
@@ -27,6 +29,12 @@ const Home = () => {
     membership: 'Free',
     username: 'User',
   });
+
+  // State for PlaceBetModal
+  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -61,6 +69,17 @@ const Home = () => {
     } finally {
       setButtonLoading(false);
     }
+  };
+
+  // Handlers to open and close PlaceBetModal
+  const openPlaceBetModal = (variant) => {
+    setSelectedVariant(variant);
+    setIsPlaceBetModalOpen(true);
+  };
+
+  const closePlaceBetModal = () => {
+    setSelectedVariant(null);
+    setIsPlaceBetModalOpen(false);
   };
 
   if (loading) {
@@ -113,30 +132,59 @@ const Home = () => {
       <div className="content">
         <main className="main">
           <div className="home-options">
-            <div className="card">
+            {/* Classic Blitz Card */}
+            <div
+              className="card clickable-card"
+              onClick={() => openPlaceBetModal('standard')}
+            >
               <div className="icon"><FaChessKnight /></div>
               <div>
                 <h3>Classic Blitz</h3>
                 <p>Our most popular game mode!</p>
               </div>
             </div>
-            <div className="card">
+
+            {/* Chess 960 Card */}
+            <div
+              className="card clickable-card"
+              onClick={() => openPlaceBetModal('chess960')}
+            >
               <div className="icon"><FaChessKing /></div>
               <div>
-                <h3>Crazy House</h3>
-                <p>Place pieces that you capture!</p>
+                <h3>Chess 960</h3>
+                <p>Pieces start on random squares!</p>
               </div>
             </div>
-            <div className="card">
+
+            {/* Play for Horsey Coins Card */}
+            <div
+              className="card clickable-card" // Make the entire card clickable
+              onClick={() => openPlaceBetModal(null)} // Open modal with defaults
+            >
               <div className="icon"><FaCoins /></div>
               <div>
                 <h3>Play for Horsey Coins</h3>
-                <button className="get-coins-button">Get Coins</button>
+                <button
+                  className="get-coins-button"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the card's onClick from triggering
+                    navigate('/store'); // Navigate to /store
+                  }}
+                >
+                  Get Coins
+                </button>
               </div>
             </div>
           </div>
         </main>
       </div>
+
+      {/* PlaceBetModal Component */}
+      <PlaceBetModal
+        isOpen={isPlaceBetModalOpen}
+        onClose={closePlaceBetModal}
+        preSelectedVariant={selectedVariant}
+      />
     </div>
   );
 };

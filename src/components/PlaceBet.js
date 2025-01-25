@@ -2,215 +2,34 @@
 // src/components/PlaceBet.js
 
 import React, { useState } from "react";
-import { placeBet } from "../services/api";
-import { useToken } from "../contexts/TokenContext";
-import "./PlaceBet.css"; // Ensure this CSS file includes styles for the modal
+import PlaceBetModal from "./PlaceBetModal"; // Import the new PlaceBetModal
+import "./PlaceBet.css"; // Ensure this CSS file includes styles for the button
 
 const PlaceBet = () => {
-  const [currencyType, setCurrencyType] = useState("token"); // 'token' or 'sweepstakes'
-  const [colorPreference, setColorPreference] = useState("random");
-  const [timeControl, setTimeControl] = useState("5|3");
-  const [variant, setVariant] = useState("standard");
-  const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
 
-  const {
-    tokenBalance,
-    sweepstakesBalance,
-    updateTokenBalance,
-    updateSweepstakesBalance,
-  } = useToken();
-
-  // Determine the current balance based on selected currency
-  const currentBalance =
-    currencyType === "sweepstakes" ? sweepstakesBalance : tokenBalance;
-
-  const handlePlaceBet = async () => {
-    setMessage("");
-    if (!amount || Number(amount) <= 0) {
-      setMessage("Please enter a valid bet amount.");
-      return;
-    }
-    if (Number(amount) > currentBalance) {
-      setMessage("Insufficient balance.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const betData = {
-        currencyType, // 'token' or 'sweepstakes'
-        amount: Number(amount),
-        colorPreference,
-        timeControl,
-        variant,
-      };
-      await placeBet(betData);
-      setModalMessage("Bet placed successfully!");
-      setIsModalOpen(true);
-
-      // Update the balances in the context
-      if (currencyType === "sweepstakes") {
-        updateSweepstakesBalance(sweepstakesBalance - Number(amount));
-      } else {
-        updateTokenBalance(tokenBalance - Number(amount));
-      }
-
-      // Reset form fields
-      setCurrencyType("token");
-      setColorPreference("random");
-      setTimeControl("5|3");
-      setVariant("standard");
-      setAmount("");
-    } catch (err) {
-      console.error("Error placing bet:", err);
-      if (err.response && err.response.data && err.response.data.error) {
-        setMessage(`Error: ${err.response.data.error}`);
-      } else {
-        setMessage(err.message || "Failed to place bet.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalMessage("");
-    setMessage("");
   };
 
   return (
-    <div>
+    <>
       {/* Button to Open Place Bet Modal */}
-      <button
-        className="place-bet-open-button"
-        onClick={() => setIsModalOpen(true)}
-      >
+      <button className="place-bet-open-button" onClick={handleOpenModal}>
         Place a Bet
       </button>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="place-bet-overlay">
-          <div className="place-bet-modal">
-            <button
-              onClick={handleCloseModal}
-              className="place-bet-close-button"
-            >
-              &times;
-            </button>
-            {/* If modalMessage is set, show success message; otherwise, show the form */}
-            {modalMessage ? (
-              <div>
-                <h2>Success</h2>
-                <p>{modalMessage}</p>
-                {/* Optionally, add a link to the game if available */}
-                {/* <a href={gameLink} target="_blank" rel="noopener noreferrer">Go to Game</a> */}
-                <button
-                  onClick={handleCloseModal}
-                  className="place-bet-modal-button"
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <div className="place-bet-container">
-                <h2>Place a Bet</h2>
-                <p>
-                  Your Balance: {currentBalance}{" "}
-                  {currencyType === "sweepstakes" ? "Sweepstakes" : "Tokens"}
-                </p>
-
-                {/* Select Currency Type */}
-                <label htmlFor="currencyType">Currency:</label>
-                <select
-                  id="currencyType"
-                  value={currencyType}
-                  onChange={(e) => setCurrencyType(e.target.value)}
-                  className="place-bet-select"
-                >
-                  <option value="token">Token</option>
-                  <option value="sweepstakes">Sweepstakes</option>
-                </select>
-
-                {/* Select Color Preference */}
-                <label htmlFor="colorPreference">Color Preference:</label>
-                <select
-                  id="colorPreference"
-                  value={colorPreference}
-                  onChange={(e) => setColorPreference(e.target.value)}
-                  className="place-bet-select"
-                >
-                  <option value="white">White</option>
-                  <option value="black">Black</option>
-                  <option value="random">Random</option>
-                </select>
-
-                {/* Select Time Control */}
-                <label htmlFor="timeControl">
-                  Time Control (minutes|increment):
-                </label>
-                <select
-                  id="timeControl"
-                  value={timeControl}
-                  onChange={(e) => setTimeControl(e.target.value)}
-                  className="place-bet-select"
-                >
-                  <option value="3|2">3|2</option>
-                  <option value="5|3">5|3</option>
-                  <option value="10|0">10|0</option>
-                  <option value="15|10">15|10</option>
-                  {/* Add more as needed */}
-                </select>
-
-                {/* Select Variant */}
-                <label htmlFor="variant">Variant:</label>
-                <select
-                  id="variant"
-                  value={variant}
-                  onChange={(e) => setVariant(e.target.value)}
-                  className="place-bet-select"
-                >
-                  <option value="standard">Standard</option>
-                  <option value="crazyhouse">Crazyhouse</option>
-                  <option value="chess960">Chess 960</option>
-                  {/* Add others if desired */}
-                </select>
-
-                {/* Input Bet Amount */}
-                <label htmlFor="amount">Bet Amount:</label>
-                <input
-                  type="number"
-                  id="amount"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="place-bet-input"
-                  min="1"
-                />
-
-                {/* Place Bet Button */}
-                <button
-                  onClick={handlePlaceBet}
-                  className="place-bet-button"
-                  disabled={loading || !amount}
-                >
-                  {loading ? "Placing Bet..." : "Place Bet"}
-                </button>
-
-                {/* Message Display */}
-                {message && <p className="place-bet-message">{message}</p>}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+      {/* PlaceBetModal Component */}
+      <PlaceBetModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        preSelectedVariant={null} // No pre-selected variant when opened from the button
+      />
+    </>
   );
 };
 

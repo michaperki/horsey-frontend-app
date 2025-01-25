@@ -1,6 +1,13 @@
 
 /* src/index.css */
 
+/* Define square size variables for easy manipulation */
+:root {
+  --square-size: 180px; /* Default size of squares */
+  --square-size-mobile: 60px; /* Square size for mobile screens */
+  --square-size-large: 240px; /* Square size for large screens */
+}
+
 /* Apply box-sizing globally */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -30,14 +37,14 @@ body {
       #0a355c 0,
       #0a355c 2px,
       transparent 2px,
-      transparent 40px
+      transparent var(--square-size)
     ),
     repeating-linear-gradient(
       to right,
       #0a355c 0,
       #0a355c 2px,
       transparent 2px,
-      transparent 40px
+      transparent var(--square-size)
     );
 }
 
@@ -49,14 +56,14 @@ body {
         #0a355c 0,
         #0a355c 2px,
         transparent 2px,
-        transparent 30px
+        transparent var(--square-size-mobile)
       ),
       repeating-linear-gradient(
         to right,
         #0a355c 0,
         #0a355c 2px,
         transparent 2px,
-        transparent 30px
+        transparent var(--square-size-mobile)
       );
   }
 }
@@ -69,14 +76,14 @@ body {
         #0a355c 0,
         #0a355c 2px,
         transparent 2px,
-        transparent 50px
+        transparent var(--square-size-large)
       ),
       repeating-linear-gradient(
         to right,
         #0a355c 0,
         #0a355c 2px,
         transparent 2px,
-        transparent 50px
+        transparent var(--square-size-large)
       );
   }
 }
