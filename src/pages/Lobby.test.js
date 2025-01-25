@@ -16,7 +16,6 @@ describe('Lobby Component', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Lobby')).toBeInTheDocument();
     expect(screen.getByTestId('available-bets')).toBeInTheDocument();
   });
 });

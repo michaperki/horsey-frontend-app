@@ -1,7 +1,5 @@
 
-// src/services/api.test.js
-
-import { getUserBalance, getUserBets } from './api';
+import { getUserBalances, getUserBets } from './api';
 
 describe('API Service Functions', () => {
   beforeEach(() => {
@@ -9,23 +7,24 @@ describe('API Service Functions', () => {
     localStorage.clear();
   });
 
-  describe('getUserBalance', () => {
+  describe('getUserBalances', () => {
     it('should return user balance when API call is successful', async () => {
-      const mockBalance = 1000;
-      fetch.mockResponseOnce(JSON.stringify({ balance: mockBalance }), { status: 200 });
+      const mockBalance = { tokenBalance: 1000, sweepstakesBalance: 500 };
+      fetch.mockResponseOnce(JSON.stringify(mockBalance), { status: 200 });
 
       const token = 'valid-token';
       localStorage.setItem('token', token);
 
-      const balance = await getUserBalance(token);
+      const balance = await getUserBalances();
 
-      expect(fetch).toHaveBeenCalledWith('/tokens/balance/user', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
-      expect(balance).toBe(mockBalance);
+      expect(balance).toEqual(mockBalance);
     });
 
     it('should throw an error when API call fails', async () => {
@@ -35,29 +34,30 @@ describe('API Service Functions', () => {
       const token = 'invalid-token';
       localStorage.setItem('token', token);
 
-      await expect(getUserBalance(token)).rejects.toThrow(mockError);
+      await expect(getUserBalances()).rejects.toThrow(mockError);
 
-      expect(fetch).toHaveBeenCalledWith('/tokens/balance/user', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
 
     it('should throw a generic error when response is not ok and no error message is provided', async () => {
-      // Change the mock response to return a valid JSON object
       fetch.mockResponseOnce('{}', { status: 500 });
 
       const token = 'any-token';
       localStorage.setItem('token', token);
 
-      await expect(getUserBalance(token)).rejects.toThrow('Failed to fetch user balance');
+      await expect(getUserBalances()).rejects.toThrow('API request failed');
 
-      expect(fetch).toHaveBeenCalledWith('/tokens/balance/user', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
@@ -69,12 +69,13 @@ describe('API Service Functions', () => {
       const token = 'valid-token';
       localStorage.setItem('token', token);
 
-      await expect(getUserBalance(token)).rejects.toThrow('Network Error');
+      await expect(getUserBalances()).rejects.toThrow('Network Error');
 
-      expect(fetch).toHaveBeenCalledWith('/tokens/balance/user', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
@@ -92,16 +93,8 @@ describe('API Service Functions', () => {
             status: 'pending',
             createdAt: '2024-12-25T12:00:00.000Z',
           },
-          {
-            _id: 'bet2',
-            gameId: 'game124',
-            choice: 'black',
-            amount: 200,
-            status: 'won',
-            createdAt: '2024-12-24T12:00:00.000Z',
-          },
         ],
-        totalPages: 2,
+        totalPages: 1,
       };
       fetch.mockResponseOnce(JSON.stringify(mockBetsData), { status: 200 });
 
@@ -109,12 +102,13 @@ describe('API Service Functions', () => {
       const params = { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' };
       localStorage.setItem('token', token);
 
-      const data = await getUserBets(token, params);
+      const data = await getUserBets(params);
 
-      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
       expect(data).toEqual(mockBetsData);
@@ -128,12 +122,13 @@ describe('API Service Functions', () => {
       const params = { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' };
       localStorage.setItem('token', token);
 
-      await expect(getUserBets(token, params)).rejects.toThrow(mockError);
+      await expect(getUserBets(params)).rejects.toThrow(mockError);
 
-      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
@@ -145,12 +140,13 @@ describe('API Service Functions', () => {
       const params = { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' };
       localStorage.setItem('token', token);
 
-      await expect(getUserBets(token, params)).rejects.toThrow('Failed to fetch your bet history');
+      await expect(getUserBets(params)).rejects.toThrow('API request failed');
 
-      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
@@ -163,12 +159,13 @@ describe('API Service Functions', () => {
       const params = { page: 1, limit: 10, sortBy: 'createdAt', order: 'desc' };
       localStorage.setItem('token', token);
 
-      await expect(getUserBets(token, params)).rejects.toThrow('Network Error');
+      await expect(getUserBets(params)).rejects.toThrow('Network Error');
 
-      expect(fetch).toHaveBeenCalledWith('/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/bets/history?page=1&limit=10&sortBy=createdAt&order=desc', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     });
