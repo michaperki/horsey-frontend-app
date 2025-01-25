@@ -3,8 +3,12 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
-import { apiFetch } from '../utils/api'; // Use your custom apiFetch
 import { useAuth } from './AuthContext';
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from '../services/api';
 
 const NotificationsContext = createContext();
 
@@ -18,16 +22,10 @@ export const NotificationsProvider = ({ children }) => {
 
   // Fetch initial notifications
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const getNotifications = async () => {
       if (token && user) {
         try {
-          const data = await apiFetch('/notifications', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            params: { read: false }, // Use query params if supported
-          });
+          const data = await fetchNotifications(false);
           setNotifications(data.notifications);
           setUnreadCount(data.total);
         } catch (error) {
@@ -42,7 +40,7 @@ export const NotificationsProvider = ({ children }) => {
       }
     };
 
-    fetchNotifications();
+    getNotifications();
   }, [token, user]);
 
   // Setup Socket.io connection
@@ -78,11 +76,11 @@ export const NotificationsProvider = ({ children }) => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await apiFetch(`/notifications/${notificationId}/read`, { method: 'PATCH' });
+      await markNotificationAsRead(notificationId);
       setNotifications((prev) =>
         prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
       );
-      setUnreadCount((prev) => (prev > 0 ? prev - 1 : 0));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -90,7 +88,7 @@ export const NotificationsProvider = ({ children }) => {
 
   const markAllAsRead = async () => {
     try {
-      await apiFetch('/notifications/read-all', { method: 'POST' });
+      await markAllNotificationsAsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {

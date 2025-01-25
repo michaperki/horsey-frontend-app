@@ -287,3 +287,36 @@ export const createNotification = async (notificationData) => {
   });
   return data;
 };
+
+/**
+ * Fetch initial notifications.
+ * @param {boolean} [read=false] - Filter by read/unread notifications.
+ * @returns {Promise<object>} - Notifications data.
+ */
+export const fetchNotifications = async (read = false) => {
+  return apiFetch('/notifications', {
+    method: 'GET',
+    params: { read },
+  });
+};
+
+/**
+ * Mark a specific notification as read.
+ * @param {string} notificationId - ID of the notification to mark as read.
+ * @returns {Promise<void>}
+ */
+export const markNotificationAsRead = async (notificationId) => {
+  return apiFetch(`/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+  });
+};
+
+/**
+ * Mark all notifications as read.
+ * @returns {Promise<void>}
+ */
+export const markAllNotificationsAsRead = async () => {
+  return apiFetch('/notifications/read-all', {
+    method: 'POST',
+  });
+};
