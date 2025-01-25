@@ -1,105 +1,129 @@
-// src/pages/Landing.test.js
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Landing from './Landing';
-import { MemoryRouter } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 
-// Mock the useNavigate hook from react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+// frontend/src/pages/Landing.test.js
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // Import the default export to mock
+import Landing from "./Landing";
+
+// Mocking the `jwt-decode` library
+jest.mock("jwt-decode");
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
 }));
 
-// Mock jwt-decode
-jest.mock('jwt-decode');
-
-describe('Landing Component', () => {
-  const mockNavigate = jest.fn();
-
+describe("Landing Component", () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
-    // Mock useNavigate to return the mockNavigate function
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
-    // Clear localStorage
     localStorage.clear();
   });
 
-  test('renders welcome message when no token is present', () => {
-    render(
-      <MemoryRouter>
-        <Landing />
-      </MemoryRouter>
-    );
+  it("redirects to admin dashboard if a valid admin token is present", () => {
+    const mockToken = "mockAdminToken";
+    const mockDecoded = { role: "admin" };
+    localStorage.setItem("token", mockToken);
 
-    expect(screen.getByText('Welcome to Chess Betting Platform')).toBeInTheDocument();
-    expect(screen.getByText('Please sign up or log in to continue.')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  test('navigates to /admin/dashboard when token has admin role', () => {
-    const adminToken = 'admin-token';
-    const decodedAdminToken = { role: 'admin' };
-    localStorage.setItem('token', adminToken);
-    jwtDecode.mockReturnValue(decodedAdminToken);
+    // Mock `jwtDecode` to return the decoded token
+    jwtDecode.mockReturnValue(mockDecoded);
 
     render(
-      <MemoryRouter>
+      <BrowserRouter>
         <Landing />
-      </MemoryRouter>
+      </BrowserRouter>
     );
 
-    expect(jwtDecode).toHaveBeenCalledWith(adminToken);
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
+    // Verify navigation to the admin dashboard
+    expect(mockNavigate).toHaveBeenCalledWith("/admin/dashboard");
   });
 
-  test('navigates to /home when token has user role', () => {
-    const userToken = 'user-token';
-    const decodedUserToken = { role: 'user' };
-    localStorage.setItem('token', userToken);
-    jwtDecode.mockReturnValue(decodedUserToken);
+  it("redirects to home if a valid non-admin token is present", () => {
+    const mockToken = "mockUserToken";
+    const mockDecoded = { role: "user" };
+    localStorage.setItem("token", mockToken);
+
+    // Mock `jwtDecode` to return the decoded token
+    jwtDecode.mockReturnValue(mockDecoded);
 
     render(
-      <MemoryRouter>
+      <BrowserRouter>
         <Landing />
-      </MemoryRouter>
+      </BrowserRouter>
     );
 
-    expect(jwtDecode).toHaveBeenCalledWith(userToken);
-    expect(mockNavigate).toHaveBeenCalledWith('/home');
+    // Verify navigation to the home page
+    expect(mockNavigate).toHaveBeenCalledWith("/home");
   });
 
-  test('handles invalid token gracefully', () => {
-    const invalidToken = 'invalid-token';
-    localStorage.setItem('token', invalidToken);
+  it("removes an invalid token from localStorage", () => {
+    const mockToken = "invalidToken";
+    localStorage.setItem("token", mockToken);
+
+    // Mock `jwtDecode` to throw an error
     jwtDecode.mockImplementation(() => {
-      throw new Error('Invalid token');
+      throw new Error("Invalid token");
     });
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     render(
-      <MemoryRouter>
+      <BrowserRouter>
         <Landing />
-      </MemoryRouter>
+      </BrowserRouter>
     );
 
-    expect(jwtDecode).toHaveBeenCalledWith(invalidToken);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid token:', expect.any(Error));
-    expect(localStorage.getItem('token')).toBeNull();
+    // Verify that the token is removed
+    expect(localStorage.getItem("token")).toBeNull();
+    // Ensure no navigation occurs
     expect(mockNavigate).not.toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 
-  test('does not navigate when no token is present', () => {
+  it("renders the landing page content correctly", () => {
     render(
-      <MemoryRouter>
+      <BrowserRouter>
         <Landing />
-      </MemoryRouter>
+      </BrowserRouter>
     );
 
-    expect(mockNavigate).not.toHaveBeenCalled();
+    // Check for static content
+    expect(screen.getByText("Welcome to Horsey")).toBeInTheDocument();
+    expect(
+      screen.getByText("Bet, Play, Win. Join the ultimate chess gaming experience!")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Live Stats")).toBeInTheDocument();
+    expect(screen.getByText("Online Users: 6,100")).toBeInTheDocument();
+    expect(screen.getByText("Games Played Today: 168,148")).toBeInTheDocument();
+
+    // Check for buttons
+    expect(screen.getByText("Get Started")).toBeInTheDocument();
+    expect(screen.getByText("Login")).toBeInTheDocument();
+  });
+
+  it("navigates to the register page when 'Get Started' is clicked", () => {
+    render(
+      <BrowserRouter>
+        <Landing />
+      </BrowserRouter>
+    );
+
+    // Simulate clicking the 'Get Started' button
+    fireEvent.click(screen.getByText("Get Started"));
+
+    // Verify navigation to the register page
+    expect(mockNavigate).toHaveBeenCalledWith("/register");
+  });
+
+  it("navigates to the login page when 'Login' is clicked", () => {
+    render(
+      <BrowserRouter>
+        <Landing />
+      </BrowserRouter>
+    );
+
+    // Simulate clicking the 'Login' button
+    fireEvent.click(screen.getByText("Login"));
+
+    // Verify navigation to the login page
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 });
