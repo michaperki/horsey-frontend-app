@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserBets } from '../../services/api';
 import YourBets from '../YourBets';
+import './History.css'; // Import the CSS file
 
 const History = () => {
   const { token } = useAuth();

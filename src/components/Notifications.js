@@ -31,7 +31,7 @@ const Notifications = () => {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.notification_container}>
       <h2>Notifications</h2>
       {notifications.length === 0 ? (
         <p>No notifications to display.</p>

@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getUserLichessInfo } from '../../services/api';
 import LichessInfo from '../LichessInfo';
 import DisconnectLichess from '../Auth/DisconnectLichess';
+import './Account.css'; // Import the CSS file
 
 const Account = () => {
   const { token } = useAuth();
@@ -51,21 +52,23 @@ const Account = () => {
   };
 
   return (
-    <div>
+    <div className="account-container">
       <h2>Account</h2>
-      <section>
-        <h3>Lichess Account</h3>
+      <section className="account-section">
+        <h3>
+          Lichess Account
+        </h3>
         {loadingLichess ? (
-          <p>Loading Lichess information...</p>
+          <p className="account-loading">Loading Lichess information...</p>
         ) : errorLichess && !lichessInfo ? (
-          <p style={{ color: 'red' }}>{errorLichess}</p>
+          <p className="account-error">{errorLichess}</p>
         ) : lichessInfo ? (
-          <>
+          <div className="lichess-container">
             <LichessInfo info={lichessInfo} />
             <DisconnectLichess onDisconnect={handleLichessChange} />
-          </>
+          </div>
         ) : (
-          <p>Your Lichess account is not connected.</p>
+          <p className="account-message">Your Lichess account is not connected.</p>
           // Optionally, add a <LichessConnect /> component if available
         )}
       </section>

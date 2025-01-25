@@ -212,7 +212,12 @@ const Navbar = () => {
           <div className="navbar__user-section">
             <div className="navbar__icons">
               <div className="navbar__icon-container">
-                <FaBell className="navbar__icon" title="Notifications" aria-label="Notifications" />
+                <FaBell
+                  className="navbar__icon"
+                  title="Notifications"
+                  aria-label="Notifications"
+                  onClick={() => navigate('/notifications')}
+                />
                 {unreadCount > 0 && <span className="navbar__badge">{unreadCount}</span>}
               </div>
             </div>

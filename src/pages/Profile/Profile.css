@@ -1,15 +1,22 @@
 
 /* src/pages/Profile/Profile.css */
 
+
 .profile-page {
   padding: 20px;
   max-width: 1200px;
-  margin: auto;
 }
+
+.profile-page h2 {
+  color: black;
+}
+
 
 .profile-content {
   display: flex;
   margin-top: 20px;
+
+  max-height: 60vh;
 }
 
 .tab-content {
@@ -18,4 +25,5 @@
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
 }
