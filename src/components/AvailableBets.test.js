@@ -5,34 +5,38 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AvailableBets from './AvailableBets';
 import { useAuth } from '../contexts/AuthContext';
-import { acceptBet } from '../services/api';
+import { useToken } from '../contexts/TokenContext';
+import { useSelectedToken } from '../contexts/SelectedTokenContext';
+import { acceptBet, getAvailableBets } from '../services/api';
 
-// Mock the useAuth hook
+// Mock context hooks
 jest.mock('../contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
-// Mock the acceptBet API function
+jest.mock('../contexts/TokenContext', () => ({
+  useToken: jest.fn(),
+}));
+
+jest.mock('../contexts/SelectedTokenContext', () => ({
+  useSelectedToken: jest.fn(),
+}));
+
+// Mock API calls
 jest.mock('../services/api', () => ({
   acceptBet: jest.fn(),
+  getAvailableBets: jest.fn(),
 }));
 
 describe('AvailableBets Component', () => {
   beforeEach(() => {
-    // Reset mocks before each test
-    useAuth.mockReset();
-    acceptBet.mockReset();
-    // Clear localStorage
-    localStorage.clear();
-    // Reset fetch mocks
-    global.fetch = jest.fn();
-    // Mock window.open
-    global.open = jest.fn();
+    jest.clearAllMocks(); // Clear mocks before each test
+    jest.useFakeTimers('modern'); // Use modern fake timers
+    jest.setSystemTime(new Date('2025-01-25T12:00:00Z')); // Set system time to a fixed date
   });
 
   afterEach(() => {
-    // Clean up mocks after each test
-    jest.resetAllMocks();
+    jest.useRealTimers(); // Restore real timers after each test
   });
 
   test('renders Available Bets table with fetched data', async () => {
@@ -40,264 +44,256 @@ describe('AvailableBets Component', () => {
     useAuth.mockReturnValue({
       token: 'valid-token',
       user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
     });
 
-    // Mock fetch response for available bets
+    // Mock token context
+    useToken.mockReturnValue({
+      tokenBalance: 500,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
+    });
+
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
+
+    // Mock API response with complete bet data
     const mockBets = [
       {
         id: 'bet1',
+        creatorLichessUsername: 'User1',
         creator: 'User1',
-        creatorBalance: 500,
+        colorPreference: 'white',
+        timeControl: '10|5',
+        variant: 'standard',
         wager: 100,
-        gameType: 'Blitz',
-        colorPreference: 'Red',
-        createdAt: '2024-01-01T12:00:00Z',
+        currencyType: 'token',
+        createdAt: '2025-01-25T12:00:00Z', // Align with system time
+        creatorRatings: {
+          standard: { blitz: 1500 },
+        },
       },
     ];
-
-    // Mock the global fetch function
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockBets,
-    });
+    getAvailableBets.mockResolvedValue(mockBets);
 
     render(<AvailableBets />);
 
-    // Check for loading state
-    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+    // Verify loading state
+    expect(screen.getByText(/Loading available bets.../i)).toBeInTheDocument();
 
-    // Wait for the bets to be rendered
+    // Wait for bets to load and verify content
     await waitFor(() => {
-      expect(screen.getByText('bet1')).toBeInTheDocument();
+      // Check for creator's username
       expect(screen.getByText('User1')).toBeInTheDocument();
-      expect(screen.getByText('500')).toBeInTheDocument();
-      expect(screen.getByText('100')).toBeInTheDocument();
-      expect(screen.getByText('Blitz')).toBeInTheDocument();
-      expect(screen.getByText('Red')).toBeInTheDocument();
-      
-      // Use getByTestId for createdAt and perform partial match
-      const createdAtCell = screen.getByTestId('created-at-bet1');
-      expect(createdAtCell).toBeInTheDocument();
-      // expect(createdAtCell).toHaveTextContent(/1\/1\/2024/i); // Partial match to accommodate locale differences
 
-      // Use getByTestId to target the specific "Accept" button
-      expect(screen.getByTestId('accept-bet-bet1')).toBeInTheDocument();
+      // Check for wager
+      expect(screen.getByText('100 TOKEN')).toBeInTheDocument();
+
+      // Check for time control
+      expect(screen.getByText('10+5')).toBeInTheDocument();
+
+      // Check for time elapsed
+      expect(screen.getByText(/less than a minute ago|just now/i)).toBeInTheDocument();
     });
-
-    // Clean up fetch mock
-    global.fetch.mockRestore();
   });
 
-  test('handles duplicate or missing bet IDs gracefully', async () => {
+  test('handles no bets available gracefully', async () => {
     // Mock authenticated user
     useAuth.mockReturnValue({
       token: 'valid-token',
       user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
     });
 
-    // Mock fetch response with duplicate and missing IDs
-    const mockBets = [
-      {
-        id: 'bet1',
-        creator: 'User1',
-        creatorBalance: 500,
-        wager: 100,
-        gameType: 'Blitz',
-        colorPreference: 'Red',
-        createdAt: '2024-01-01T12:00:00Z',
-      },
-      {
-        id: 'bet1', // Duplicate ID
-        creator: 'User2',
-        creatorBalance: 300,
-        wager: 150,
-        gameType: 'Rapid',
-        colorPreference: 'Blue',
-        createdAt: '2024-01-02T15:30:00Z',
-      },
-      {
-        // Missing ID
-        creator: 'User3',
-        creatorBalance: 400,
-        wager: 200,
-        gameType: 'Bullet',
-        colorPreference: 'Green',
-        createdAt: '2024-01-03T09:45:00Z',
-      },
-    ];
-
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockBets,
+    // Mock token context
+    useToken.mockReturnValue({
+      tokenBalance: 500,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
     });
+
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
+
+    // Mock API response with no bets
+    getAvailableBets.mockResolvedValue([]);
 
     render(<AvailableBets />);
 
-    // Wait for the bets to be rendered
     await waitFor(() => {
-      expect(screen.getAllByText('bet1').length).toBe(1); // Only one unique bet1 should be rendered
-      expect(screen.queryByText('User2')).not.toBeInTheDocument(); // User2 should be excluded
-      expect(screen.queryByText('User3')).not.toBeInTheDocument(); // User3 should be excluded
+      expect(
+        screen.getByText(/No bets available right now./i)
+      ).toBeInTheDocument();
     });
-
-    // Clean up fetch mock
-    global.fetch.mockRestore();
   });
 
-  test('displays message when not authenticated', () => {
+  test('handles API errors gracefully', async () => {
+    // Mock authenticated user
+    useAuth.mockReturnValue({
+      token: 'valid-token',
+      user: { id: 'user1', name: 'Test User' },
+    });
+
+    // Mock token context
+    useToken.mockReturnValue({
+      tokenBalance: 500,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
+    });
+
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
+
+    // Mock API failure
+    getAvailableBets.mockRejectedValue(new Error('Failed to fetch bets'));
+
+    render(<AvailableBets />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch bets/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays message when user is not authenticated', () => {
     // Mock unauthenticated user
-    useAuth.mockReturnValue({
-      token: null,
-      user: null,
-      login: jest.fn(),
-      logout: jest.fn(),
+    useAuth.mockReturnValue({ token: null, user: null });
+
+    // Mock token context (shouldn't matter as user is unauthenticated)
+    useToken.mockReturnValue({
+      tokenBalance: 0,
+      sweepstakesBalance: 0,
+      loading: false,
+      error: null,
     });
+
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
 
     render(<AvailableBets />);
 
-    expect(screen.getByText(/Please log in to view available bets./i)).toBeInTheDocument();
-    expect(screen.queryByText('Accept')).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Please log in to view available bets./i)
+    ).toBeInTheDocument();
   });
 
-  test('displays message when no available bets are present', async () => {
+  test('filters bets based on token balance', async () => {
     // Mock authenticated user
     useAuth.mockReturnValue({
       token: 'valid-token',
       user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
     });
 
-    // Mock fetch response with empty array
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
+    // Mock token context with limited balance
+    useToken.mockReturnValue({
+      tokenBalance: 100,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
     });
 
-    render(<AvailableBets />);
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
 
-    // Wait for the fetch call to be made and for the message to appear
-    await waitFor(() => {
-      expect(screen.getByText(/No bets available right now./i)).toBeInTheDocument();
-    });
-
-    // Clean up fetch mock
-    global.fetch.mockRestore();
-  });
-
-  test('handles API failure gracefully', async () => {
-    // Mock authenticated user
-    useAuth.mockReturnValue({
-      token: 'valid-token',
-      user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
-    });
-
-    // Mock fetch to fail with a specific error message
-    global.fetch.mockRejectedValueOnce(new Error('Failed to fetch available bets.'));
-
-    render(<AvailableBets />);
-
-    // Wait for the error message
-    await waitFor(() => {
-      expect(screen.getByText(/Failed to fetch available bets./i)).toBeInTheDocument();
-    });
-
-    // Clean up fetch mock
-    global.fetch.mockRestore();
-  });
-
-  test('handles duplicate or missing bet IDs gracefully', async () => {
-    // Mock authenticated user
-    useAuth.mockReturnValue({
-      token: 'valid-token',
-      user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
-    });
-
-    // Mock fetch response with duplicate and missing IDs
+    // Mock API response with multiple bets
     const mockBets = [
       {
         id: 'bet1',
+        creatorLichessUsername: 'User1',
         creator: 'User1',
-        creatorBalance: 500,
-        wager: 100,
-        gameType: 'Blitz',
-        colorPreference: 'Red',
-        createdAt: '2024-01-01T12:00:00Z',
+        colorPreference: 'white',
+        timeControl: '10|5',
+        variant: 'standard',
+        wager: 50, // Within tokenBalance
+        currencyType: 'token',
+        createdAt: '2025-01-25T12:00:00Z', // Align with system time
+        creatorRatings: {
+          standard: { blitz: 1500 },
+        },
       },
       {
-        id: 'bet1', // Duplicate ID
+        id: 'bet2',
+        creatorLichessUsername: 'User2',
         creator: 'User2',
-        creatorBalance: 300,
-        wager: 150,
-        gameType: 'Rapid',
-        colorPreference: 'Blue',
-        createdAt: '2024-01-02T15:30:00Z',
-      },
-      {
-        // Missing ID
-        creator: 'User3',
-        creatorBalance: 400,
-        wager: 200,
-        gameType: 'Bullet',
-        colorPreference: 'Green',
-        createdAt: '2024-01-03T09:45:00Z',
+        colorPreference: 'black',
+        timeControl: '15|10',
+        variant: 'rapid',
+        wager: 200, // Exceeds tokenBalance
+        currencyType: 'token',
+        createdAt: '2025-01-25T12:00:00Z', // Align with system time
+        creatorRatings: {
+          standard: { blitz: 1600 },
+        },
       },
     ];
-
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockBets,
-    });
+    getAvailableBets.mockResolvedValue(mockBets);
 
     render(<AvailableBets />);
 
-    // Wait for the bets to be rendered
     await waitFor(() => {
-      expect(screen.getAllByText('bet1').length).toBe(1); // Only one unique bet1 should be rendered
-      expect(screen.queryByText('User2')).not.toBeInTheDocument(); // User2 should be excluded
-      expect(screen.queryByText('User3')).not.toBeInTheDocument(); // User3 should be excluded
+      // bet1 should be visible
+      expect(screen.getByText('User1')).toBeInTheDocument();
+
+      // bet2 should be filtered out due to insufficient token balance
+      expect(screen.queryByText('User2')).not.toBeInTheDocument();
     });
-
-    // Optionally, check for a warning message if implemented
-    // expect(screen.getByText(/Duplicate bet IDs found./i)).toBeInTheDocument();
-
-    // Clean up fetch mock
-    global.fetch.mockRestore();
   });
 
-  test('handles unexpected data format gracefully', async () => {
+  test('allows accepting a bet', async () => {
     // Mock authenticated user
     useAuth.mockReturnValue({
       token: 'valid-token',
       user: { id: 'user1', name: 'Test User' },
-      login: jest.fn(),
-      logout: jest.fn(),
     });
 
-    // Mock fetch response with unexpected data format
-    const mockBets = { message: 'Unexpected format' };
-
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockBets,
+    // Mock token context
+    useToken.mockReturnValue({
+      tokenBalance: 500,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
     });
+
+    // Mock selected token context
+    useSelectedToken.mockReturnValue({ selectedToken: 'token' });
+
+    // Mock API response with one bet
+    const mockBets = [
+      {
+        id: 'bet1',
+        creatorLichessUsername: 'User1',
+        creator: 'User1',
+        colorPreference: 'random',
+        timeControl: '10|5',
+        variant: 'standard',
+        wager: 100,
+        currencyType: 'token',
+        createdAt: '2025-01-25T12:00:00Z', // Align with system time
+        creatorRatings: {
+          standard: { blitz: 1500 },
+        },
+      },
+    ];
+    getAvailableBets.mockResolvedValue(mockBets);
+
+    // Mock acceptBet API call
+    acceptBet.mockResolvedValue();
 
     render(<AvailableBets />);
 
-    // Wait for the error message
     await waitFor(() => {
-      expect(screen.getByText(/Unexpected data format from server./i)).toBeInTheDocument();
+      expect(screen.getByText('User1')).toBeInTheDocument();
     });
 
-    // Clean up fetch mock
-    global.fetch.mockRestore();
+    // Click the "Join Bet" button
+    fireEvent.click(screen.getByRole('button', { name: /Join Bet/i }));
+
+    await waitFor(() => {
+      // Ensure acceptBet was called with correct arguments
+      expect(acceptBet).toHaveBeenCalledWith('bet1', expect.any(String));
+
+      // The bet should be removed from the list
+      expect(screen.queryByText('User1')).not.toBeInTheDocument();
+    });
   });
 });
