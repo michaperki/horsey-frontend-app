@@ -1,54 +1,108 @@
 // src/components/Notifications.test.js
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Notifications from './Notifications';
-import * as AuthContextModule from '../contexts/AuthContext'; // Import entire module
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import Notifications from '../components/Notifications';
+import { useNotifications } from '../contexts/NotificationsContext';
+import { useAuth } from '../contexts/AuthContext';
 
-// Mock the useAuth hook
+jest.mock('../contexts/NotificationsContext', () => ({
+  useNotifications: jest.fn(),
+}));
+
 jest.mock('../contexts/AuthContext', () => ({
-    useAuth: jest.fn(),
+  useAuth: jest.fn(),
 }));
 
 describe('Notifications Component', () => {
-    const mockedUseAuth = AuthContextModule.useAuth;
+  const mockNavigate = jest.fn();
 
-    beforeEach(() => {
-        localStorage.clear();
-        jest.clearAllMocks();
+  jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockNavigate,
+  }));
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+
+  it('renders loading state', () => {
+    useAuth.mockReturnValue({ user: { id: '123' } });
+    useNotifications.mockReturnValue({ notifications: [], unreadCount: 0, loading: true });
+
+    render(
+      <MemoryRouter>
+        <Notifications />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Loading notifications...')).toBeInTheDocument();
+  });
+
+  it('renders empty notifications message', () => {
+    useAuth.mockReturnValue({ user: { id: '123' } });
+    useNotifications.mockReturnValue({ notifications: [], unreadCount: 0, loading: false });
+
+    render(
+      <MemoryRouter>
+        <Notifications />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('No notifications to display.')).toBeInTheDocument();
+  });
+
+  it('renders notifications and handles marking one as read', async () => {
+    const mockMarkAsRead = jest.fn();
+    useAuth.mockReturnValue({ user: { id: '123' } });
+    useNotifications.mockReturnValue({
+      notifications: [
+        { _id: '1', message: 'Test Notification', createdAt: new Date().toISOString(), read: false },
+      ],
+      unreadCount: 1,
+      markAsRead: mockMarkAsRead,
+      markAllAsRead: jest.fn(),
+      loading: false,
     });
 
-    test('renders message for logged-in user', () => {
-        // Mock useAuth to return a logged-in user
-        mockedUseAuth.mockReturnValue({
-            user: { username: 'TestUser' },
-            token: 'valid-token',
-            login: jest.fn(),
-            logout: jest.fn(),
-        });
+    render(
+      <MemoryRouter>
+        <Notifications />
+      </MemoryRouter>
+    );
 
-        render(<Notifications />);
+    expect(screen.getByText('Test Notification')).toBeInTheDocument();
+    const markButton = screen.getByText('Mark as read');
 
-        expect(screen.getByText(/Welcome back, TestUser!/i)).toBeInTheDocument();
-        expect(screen.getByText(/Notifications will be displayed here./i)).toBeInTheDocument();
+    fireEvent.click(markButton);
+    await waitFor(() => expect(mockMarkAsRead).toHaveBeenCalledWith('1'));
+  });
+
+  it('handles marking all notifications as read', async () => {
+    const mockMarkAllAsRead = jest.fn();
+    useAuth.mockReturnValue({ user: { id: '123' } });
+    useNotifications.mockReturnValue({
+      notifications: [
+        { _id: '1', message: 'Notification 1', createdAt: new Date().toISOString(), read: false },
+        { _id: '2', message: 'Notification 2', createdAt: new Date().toISOString(), read: false },
+      ],
+      unreadCount: 2,
+      markAsRead: jest.fn(),
+      markAllAsRead: mockMarkAllAsRead,
+      loading: false,
     });
 
-    test('handles invalid token gracefully', () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
+    render(
+      <MemoryRouter>
+        <Notifications />
+      </MemoryRouter>
+    );
 
-        // Mock useAuth to simulate an invalid token scenario
-        mockedUseAuth.mockReturnValue({
-            user: null,
-            token: null,
-            login: jest.fn(),
-            logout: jest.fn(),
-        });
+    const markAllButton = screen.getByText('Mark all as read');
+    fireEvent.click(markAllButton);
 
-        render(<Notifications />);
-
-        expect(screen.getByText(/Please log in to see your notifications./i)).toBeInTheDocument();
-        expect(screen.getByText(/Notifications will be displayed here./i)).toBeInTheDocument();
-
-        consoleSpy.mockRestore(); // Restore console.error after the test
-    });
+    await waitFor(() => expect(mockMarkAllAsRead).toHaveBeenCalled());
+  });
 });
