@@ -25,8 +25,7 @@ describe('User Flow Tests', () => {
     cy.registerUser(userA.username, userA.email, userA.password);
     cy.registerUser(userB.username, userB.email, userB.password);
 
-    cy.mockLichessFlowForUser(userA.id, true);
-    cy.mockLichessFlowForUser(userB.id, true);
+    // Removed global Lichess mocks from here
   });
 
   beforeEach(() => {
@@ -36,6 +35,11 @@ describe('User Flow Tests', () => {
   });
 
   context('User A - Login', () => {
+    beforeEach(() => {
+      // Set up Lichess mocks for User A only
+      cy.mockLichessFlowForUser(userA.id, true);
+    });
+
     it('Should log in User A successfully after registering', () => {
       cy.login(userA.email, userA.password);
 
@@ -49,22 +53,26 @@ describe('User Flow Tests', () => {
       cy.contains('Horsey').should('be.visible');
 
       // Wait for the Lichess status request and verify the response
-      cy.wait('@mockLichessStatus_userA', { timeout: 10000 }).then((interception) => {
+      cy.wait(`@mockLichessStatus_${userA.id}`, { timeout: 10000 }).then((interception) => {
         expect(interception.response.statusCode).to.eq(200);
         expect(interception.response.body.connected).to.be.true;
       });
 
       // Wait for the Lichess user request and verify the response
-      cy.wait('@mockLichessUser_userA', { timeout: 10000 }).then((interception) => {
+      cy.wait(`@mockLichessUser_${userA.id}`, { timeout: 10000 }).then((interception) => {
         expect(interception.response.statusCode).to.eq(200);
-        expect(interception.response.body.username).to.eq('testLichessUser_userA');
+        expect(interception.response.body.username).to.eq(`testLichessUser_${userA.id}`);
       });
     });
   });
 
   context('User B - Login', () => {
+    beforeEach(() => {
+      // Set up Lichess mocks for User B only
+      cy.mockLichessFlowForUser(userB.id, true);
+    });
+
     it('Should log in User B successfully after registering', () => {
-      // Removed the redundant cy.visit('/login');
       cy.login(userB.email, userB.password);
 
       // Verify redirection to home
@@ -72,21 +80,24 @@ describe('User Flow Tests', () => {
       cy.contains('Horsey').should('be.visible');
 
       // Verify Lichess is connected for User B
-      cy.wait('@mockLichessStatus_userB');
-      cy.wait('@mockLichessUser_userB');
+      cy.wait(`@mockLichessStatus_${userB.id}`);
+      cy.wait(`@mockLichessUser_${userB.id}`);
     });
   });
 
   context('User Flow - Single User Actions', () => {
     beforeEach(() => {
+      // Set up Lichess mocks for User A only
+      cy.mockLichessFlowForUser(userA.id, true);
+
       // Log in User A before each test
       cy.logout();
       cy.login(userA.email, userA.password);
       cy.visit('/home');
 
       // Wait for Lichess mock
-      cy.wait('@mockLichessStatus_userA');
-      cy.wait('@mockLichessUser_userA');
+      cy.wait(`@mockLichessStatus_${userA.id}`);
+      cy.wait(`@mockLichessUser_${userA.id}`);
     });
 
     it('Should place a bet and appear in "Your Bets"', () => {
@@ -125,8 +136,13 @@ describe('User Flow Tests', () => {
       cy.logout();
       cy.login(userA.email, userA.password);
       cy.visit('/home');
-      cy.wait('@mockLichessStatus_userA');
-      cy.wait('@mockLichessUser_userA');
+
+      // Set up Lichess mocks for User A
+      cy.mockLichessFlowForUser(userA.id, true);
+
+      // Wait for Lichess mocks for User A
+      cy.wait(`@mockLichessStatus_${userA.id}`);
+      cy.wait(`@mockLichessUser_${userA.id}`);
 
       cy.get('.place-bet-open-button').click();
       cy.get('select#colorPreference').select('Black');
@@ -142,8 +158,13 @@ describe('User Flow Tests', () => {
       cy.logout();
       cy.login(userB.email, userB.password);
       cy.visit('/lobby');
-      cy.wait('@mockLichessStatus_userB');
-      cy.wait('@mockLichessUser_userB');
+
+      // Set up Lichess mocks for User B
+      cy.mockLichessFlowForUser(userB.id, true);
+
+      // Wait for Lichess mocks for User B
+      cy.wait(`@mockLichessStatus_${userB.id}`);
+      cy.wait(`@mockLichessUser_${userB.id}`);
 
       cy.get('table').within(() => {
         cy.contains(userA.username)

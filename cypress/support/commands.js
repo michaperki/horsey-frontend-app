@@ -66,6 +66,8 @@ Cypress.Commands.add('registerUser', (username, email, password) => {
 
 // Mocks the Lichess endpoints for a specific user
 Cypress.Commands.add('mockLichessForUser', (userId) => {
+  // Remove the mockedUsers check to allow re-mocking
+  /*
   const mockedUsers = Cypress.env('mockedUsers') || new Set();
 
   if (mockedUsers.has(userId)) {
@@ -75,6 +77,7 @@ Cypress.Commands.add('mockLichessForUser', (userId) => {
 
   mockedUsers.add(userId);
   Cypress.env('mockedUsers', mockedUsers);
+  */
 
   // Intercept GET /lichess/status
   cy.intercept('GET', '**/lichess/status', (req) => {
