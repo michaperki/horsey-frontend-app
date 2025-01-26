@@ -1,107 +1,139 @@
 
 // cypress/integration/userFlows.spec.js
 
-describe('User Flows with Real Backend Interaction', () => {
-  // Generate a unique timestamp for unique user credentials
+describe('User Flow Tests', () => {
   const timestamp = Date.now();
-  const uniqueEmail = `testuser_${timestamp}@example.com`;
-  const username = `testuser_${timestamp}`;
-  const password = 'Password123';
-  
-  // Define the bet amount
+  const userA = {
+    username: `UserA_${timestamp}`,
+    email: `UserA_${timestamp}@test.com`,
+    password: 'TestPass123!',
+  };
+  const userB = {
+    username: `UserB_${timestamp}`,
+    email: `UserB_${timestamp}@test.com`,
+    password: 'TestPass123!',
+  };
   const betAmount = 100;
 
   before(() => {
-    // Optional: Reset the database or seed data if necessary
-    // This ensures a clean state before tests run
-    // Example:
-    // cy.request('POST', '/api/test/reset-database');
+    // Reset the database and seed admin
+    cy.resetDatabaseAndSeedAdmin();
+
+    // Register User A & User B via UI
+    cy.registerUser(userA.username, userA.email, userA.password);
+    cy.registerUser(userB.username, userB.email, userB.password);
   });
 
-  beforeEach(() => {
-    // Ensure that the backend is in a known state before each test
-    // This could involve resetting the database or using API endpoints designed for testing
-  });
+  context('User A - Registration and Login', () => {
+    it('Should register and login User A successfully', () => {
+      // Already registered in before hook
+      cy.visit('/login');
+      cy.get('input[name="email"]').type(userA.email);
+      cy.get('input[name="password"]').type(userA.password);
+      cy.get('button[type="submit"]').click();
 
-  it('Registers a new user, logs in, places a bet, and verifies the updated balance on Profile page', () => {
-    // ------------------------------
-    // 1. Register a New User
-    // ------------------------------
-    cy.visit('/register');
-    
-    cy.get('input[name=username]')
-      .type(username)
-      .should('have.value', username);
-    
-    cy.get('input[name=email]')
-      .type(uniqueEmail)
-      .should('have.value', uniqueEmail);
-    
-    cy.get('input[name=password]')
-      .type(password)
-      .should('have.value', password);
-    
-    cy.get('button[type=submit]').click();
-    
-    // Assert that registration was successful
-    cy.contains('Registration successful.')
-      .should('be.visible');
-    
-    // ------------------------------
-    // 2. Log In
-    // ------------------------------
-    cy.login(uniqueEmail, password); // Ensure cy.login is a custom Cypress command
-    cy.contains('Dashboard')
-      .should('be.visible');
-    
-    // ------------------------------
-    // 3. Place a Bet Using Real Backend
-    // ------------------------------
-    cy.visit('/place-bet');
-    
-    // Select 'white' as the creator's color from the dropdown
-    cy.get('select[name=creatorColor]')
-      .select('white')
-      .should('have.value', 'white');
-    
-    // Enter the bet amount
-    cy.get('input[name=amount]')
-      .type(betAmount.toString())
-      .should('have.value', betAmount.toString());
-    
-    // Submit the bet
-    cy.get('button[type=submit]').click();
-    
-    // Assert that the bet was placed successfully
-    cy.contains('Bet placed successfully!')
-      .should('be.visible');
-    
-    // ------------------------------
-    // 4. Verify Updated Balance on Profile Page
-    // ------------------------------
-    cy.visit('/profile'); // Navigate to the Profile page where balance is displayed
-    
-    // Wait for the profile page to load and display the updated balance
-    cy.contains(`${1000 - betAmount} PTK`, { timeout: 10000 })
-      .should('be.visible');
-    
-    // Assert that 'Your Bets' section is visible
-    cy.contains('Your Bets')
-      .should('be.visible');
-
-    // Optional: Verify the details of the placed bet
-    cy.get('table').within(() => {
-      cy.contains('game_') // Assuming game IDs start with 'game_'
-        .should('be.visible');
-      cy.contains('White')
-        .should('be.visible');
-      cy.contains(betAmount.toString())
-        .should('be.visible');
-      cy.contains('Pending') // Assuming the initial status is 'pending'
-        .should('be.visible');
+      // Verify redirection to home
+      cy.url().should('include', '/home');
+      cy.contains('Horsey').should('be.visible');
     });
   });
 
-  // Additional tests can be added here, such as handling insufficient balance, network errors, etc.
+  context('User Flow - Single User Actions', () => {
+    beforeEach(() => {
+      // Ensure User A is logged in
+      cy.logout();
+      cy.login(userA.email, userA.password);
+      cy.visit('/home');
+    });
+
+    it('Should place a bet using the Place Bet modal and appear in "Your Bets"', () => {
+      // Click "Place a Bet" button to open the modal
+      cy.get('.place-bet-open-button').click();
+
+      // Verify the modal is open
+      cy.get('.place-bet-modal').should('be.visible');
+
+      // Fill in the bet details
+      cy.get('select#colorPreference').select('White');
+      cy.get('input#amount').type(`${betAmount}`);
+      cy.get('select#timeControl').select('5|3');
+      cy.get('select#variant').select('standard');
+      cy.get('select#currencyType').select('token');
+
+      // Place the bet
+      cy.get('.place-bet-button').click();
+
+      // Verify success message
+      cy.contains('Bet placed successfully!').should('be.visible');
+
+      // Close the modal
+      cy.get('.place-bet-close-button').click();
+
+      // Verify bet appears in "Your Bets"
+      cy.visit('/profile');
+      cy.contains(userA.username).should('be.visible');
+      cy.contains(`${betAmount} PTK`).should('be.visible');
+      cy.contains('Pending').should('be.visible');
+    });
+
+    it('Should show an error for insufficient balance in the Place Bet modal', () => {
+      // Click "Place a Bet" button to open the modal
+      cy.get('.place-bet-open-button').click();
+
+      // Verify the modal is open
+      cy.get('.place-bet-modal').should('be.visible');
+
+      // Enter an amount exceeding the balance
+      cy.get('input#amount').type('999999');
+
+      // Attempt to place the bet
+      cy.get('.place-bet-button').click();
+
+      // Verify error message
+      cy.contains('Insufficient balance.').should('be.visible');
+
+      // Close the modal
+      cy.get('.place-bet-close-button').click();
+    });
+  });
+
+  context('Multi-User Betting Flow', () => {
+    it('User A places a bet and User B accepts it', () => {
+      // User A places a bet
+      cy.logout();
+      cy.login(userA.email, userA.password);
+      cy.visit('/home');
+      cy.get('.place-bet-open-button').click();
+      cy.get('select#colorPreference').select('Black');
+      cy.get('input#amount').type(`${betAmount}`);
+      cy.get('select#timeControl').select('10|5');
+      cy.get('select#variant').select('standard');
+      cy.get('select#currencyType').select('token');
+      cy.get('.place-bet-button').click();
+      cy.contains('Bet placed successfully!').should('be.visible');
+      cy.get('.place-bet-close-button').click();
+
+      // User B accepts the bet
+      cy.logout();
+      cy.login(userB.email, userB.password);
+      cy.visit('/lobby');
+      cy.get('table').within(() => {
+        cy.contains(userA.username)
+          .parent('tr')
+          .within(() => {
+            cy.get('button').contains('Accept').click();
+          });
+      });
+
+      // Verify acceptance success
+      cy.contains('Successfully joined the bet!').should('be.visible');
+
+      // Verify bet status updates to "Matched"
+      cy.visit('/profile');
+      cy.get('table').within(() => {
+        cy.contains('Matched').should('be.visible');
+      });
+    });
+  });
 });
 

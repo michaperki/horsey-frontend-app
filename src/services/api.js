@@ -224,26 +224,24 @@ export const getUserData = async () => {
 };
 
 /**
- * Initiates the Lichess OAuth flow by redirecting the user to the backend endpoint.
+ * Initiates the Lichess OAuth flow by using the apiFetch utility to fetch the OAuth URL
+ * and redirect the user to the returned URL.
  */
-export const initiateLichessOAuth = () => {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  const token = localStorage.getItem('token');
-  
-  if (!backendUrl) {
-    console.error('Backend URL is not defined in environment variables.');
-    return;
-  }
+export const initiateLichessOAuth = async () => {
+  try {
+    const data = await apiFetch('/lichess/auth', {
+      method: 'GET',
+    });
 
-  if (!token) {
-    console.error('User token not found. Ensure the user is authenticated.');
-    return;
+    if (data && data.redirectUrl) {
+      window.location.href = data.redirectUrl;
+    } else {
+      console.error('Redirect URL not received from the server.');
+    }
+  } catch (error) {
+    console.error('Error initiating Lichess OAuth:', error.message);
   }
-
-  const encodedToken = encodeURIComponent(token);
-  window.location.href = `${backendUrl}/lichess/auth?token=${encodedToken}`;
 };
-
 
 /**
  * Initiates a purchase with the specified payment method and amount.
@@ -319,4 +317,20 @@ export const markAllNotificationsAsRead = async () => {
   return apiFetch('/notifications/read-all', {
     method: 'POST',
   });
+};
+
+
+/**
+ * Handles Lichess OAuth callback.
+ * @param {object} payload - Payload containing authorization code and state.
+ * @param {string} payload.code - Authorization code.
+ * @param {string} payload.state - OAuth state parameter.
+ * @returns {Promise<object>} - Response from the server.
+ */
+export const lichessCallback = async (payload) => {
+  const data = await apiFetch('/auth/lichess/callback', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return data;
 };

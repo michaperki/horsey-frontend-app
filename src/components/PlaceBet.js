@@ -2,13 +2,20 @@
 // src/components/PlaceBet.js
 
 import React, { useState } from "react";
-import PlaceBetModal from "./PlaceBetModal"; // Import the new PlaceBetModal
-import "./PlaceBet.css"; // Ensure this CSS file includes styles for the button
+import PlaceBetModal from "./PlaceBetModal";
+import { useLichess } from '../contexts/LichessContext'; // Import Lichess context
+import "./PlaceBet.css";
 
 const PlaceBet = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { lichessConnected, triggerShake } = useLichess(); // Destructure from Lichess context
 
   const handleOpenModal = () => {
+    if (!lichessConnected) {
+      triggerShake();
+      // Optionally, display a toast or notification
+      return;
+    }
     setIsModalOpen(true);
   };
 
@@ -22,7 +29,7 @@ const PlaceBet = () => {
         Place a Bet
       </button>
 
-      {isModalOpen && ( // Conditionally render PlaceBetModal
+      {isModalOpen && (
         <PlaceBetModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

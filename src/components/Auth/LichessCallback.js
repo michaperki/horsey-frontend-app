@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { lichessCallback } from '../../services/api';
 
 const LichessCallback = () => {
   const navigate = useNavigate();
@@ -21,29 +22,14 @@ const LichessCallback = () => {
       }
 
       try {
-        // Send the authorization code to the backend to exchange for tokens
-        const response = await fetch('/auth/lichess/callback', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ code, state }),
-        });
+        const response = await lichessCallback({ code, state });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          setMessage('Lichess account connected successfully!');
-          // Optionally, you can refresh user data or update global state here
-          // For example, you might refetch user info or use a context
-          // Redirect to profile or dashboard after a delay
-          setTimeout(() => navigate('/profile'), 2000);
-        } else {
-          setMessage(data.error || 'Failed to connect your Lichess account.');
-        }
+        setMessage('Lichess account connected successfully!');
+        // Optionally refresh user data or update global state here
+        setTimeout(() => navigate('/profile'), 2000);
       } catch (error) {
         console.error('Error handling Lichess callback:', error);
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage(error.message || 'Failed to connect your Lichess account.');
       }
     };
 
@@ -71,3 +57,4 @@ const styles = {
 };
 
 export default LichessCallback;
+

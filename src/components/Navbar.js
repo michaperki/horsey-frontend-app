@@ -1,14 +1,11 @@
 
-/* src/components/Navbar.js */
+// src/components/Navbar.js
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToken } from '../contexts/TokenContext';
-import {
-  getLichessStatus,
-  initiateLichessOAuth,
-} from '../services/api';
+import { useLichess } from '../contexts/LichessContext'; // Import Lichess context
 import BalanceToggle from './BalanceToggle';
 import {
   FaBell,
@@ -30,52 +27,13 @@ const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const { tokenBalance, sweepstakesBalance } = useToken();
-  const [lichessConnected, setLichessConnected] = useState(false);
+  const { lichessConnected, connectLichess, loading, triggerShake, shake } = useLichess(); // Destructure from Lichess context
   const { unreadCount } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [error, setError] = useState(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
-  // Refs for the user info and dropdown
   const userInfoRef = useRef(null);
   const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (token && user) {
-        setLoading(true);
-        setError(null);
-        try {
-          // Fetch Lichess connection status
-          const isConnected = await getLichessStatus();
-          setLichessConnected(isConnected);
-
-          // Additional data fetching can be done here if needed
-        } catch (err) {
-          console.error('Error fetching Navbar data:', err);
-          if (err.message === 'Unauthorized') {
-            logout();
-            navigate('/login');
-          } else {
-            setError('Failed to load data. Please try again.');
-          }
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLichessConnected(false);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [token, user, logout, navigate]);
-
-  const handleLogout = () => {
-    logout();
-    console.log('User has logged out.');
-    navigate('/');
-  };
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
@@ -85,23 +43,22 @@ const Navbar = () => {
     setIsMobileMenuOpen((prev) => !prev);
   };
 
-  const handleConnectLichess = () => {
-    try {
-      initiateLichessOAuth(); // Trigger OAuth flow
-    } catch (err) {
-      console.error('Error initiating Lichess OAuth:', err);
-      setError('Failed to initiate connection. Please try again.');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
-  const handleGetCoins = () => {
-    console.log('Redirect to Get Coins Page');
-    navigate('/store'); // Example navigation to Get Coins page
+  const handleConnectLichess = () => {
+    connectLichess(); // Use context function
   };
 
   // Handler to close the dropdown
   const closeDropdown = () => {
     setShowDropdown(false);
+  };
+
+  const handleGetCoins = () => {
+    navigate('/store'); // Example navigation to Get Coins page
   };
 
   // Handler to detect clicks outside the dropdown
@@ -118,11 +75,8 @@ const Navbar = () => {
       }
     };
 
-    // Bind the event listener
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
-      // Unbind the event listener on clean up
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showDropdown]);
@@ -162,16 +116,20 @@ const Navbar = () => {
               {!lichessConnected && (
                 <button
                   onClick={handleConnectLichess}
-                  className="navbar__connect-button"
+                  className={`navbar__connect-button ${shake ? 'shake' : ''}`} // Add shake class conditionally
                   disabled={loading}
-                  aria-busy={loading} // Accessibility attribute
+                  aria-busy={loading}
                   title="Connect Lichess"
                   aria-label="Connect Lichess"
                 >
                   {loading ? (
                     <FaSpinner className="spinner" aria-label="Connecting" />
                   ) : (
-                    <FaChess />
+                    <img
+                      src="/assets/lichess-icon.png"
+                      alt="Lichess Icon"
+                      className="navbar__lichess-icon"
+                    />
                   )}
                 </button>
               )}
@@ -201,8 +159,8 @@ const Navbar = () => {
         {/* Balance Toggle */}
         {token && user && (
           <BalanceToggle
-            tokenBalance={tokenBalance} // Pass the raw number
-            sweepstakesBalance={sweepstakesBalance} // Pass the raw number
+            tokenBalance={tokenBalance}
+            sweepstakesBalance={sweepstakesBalance}
             onGetCoins={handleGetCoins}
           />
         )}
@@ -224,9 +182,9 @@ const Navbar = () => {
             <div
               className="navbar__user-info"
               onClick={toggleDropdown}
-              ref={userInfoRef} // Attach ref here
-              tabIndex={0} // Make it focusable for accessibility
-              onKeyDown={(e) => { if (e.key === 'Enter') toggleDropdown(); }} // Handle Enter key
+              ref={userInfoRef}
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') toggleDropdown(); }}
               aria-haspopup="true"
               aria-expanded={showDropdown}
             >

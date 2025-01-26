@@ -3,21 +3,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserProfile, createNotification } from '../services/api'; // Import createNotification
+import { getUserProfile, createNotification } from '../services/api';
 import StatCard from '../components/StatCard';
-import PlaceBetModal from '../components/PlaceBetModal'; // Import PlaceBetModal
+import PlaceBetModal from '../components/PlaceBetModal';
 import './Home.css';
-import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton styles
-// Import React Icons for Home Options
+import 'react-loading-skeleton/dist/skeleton.css';
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
+import { useLichess } from '../contexts/LichessContext'; // Import Lichess context
 
 const Home = () => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [buttonLoading, setButtonLoading] = useState(false); // Loading state for the button
-  const [buttonError, setButtonError] = useState(null); // Error state for the button
-
   const [statistics, setStatistics] = useState({
     totalGames: 0,
     averageWager: 0,
@@ -30,18 +27,17 @@ const Home = () => {
     username: 'User',
   });
 
-  // State for PlaceBetModal
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+  const { lichessConnected, triggerShake } = useLichess(); // Destructure Lichess context
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await getUserProfile(token);
         const { statistics, username } = response;
-
         setStatistics({ ...statistics, username });
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -53,24 +49,16 @@ const Home = () => {
     fetchProfile();
   }, [token]);
 
-  const handleBecomeMember = async () => {
-    setButtonLoading(true);
-    setButtonError(null);
-    try {
-      await createNotification({
-        message: 'Membership coming soon!',
-        type: 'membership', // You can define a new type if needed
-      });
-    } catch (error) {
-      console.error('Error creating notification:', error);
-      setButtonError('Failed to trigger notification. Please try again.');
-    } finally {
-      setButtonLoading(false);
-    }
-  };
-
-  // Handlers to open and close PlaceBetModal
   const openPlaceBetModal = (variant) => {
+    if (!lichessConnected) {
+      // Trigger shake animation and display notification
+      triggerShake();
+      createNotification({
+        message: 'Please connect your Lichess account before placing a bet.',
+        type: 'warning',
+      });
+      return;
+    }
     setSelectedVariant(variant);
     setIsPlaceBetModalOpen(true);
   };
@@ -108,21 +96,6 @@ const Home = () => {
           />
         </div>
         <div className="additional-info">
-          <div className="info-item">
-            Membership:{' '}
-            {statistics.membership === 'Free' ? (
-              <button
-                className="become-member-button"
-                onClick={handleBecomeMember}
-                disabled={buttonLoading}
-              >
-                {buttonLoading ? 'Processing...' : 'Become a Member'}
-              </button>
-            ) : (
-              'Premium'
-            )}
-            {buttonError && <p className="error-message">{buttonError}</p>}
-          </div>
           <div className="info-item">Karma: {statistics.karma}</div>
         </div>
       </header>
@@ -156,8 +129,8 @@ const Home = () => {
 
             {/* Play for Horsey Coins Card */}
             <div
-              className="card clickable-card" // Make the entire card clickable
-              onClick={() => openPlaceBetModal(null)} // Open modal with defaults
+              className="card clickable-card"
+              onClick={() => openPlaceBetModal(null)}
             >
               <div className="icon"><FaCoins /></div>
               <div>
@@ -165,8 +138,8 @@ const Home = () => {
                 <button
                   className="get-coins-button"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the card's onClick from triggering
-                    navigate('/store'); // Navigate to /store
+                    e.stopPropagation(); // Prevent triggering card's onClick
+                    navigate('/store'); // Navigate to store page
                   }}
                 >
                   Get Coins

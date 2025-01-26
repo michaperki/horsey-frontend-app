@@ -1,3 +1,4 @@
+
 // cypress/support/commands.js
 
 // Log in a regular user
@@ -85,7 +86,6 @@ Cypress.Commands.add('mockWindowOpen', () => {
 
 /**
  * Mocks the Lichess endpoints based on the connection state.
- * Uses Cypress.env('lichessConnected') to determine the response.
  */
 Cypress.Commands.add('mockLichess', () => {
   // Intercept GET /lichess/status
@@ -141,3 +141,4 @@ Cypress.Commands.add('mockLichessFlow', (connected) => {
   Cypress.env('lichessConnected', connected);
   cy.mockLichess();
 });
+
