@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { register } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth for logging in after registration
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation after registration
+import { useNavigate, Link } from 'react-router-dom'; // Import useNavigate and Link
 
 const Register = () => {
   const { login } = useAuth(); // Use the login function from AuthContext
@@ -38,7 +38,15 @@ const Register = () => {
         navigate('/dashboard'); // Redirect to dashboard or desired page
       } else {
         // If no token is returned, just show a success message
-        setMessage('Registration successful. You can now log in.');
+        setMessage(
+          <span>
+            Registration successful. You can now{' '}
+            <Link to="/login" style={styles.link}>
+              log in
+            </Link>
+            .
+          </span>
+        );
         setFormData({ username: '', email: '', password: '' });
       }
     } catch (err) {
@@ -116,6 +124,10 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
+  },
+  link: {
+    color: '#007bff',
+    textDecoration: 'none',
   },
 };
 

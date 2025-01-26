@@ -1,7 +1,7 @@
 // src/components/Auth/UserLogin.js
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { loginUser } from '../../services/api'; // Import the loginUser function
 
@@ -35,29 +35,39 @@ const UserLogin = () => {
   };
 
   return (
-    <form onSubmit={handleLogin} style={styles.container}>
-      <h2>User Login</h2>
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={email}
-        onChange={handleChange}
-        style={styles.input}
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={password}
-        onChange={handleChange}
-        style={styles.input}
-        required
-      />
-      <button type="submit" style={styles.button}>Login</button>
-      {message && <p>{message}</p>}
-    </form>
+    <div style={styles.container}>
+      <form onSubmit={handleLogin}>
+        <h2>User Login</h2>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={email}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={password}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        />
+        <button type="submit" style={styles.button}>
+          Login
+        </button>
+        {message && <p>{message}</p>}
+      </form>
+      <p style={styles.linkText}>
+        Don't have an account?{' '}
+        <Link to="/register" style={styles.link}>
+          Sign up here
+        </Link>
+      </p>
+    </div>
   );
 };
 
@@ -87,6 +97,14 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
+  },
+  linkText: {
+    marginTop: '15px',
+    textAlign: 'center',
+  },
+  link: {
+    color: '#007bff',
+    textDecoration: 'none',
   },
 };
 

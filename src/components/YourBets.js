@@ -1,3 +1,4 @@
+
 // src/components/YourBets.js
 import React, { useEffect, useState } from "react";
 import {
@@ -5,6 +6,7 @@ import {
   cancelBet,
 } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import "./YourBets.css"; // Import the CSS file
 
 const YourBets = () => {
   const { token, user } = useAuth();
@@ -119,12 +121,12 @@ const YourBets = () => {
 
   // Render
   return (
-    <div style={styles.container}>
+    <div className="your-bets-container">
       <h3>Your Bets</h3>
 
       {/* Filter Bar */}
-      <div style={styles.filterBar}>
-        <label>Status: </label>
+      <div className="filter-bar">
+        <label>Status:</label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">All</option>
           <option value="pending">Pending</option>
@@ -153,40 +155,43 @@ const YourBets = () => {
           type="number"
           value={minWager}
           onChange={(e) => setMinWager(e.target.value)}
-          style={{ width: "80px" }}
+          className="wager-input"
         />
         <label>Max Wager:</label>
         <input
           type="number"
           value={maxWager}
           onChange={(e) => setMaxWager(e.target.value)}
-          style={{ width: "80px" }}
+          className="wager-input"
         />
 
-        <button onClick={handleApplyFilter}>Apply Filters</button>
+        <button onClick={handleApplyFilter} className="apply-filter-button">Apply Filters</button>
       </div>
 
       {loading && <p>Loading your bets...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {!loading && !error && bets.length === 0 && (
         <p>You have not placed any bets yet.</p>
       )}
 
       {!loading && !error && bets.length > 0 && (
         <>
-          <table style={styles.table}>
+          <table className="bets-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort("gameId")} style={styles.sortable}>
+                <th onClick={() => handleSort("gameId")} className="sortable">
                   Game ID {sortBy === "gameId" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th onClick={() => handleSort("amount")} style={styles.sortable}>
+                <th onClick={() => handleSort("amount")} className="sortable">
                   Amount {sortBy === "amount" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th onClick={() => handleSort("status")} style={styles.sortable}>
+                <th onClick={() => handleSort("currencyType")} className="sortable">
+                  Currency {sortBy === "currencyType" ? (order === "asc" ? "▲" : "▼") : ""}
+                </th>
+                <th onClick={() => handleSort("status")} className="sortable">
                   Status {sortBy === "status" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th onClick={() => handleSort("createdAt")} style={styles.sortable}>
+                <th onClick={() => handleSort("createdAt")} className="sortable">
                   Created {sortBy === "createdAt" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
                 <th>Actions</th>
@@ -197,15 +202,15 @@ const YourBets = () => {
                 <tr key={bet._id}>
                   <td>{bet.gameId || "N/A"}</td>
                   <td>{bet.amount}</td>
+                  <td>{bet.currencyType.charAt(0).toUpperCase() + bet.currencyType.slice(1)}</td>
                   <td
-                    style={{
-                      color:
-                        bet.status === "canceled" || bet.status === "expired"
-                          ? "red"
-                          : "inherit",
-                    }}
+                    className={
+                      bet.status === "canceled" || bet.status === "expired"
+                        ? "status-red"
+                        : ""
+                    }
                   >
-                    {bet.status}
+                    {bet.status.charAt(0).toUpperCase() + bet.status.slice(1)}
                   </td>
                   <td>{new Date(bet.createdAt).toLocaleString()}</td>
                   <td>
@@ -213,7 +218,7 @@ const YourBets = () => {
                     {bet.status === "pending" &&
                       bet.creatorId._id === user?.id && (
                         <button
-                          style={styles.cancelBtn}
+                          className="cancel-button"
                           onClick={() => handleCancelBet(bet._id)}
                         >
                           Cancel
@@ -226,7 +231,7 @@ const YourBets = () => {
           </table>
 
           {/* Pagination */}
-          <div style={styles.pagination}>
+          <div className="pagination">
             <button onClick={handlePreviousPage} disabled={page === 1}>
               Prev
             </button>
@@ -243,36 +248,5 @@ const YourBets = () => {
   );
 };
 
-const styles = {
-  container: { padding: 20 },
-  filterBar: {
-    marginBottom: 20,
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    alignItems: "center",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  sortable: {
-    cursor: "pointer",
-  },
-  cancelBtn: {
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    border: "none",
-    borderRadius: 4,
-    padding: "5px 8px",
-    cursor: "pointer",
-  },
-  pagination: {
-    marginTop: 10,
-    display: "flex",
-    gap: 10,
-    alignItems: "center",
-  },
-};
-
 export default YourBets;
+

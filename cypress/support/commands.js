@@ -134,3 +134,20 @@ Cypress.Commands.add('mockLichessFlowForUser', (userId, connected) => {
   cy.mockLichessForUser(userId);
 });
 
+// **New Command to Set Lichess Access Token**
+Cypress.Commands.add('setLichessAccessToken', (email, token) => {
+  cy.request({
+    method: 'POST',
+    url: `${Cypress.env('backendUrl')}/test/set-lichess-token`,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: {
+      email,
+      lichessAccessToken: token,
+    },
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    cy.log(`Lichess access token set for ${email}`);
+  });
+});
