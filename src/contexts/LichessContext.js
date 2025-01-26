@@ -2,7 +2,7 @@
 // src/contexts/LichessContext.js
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getLichessStatus, initiateLichessOAuth } from '../services/api';
+import { getLichessStatus, getUserLichessInfo, initiateLichessOAuth } from '../services/api';
 import { useAuth } from './AuthContext';
 
 const LichessContext = createContext();
@@ -10,12 +10,14 @@ const LichessContext = createContext();
 export const LichessProvider = ({ children }) => {
   const { token, logout } = useAuth();
   const [lichessConnected, setLichessConnected] = useState(false);
+  const [lichessUsername, setLichessUsername] = useState(null); // Add username state
   const [loading, setLoading] = useState(false);
-  const [shake, setShake] = useState(false); // For animation trigger
+  const [shake, setShake] = useState(false);
 
   const fetchLichessStatus = async () => {
     if (!token) {
       setLichessConnected(false);
+      setLichessUsername(null);
       return;
     }
 
@@ -23,6 +25,11 @@ export const LichessProvider = ({ children }) => {
     try {
       const isConnected = await getLichessStatus();
       setLichessConnected(isConnected);
+
+      if (isConnected) {
+        const lichessInfo = await getUserLichessInfo();
+        setLichessUsername(lichessInfo.username); // Fetch and store username
+      }
     } catch (error) {
       console.error('Error fetching Lichess status:', error);
       if (error.message === 'Unauthorized') {
@@ -43,13 +50,14 @@ export const LichessProvider = ({ children }) => {
 
   const triggerShake = () => {
     setShake(true);
-    setTimeout(() => setShake(false), 500); // Duration matches CSS animation
+    setTimeout(() => setShake(false), 500);
   };
 
   return (
     <LichessContext.Provider
       value={{
         lichessConnected,
+        lichessUsername,
         connectLichess,
         loading,
         triggerShake,
@@ -62,4 +70,3 @@ export const LichessProvider = ({ children }) => {
 };
 
 export const useLichess = () => useContext(LichessContext);
-

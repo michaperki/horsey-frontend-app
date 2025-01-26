@@ -31,7 +31,7 @@ const Home = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   const navigate = useNavigate();
-  const { lichessConnected, triggerShake } = useLichess(); // Destructure Lichess context
+  const { lichessConnected, lichessUsername, triggerShake } = useLichess();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -75,6 +75,14 @@ const Home = () => {
   return (
     <div className="home-container">
       <header className="header">
+        <div className="lichess-greeting">
+          {lichessConnected ? (
+            <h2>Welcome back, {lichessUsername || statistics.username}!</h2>
+          ) : (
+            <h2>Welcome! Please connect your Lichess account.</h2>
+          )}
+        </div>
+
         <div className="stats-grid">
           <StatCard title="Total Games Played" value={statistics.totalGames} />
           <StatCard
@@ -103,36 +111,40 @@ const Home = () => {
       <div className="content">
         <main className="main">
           <div className="home-options">
-            {/* Classic Blitz Card */}
+            {/* Existing game mode cards */}
             <div
               className="card clickable-card"
               onClick={() => openPlaceBetModal('standard')}
             >
-              <div className="icon"><FaChessKnight /></div>
+              <div className="icon">
+                <FaChessKnight />
+              </div>
               <div>
                 <h3>Classic Blitz</h3>
                 <p>Our most popular game mode!</p>
               </div>
             </div>
 
-            {/* Chess 960 Card */}
             <div
               className="card clickable-card"
               onClick={() => openPlaceBetModal('chess960')}
             >
-              <div className="icon"><FaChessKing /></div>
+              <div className="icon">
+                <FaChessKing />
+              </div>
               <div>
                 <h3>Chess 960</h3>
                 <p>Pieces start on random squares!</p>
               </div>
             </div>
 
-            {/* Play for Horsey Coins Card */}
             <div
               className="card clickable-card"
               onClick={() => openPlaceBetModal(null)}
             >
-              <div className="icon"><FaCoins /></div>
+              <div className="icon">
+                <FaCoins />
+              </div>
               <div>
                 <h3>Play for Horsey Coins</h3>
                 <button
@@ -150,7 +162,6 @@ const Home = () => {
         </main>
       </div>
 
-      {/* PlaceBetModal Component */}
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}
         onClose={closePlaceBetModal}

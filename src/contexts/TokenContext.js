@@ -2,22 +2,18 @@
 // src/contexts/TokenContext.js
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getUserBalances } from '../services/api'; // Updated import
+import { getUserBalances } from '../services/api';
+import { useAuth } from './AuthContext'; // Import AuthContext for user authentication check
 
 const TokenContext = createContext();
 
-/**
- * Provides token and sweepstakes balances to the component tree.
- */
 export const TokenProvider = ({ children }) => {
+  const { user } = useAuth(); // Check if user is logged in
   const [tokenBalance, setTokenBalance] = useState(0);
   const [sweepstakesBalance, setSweepstakesBalance] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Default to false
   const [error, setError] = useState(null);
 
-  /**
-   * Fetches the user's balances and updates the state.
-   */
   const fetchBalances = async () => {
     setLoading(true);
     setError(null);
@@ -34,25 +30,10 @@ export const TokenProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchBalances();
-    // Optionally, set up polling or websocket listeners to update balances in real-time
-  }, []);
-
-  /**
-   * Updates the token balance (e.g., after placing a bet).
-   * @param {number} newBalance - The updated token balance.
-   */
-  const updateTokenBalance = (newBalance) => {
-    setTokenBalance(newBalance);
-  };
-
-  /**
-   * Updates the sweepstakes balance (e.g., after placing a bet).
-   * @param {number} newBalance - The updated sweepstakes balance.
-   */
-  const updateSweepstakesBalance = (newBalance) => {
-    setSweepstakesBalance(newBalance);
-  };
+    if (user) {
+      fetchBalances(); // Fetch balances only if the user is logged in
+    }
+  }, [user]); // Re-run when the user changes
 
   return (
     <TokenContext.Provider
@@ -62,8 +43,6 @@ export const TokenProvider = ({ children }) => {
         loading,
         error,
         fetchBalances,
-        updateTokenBalance,
-        updateSweepstakesBalance,
       }}
     >
       {children}
@@ -71,9 +50,5 @@ export const TokenProvider = ({ children }) => {
   );
 };
 
-/**
- * Custom hook to access token context.
- * @returns {object} - The token context value.
- */
 export const useToken = () => useContext(TokenContext);
 
