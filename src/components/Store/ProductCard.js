@@ -2,6 +2,7 @@
 // src/components/Store/ProductCard.js
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './ProductCard.css';
 
 const ProductCard = ({ product, onPurchase, purchaseLoading }) => {
@@ -32,6 +33,20 @@ const ProductCard = ({ product, onPurchase, purchaseLoading }) => {
       </div>
     </div>
   );
+};
+
+// PropTypes validation
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    imageFileName: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    priceInUSD: PropTypes.number.isRequired,
+    playerTokens: PropTypes.number.isRequired,
+    sweepstakesTokens: PropTypes.number.isRequired,
+  }).isRequired,
+  onPurchase: PropTypes.func.isRequired,
+  purchaseLoading: PropTypes.bool.isRequired,
 };
 
 export default ProductCard;

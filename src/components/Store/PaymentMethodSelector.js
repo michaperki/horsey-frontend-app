@@ -2,6 +2,7 @@
 // src/components/Store/PaymentMethodSelector.js
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './PaymentMethodSelector.css';
 
 const PaymentMethodSelector = ({ paymentMethod, onChange }) => {
@@ -14,6 +15,12 @@ const PaymentMethodSelector = ({ paymentMethod, onChange }) => {
       </select>
     </div>
   );
+};
+
+// PropTypes validation
+PaymentMethodSelector.propTypes = {
+  paymentMethod: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default PaymentMethodSelector;
