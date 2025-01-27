@@ -44,6 +44,8 @@ export const TokenProvider = ({ children }) => {
         loading,
         error,
         fetchBalances,
+        updateTokenBalance: setTokenBalance,
+        updateSweepstakesBalance: setSweepstakesBalance,
       }}
     >
       {children}

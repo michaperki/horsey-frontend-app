@@ -95,18 +95,22 @@ const Store = () => {
             paymentMethod={paymentMethod}
             onChange={setPaymentMethod}
           />
-
           {categoryList.map((category) => (
             <CategorySection
               key={category}
               category={category}
               products={categorizedProducts[category]}
               onPurchase={handlePurchase}
-              purchaseLoading={purchaseLoading[category]}
+              purchaseLoading={categorizedProducts[category].reduce(
+                (acc, product) => ({
+                  ...acc,
+                  [product._id]: purchaseLoading[product._id] || false,
+                }),
+                {}
+              )}
               ref={(el) => (sections.current[category] = el)}
             />
           ))}
-
           <p className="store-note">
             *To enjoy premium features, make sure to check out our membership options!
           </p>

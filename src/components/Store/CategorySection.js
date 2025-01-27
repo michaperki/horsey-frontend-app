@@ -12,12 +12,12 @@ const CategorySection = React.forwardRef(({ category, products, onPurchase, purc
       <h2>{category}</h2>
       <div className="store-products">
         {products.map((product) => (
-          <ProductCard
-            key={product._id}
-            product={product}
-            onPurchase={onPurchase}
-            purchaseLoading={purchaseLoading}
-          />
+        <ProductCard
+          key={product._id}
+          product={product}
+          onPurchase={onPurchase}
+          purchaseLoading={purchaseLoading[product._id]}
+        />
         ))}
       </div>
     </div>
@@ -25,10 +25,10 @@ const CategorySection = React.forwardRef(({ category, products, onPurchase, purc
 });
 
 CategorySection.propTypes = {
-  category: PropTypes.string.isRequired, // Validate `category` as a required string
-  products: PropTypes.arrayOf(PropTypes.object).isRequired, // Validate `products` as an array of objects
-  onPurchase: PropTypes.func.isRequired, // Validate `onPurchase` as a required function
-  purchaseLoading: PropTypes.bool.isRequired, // Validate `purchaseLoading` as a required boolean
+  category: PropTypes.string.isRequired,
+  products: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onPurchase: PropTypes.func.isRequired,
+  purchaseLoading: PropTypes.object.isRequired, // Update to object
 };
 
 export default CategorySection;
