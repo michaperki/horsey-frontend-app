@@ -1,8 +1,30 @@
 
-import { getUserBalances, getUserBets } from './api';
+// src/services/api.test.js
+
+// Import necessary modules
+import { jest } from '@jest/globals';
+
+// Mock the fetch API
+global.fetch = require('jest-fetch-mock');
 
 describe('API Service Functions', () => {
+  let getUserBalances, getUserBets;
+
+  beforeAll(() => {
+    // Set the API base URL before importing the API functions
+    process.env.REACT_APP_API_URL = 'http://localhost:5000';
+    
+    // Reset the module registry to ensure the environment variable is recognized
+    jest.resetModules();
+    
+    // Import the API functions after setting the environment variable
+    const api = require('./api');
+    getUserBalances = api.getUserBalances;
+    getUserBets = api.getUserBets;
+  });
+
   beforeEach(() => {
+    // Reset fetch mocks and local storage before each test
     fetch.resetMocks();
     localStorage.clear();
   });
@@ -24,7 +46,10 @@ describe('API Service Functions', () => {
           'Content-Type': 'application/json',
         },
       });
-      expect(balance).toEqual(mockBalance);
+      expect(balance).toEqual({
+        tokenBalance: mockBalance.tokenBalance,
+        sweepstakesBalance: mockBalance.sweepstakesBalance,
+      });
     });
 
     it('should throw an error when API call fails', async () => {
