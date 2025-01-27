@@ -2,6 +2,7 @@
 // src/contexts/TokenContext.js
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 import { getUserBalances } from '../services/api';
 import { useAuth } from './AuthContext'; // Import AuthContext for user authentication check
 
@@ -50,5 +51,9 @@ export const TokenProvider = ({ children }) => {
   );
 };
 
-export const useToken = () => useContext(TokenContext);
+// Define prop types for TokenProvider
+TokenProvider.propTypes = {
+  children: PropTypes.node.isRequired, // Validate the children prop
+};
 
+export const useToken = () => useContext(TokenContext);

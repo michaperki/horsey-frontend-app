@@ -2,6 +2,7 @@
 // src/components/Store/StoreMenu.js
 
 import React from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 import './StoreMenu.css';
 
 const StoreMenu = ({ categories, onSelectCategory }) => {
@@ -19,6 +20,12 @@ const StoreMenu = ({ categories, onSelectCategory }) => {
       </ul>
     </div>
   );
+};
+
+// Add PropTypes validation
+StoreMenu.propTypes = {
+  categories: PropTypes.arrayOf(PropTypes.string).isRequired, // categories should be an array of strings and is required
+  onSelectCategory: PropTypes.func.isRequired, // onSelectCategory should be a function and is required
 };
 
 export default StoreMenu;

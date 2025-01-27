@@ -2,6 +2,7 @@
 // src/contexts/SocketContext.js
 
 import React, { createContext, useContext, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
@@ -27,12 +28,11 @@ export const SocketProvider = ({ children }) => {
 
     console.log('Attempting to connect to Socket.io server with token.');
 
-    // Initialize Socket.io client with enhanced options
     socketRef.current = io(process.env.REACT_APP_API_URL, {
       auth: { token },
-      reconnectionAttempts: 5, // Customize as needed
-      reconnectionDelay: 1000,  // Customize as needed
-      timeout: 5000, // Connection timeout
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 5000,
     });
 
     const currentSocket = socketRef.current;
@@ -61,7 +61,6 @@ export const SocketProvider = ({ children }) => {
     currentSocket.on('disconnect', (reason) => {
       console.warn(`Socket.io disconnected: ${reason}`);
       if (reason === 'io server disconnect') {
-        // The disconnection was initiated by the server, you need to reconnect manually
         currentSocket.connect();
       }
     });
@@ -76,7 +75,7 @@ export const SocketProvider = ({ children }) => {
         currentSocket.disconnect();
       }
     };
-  }, [token]); // Dependency only on 'token'
+  }, [token]);
 
   return (
     <SocketContext.Provider value={socketRef.current}>
@@ -85,3 +84,7 @@ export const SocketProvider = ({ children }) => {
   );
 };
 
+// Add propTypes for validation
+SocketProvider.propTypes = {
+  children: PropTypes.node.isRequired, // Define 'children' as required
+};

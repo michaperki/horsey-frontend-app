@@ -2,6 +2,7 @@
 // frontend/src/contexts/NotificationsContext.js
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 import { useSocket } from './SocketContext'; // Import useSocket
 import { useAuth } from './AuthContext';
 import {
@@ -98,3 +99,7 @@ export const NotificationsProvider = ({ children }) => {
   );
 };
 
+// Add PropTypes for props validation
+NotificationsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

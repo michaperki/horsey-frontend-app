@@ -7,18 +7,6 @@ import { useToken } from "../contexts/TokenContext";
 import "./PlaceBet.css"; // Ensure this CSS file includes styles for the modal
 import PropTypes from "prop-types";
 
-// At the end of the component definition
-PlaceBetModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired, // Expected to be a boolean and required
-  onClose: PropTypes.func.isRequired, // Expected to be a function and required
-  preSelectedVariant: PropTypes.string, // Expected to be a string and optional
-};
-
-// Default props (optional but recommended)
-PlaceBetModal.defaultProps = {
-  preSelectedVariant: "standard", // Default variant if not provided
-};
-
 const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
   const [currencyType, setCurrencyType] = useState("token"); // 'token' or 'sweepstakes'
   const [colorPreference, setColorPreference] = useState("random");
@@ -28,7 +16,6 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Modal State
   const [modalMessage, setModalMessage] = useState("");
 
   const {
@@ -38,11 +25,9 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
     updateSweepstakesBalance,
   } = useToken();
 
-  // Determine the current balance based on selected currency
   const currentBalance =
     currencyType === "sweepstakes" ? sweepstakesBalance : tokenBalance;
 
-  // Effect to set pre-selected variant when modal opens
   useEffect(() => {
     if (isOpen && preSelectedVariant) {
       setVariant(preSelectedVariant);
@@ -63,7 +48,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
     setLoading(true);
     try {
       const betData = {
-        currencyType, // 'token' or 'sweepstakes'
+        currencyType,
         amount: Number(amount),
         colorPreference,
         timeControl,
@@ -71,14 +56,12 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
       };
       await placeBet(betData);
       setModalMessage("Bet placed successfully!");
-      // Update the balances in the context
       if (currencyType === "sweepstakes") {
         updateSweepstakesBalance(sweepstakesBalance - Number(amount));
       } else {
         updateTokenBalance(tokenBalance - Number(amount));
       }
 
-      // Reset form fields
       setCurrencyType("token");
       setColorPreference("random");
       setTimeControl("5|3");
@@ -86,7 +69,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
       setAmount("");
     } catch (err) {
       console.error("Error placing bet:", err);
-      if (err.response && err.response.data && err.response.data.error) {
+      if (err.response?.data?.error) {
         setMessage(`Error: ${err.response.data.error}`);
       } else {
         setMessage(err.message || "Failed to place bet.");
@@ -110,14 +93,13 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
     <div className="place-bet-overlay" onClick={handleCloseModal}>
       <div
         className="place-bet-modal"
-        role="dialog" // Added ARIA role for accessibility
+        role="dialog"
         aria-modal="true"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+        onClick={(e) => e.stopPropagation()}
       >
         <button onClick={handleCloseModal} className="place-bet-close-button" aria-label="Close Modal">
           &times;
         </button>
-        {/* If modalMessage is set, show success message; otherwise, show the form */}
         {modalMessage ? (
           <div>
             <h2>Success</h2>
@@ -134,7 +116,6 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               {currencyType === "sweepstakes" ? "Sweepstakes" : "Tokens"}
             </p>
 
-            {/* Select Currency Type */}
             <label htmlFor="currencyType">Currency:</label>
             <select
               id="currencyType"
@@ -146,7 +127,6 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               <option value="sweepstakes">Sweepstakes</option>
             </select>
 
-            {/* Select Color Preference */}
             <label htmlFor="colorPreference">Color Preference:</label>
             <select
               id="colorPreference"
@@ -159,7 +139,6 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               <option value="random">Random</option>
             </select>
 
-            {/* Select Time Control */}
             <label htmlFor="timeControl">Time Control (minutes|increment):</label>
             <select
               id="timeControl"
@@ -171,10 +150,8 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               <option value="5|3">5|3</option>
               <option value="10|0">10|0</option>
               <option value="15|10">15|10</option>
-              {/* Add more as needed */}
             </select>
 
-            {/* Select Variant */}
             <label htmlFor="variant">Variant:</label>
             <select
               id="variant"
@@ -185,10 +162,8 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               <option value="standard">Standard</option>
               <option value="crazyhouse">Crazyhouse</option>
               <option value="chess960">Chess 960</option>
-              {/* Add others if desired */}
             </select>
 
-            {/* Input Bet Amount */}
             <label htmlFor="amount">Bet Amount:</label>
             <input
               type="number"
@@ -199,16 +174,14 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
               min="1"
             />
 
-            {/* Place Bet Button */}
             <button
               onClick={handlePlaceBet}
               className="place-bet-button"
-              disabled={loading} // Removed !amount to allow validation
+              disabled={loading}
             >
               {loading ? "Placing Bet..." : "Place Bet"}
             </button>
 
-            {/* Message Display */}
             {message && <p className="place-bet-message">{message}</p>}
           </div>
         )}
@@ -217,5 +190,14 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
   );
 };
 
-export default PlaceBetModal;
+PlaceBetModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  preSelectedVariant: PropTypes.string,
+};
 
+PlaceBetModal.defaultProps = {
+  preSelectedVariant: "standard",
+};
+
+export default PlaceBetModal;

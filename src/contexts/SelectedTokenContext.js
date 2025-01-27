@@ -1,5 +1,6 @@
 
 import React, { createContext, useState, useContext } from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 
 /**
  * Context to manage the selected token state across the application.
@@ -27,8 +28,14 @@ export const SelectedTokenProvider = ({ children }) => {
   );
 };
 
+// Add PropTypes validation
+SelectedTokenProvider.propTypes = {
+  children: PropTypes.node.isRequired, // children should be a React node and required
+};
+
 /**
  * Custom hook to use the SelectedTokenContext.
  * @returns {object} - The context value containing selectedToken and updateSelectedToken.
  */
 export const useSelectedToken = () => useContext(SelectedTokenContext);
+
