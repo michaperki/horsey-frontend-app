@@ -1,4 +1,3 @@
-
 // src/components/PlaceBetModal.test.js
 
 // 1. Mock dependencies before importing modules that use them
@@ -48,10 +47,10 @@ describe('PlaceBetModal Component', () => {
     renderComponent();
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Currency:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Color Preference:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Time Control/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Variant:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Currency:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Color Preference:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Time Control:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Variant:/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bet Amount:/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Place Bet/i })).toBeInTheDocument();
   });
@@ -65,52 +64,55 @@ describe('PlaceBetModal Component', () => {
   test('pre-selects variant when preSelectedVariant is provided', () => {
     renderComponent({ preSelectedVariant: 'chess960' });
 
-    const variantSelect = screen.getByLabelText(/Variant:/i);
-    expect(variantSelect.value).toBe('chess960');
+    const variantRadio = screen.getByLabelText(/Chess960/i);
+    expect(variantRadio).toBeChecked();
   });
 
   test('displays current balance based on selected currency', () => {
     renderComponent();
 
+    // Check initial balance display
     const balanceText = screen.getByText(/Your Balance: 100 Tokens/i);
     expect(balanceText).toBeInTheDocument();
 
-    const currencySelect = screen.getByLabelText(/Currency:/i);
-    fireEvent.change(currencySelect, { target: { value: 'sweepstakes' } });
+    // Switch to Sweepstakes
+    const sweepstakesRadio = screen.getByLabelText(/Sweepstakes/i);
+    fireEvent.click(sweepstakesRadio);
 
+    // Check updated balance display
     const updatedBalanceText = screen.getByText(/Your Balance: 50 Sweepstakes/i);
     expect(updatedBalanceText).toBeInTheDocument();
   });
 
-  // test('validates bet amount input', async () => {
-  //   renderComponent();
-  //
-  //   const placeBetButton = screen.getByRole('button', { name: /Place Bet/i });
-  //
-  //   // Attempt to place a bet with empty amount
-  //   fireEvent.click(placeBetButton);
-  //   expect(await screen.findByText(/Please enter a valid bet amount./i)).toBeInTheDocument();
-  //
-  //   // Ensure placeBet is not called
-  //   expect(placeBet).not.toHaveBeenCalled();
-  //
-  //   // Enter a negative amount
-  //   const amountInput = screen.getByLabelText(/Bet Amount:/i);
-  //   fireEvent.change(amountInput, { target: { value: '-10' } });
-  //   fireEvent.click(placeBetButton);
-  //   expect(await screen.findByText(/Please enter a valid bet amount./i)).toBeInTheDocument();
-  //
-  //   // Ensure placeBet is still not called
-  //   expect(placeBet).not.toHaveBeenCalled();
-  //
-  //   // Enter an amount exceeding the balance
-  //   fireEvent.change(amountInput, { target: { value: '150' } });
-  //   fireEvent.click(placeBetButton);
-  //   expect(await screen.findByText(/Insufficient balance./i)).toBeInTheDocument();
-  //
-  //   // Ensure placeBet is still not called
-  //   expect(placeBet).not.toHaveBeenCalled();
-  // });
+  test('validates bet amount input', async () => {
+    renderComponent();
+
+    const placeBetButton = screen.getByRole('button', { name: /Place Bet/i });
+
+    // Attempt to place a bet with empty amount
+    fireEvent.click(placeBetButton);
+    expect(await screen.findByText(/Please enter a valid bet amount./i)).toBeInTheDocument();
+
+    // Ensure placeBet is not called
+    expect(placeBet).not.toHaveBeenCalled();
+
+    // Enter a negative amount
+    const amountInput = screen.getByLabelText(/Bet Amount:/i);
+    fireEvent.change(amountInput, { target: { value: '-10' } });
+    fireEvent.click(placeBetButton);
+    expect(await screen.findByText(/Please enter a valid bet amount./i)).toBeInTheDocument();
+
+    // Ensure placeBet is still not called
+    expect(placeBet).not.toHaveBeenCalled();
+
+    // Enter an amount exceeding the balance
+    fireEvent.change(amountInput, { target: { value: '150' } });
+    fireEvent.click(placeBetButton);
+    expect(await screen.findByText(/Insufficient balance./i)).toBeInTheDocument();
+
+    // Ensure placeBet is still not called
+    expect(placeBet).not.toHaveBeenCalled();
+  });
 
   test('places a bet successfully', async () => {
     const mockUpdateTokenBalance = jest.fn();
@@ -156,10 +158,10 @@ describe('PlaceBetModal Component', () => {
 
     // Ensure the form fields are no longer present
     expect(screen.queryByLabelText(/Bet Amount:/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Currency:/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Color Preference:/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Time Control:/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Variant:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Currency:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Color Preference:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Time Control:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Variant:/i)).not.toBeInTheDocument();
   });
 
   test('handles API error when placing a bet', async () => {
@@ -233,4 +235,3 @@ describe('PlaceBetModal Component', () => {
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 });
-

@@ -247,7 +247,7 @@ describe('Home Component', () => {
     expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
 
     // Click on "Classic Blitz" card
-    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.clickable-card');
+    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.card');
     expect(classicBlitzCard).toBeInTheDocument();
     fireEvent.click(classicBlitzCard);
 
@@ -297,7 +297,7 @@ describe('Home Component', () => {
     expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
 
     // Click on "Classic Blitz" card
-    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.clickable-card');
+    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.card');
     expect(classicBlitzCard).toBeInTheDocument();
     fireEvent.click(classicBlitzCard);
 
