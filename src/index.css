@@ -1,24 +1,17 @@
 
 /* src/index.css */
 
-/* Define square size variables for easy manipulation */
-:root {
-  --square-size: 180px; /* Default size of squares */
-  --square-size-mobile: 60px; /* Square size for mobile screens */
-  --square-size-large: 240px; /* Square size for large screens */
-}
+@import './styles/variables.css';
 
-/* Apply box-sizing globally */
+/* Reset and Base Styles */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Global Styles */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* Allow vertical scrolling only if necessary */
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -27,10 +20,9 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Body Styles */
 body {
-  /* Base color */
-  background-color: #0a2a4d;
-  /* Plaid stripes */
+  background-color: var(--color-primary);
   background-image:
     repeating-linear-gradient(
       to bottom,
@@ -48,6 +40,7 @@ body {
     );
 }
 
+/* Responsive Background Sizes */
 @media (max-width: 768px) {
   body {
     background-image:
@@ -88,17 +81,237 @@ body {
   }
 }
 
-/* Remove duplicate or conflicting styles from other CSS files */
-/* For example, remove additional body styles from Home.css */
+/* ----------------- */
+/* Utility Classes    */
+/* ----------------- */
 
-/* Example: Remove or comment out body styles in other CSS files */
-/* 
-/* src/pages/Home.css */
-/*
-body {
-  font-family: Arial, sans-serif;
-  background-color: #eef2f7;
-  color: #333;
+/* Flexbox Utilities */
+.flex {
+  display: flex;
 }
-*/
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Grid Utilities */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-5 {
+  gap: 1.25rem;
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Text Alignment */
+.text-center {
+  text-align: center;
+}
+
+/* Typography Utilities */
+.text-white { color: var(--color-white); }
+.text-dark { color: var(--color-dark); }
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-gray-300 { color: var(--color-gray-300); }
+
+.text-yellow-400 { color: var(--color-yellow-400); }
+
+.font-bold { font-weight: bold; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.font-light { font-weight: 300; }
+
+.text-sm { font-size: var(--font-size-small); }
+.text-xl { font-size: var(--font-size-large); }
+.text-2xl { font-size: 1.5rem; } /* Adjust as per variables.css */
+.text-lg { font-size: 1.125rem; } /* Optional addition */
+
+/* Spacing Utilities */
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+
+.mb-xs { margin-bottom: var(--spacing-xs); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+.mr-4 { margin-right: 1rem; } /* Adjust as per spacing scale */
+
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+
+/* Border Radius Utilities */
+.rounded-sm { border-radius: var(--border-radius-sm); }
+.rounded-md { border-radius: var(--border-radius-md); }
+.rounded-lg { border-radius: var(--border-radius-lg); }
+
+/* Transition Utilities */
+.transition-fast { transition: all var(--transition-fast) ease; }
+.transition-medium { transition: all var(--transition-medium) ease; }
+.transition-slow { transition: all var(--transition-slow) ease; }
+
+.transition-all { transition: all var(--transition-medium) ease; }
+.duration-200 { transition-duration: 200ms; }
+.duration-300 { transition-duration: 300ms; }
+.duration-500 { transition-duration: 500ms; }
+
+/* Shadow Utilities */
+.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.shadow-md { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+.shadow-lg { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
+
+/* Hover Shadow */
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Translate Utilities */
+.-translate-y-1 {
+  transform: translateY(-0.25rem); /* Adjust as needed */
+}
+
+/* Hover Translate */
+.hover\:-translate-y-1:hover {
+  transform: translateY(-0.25rem);
+}
+
+/* Background Color Utilities */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-statcard { background-color: var(--color-statcard-bg); } /* Newly added */
+
+/* Border Utilities */
+.border { border: 1px solid var(--color-border); } /* Define --color-border */
+.border-gray-300 { border-color: var(--color-gray-300); }
+
+/* Visibility Utilities */
+.hidden { display: none; }
+.visible { display: block; }
+
+/* Overflow Utilities */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+
+/* Cursor Utilities */
+.cursor-pointer { cursor: pointer; }
+
+/* Button Styles */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-medium);
+  transition: background-color var(--transition-medium), transform var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background-color: darken(var(--color-primary), 10%);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.btn-secondary:hover {
+  background-color: darken(var(--color-secondary), 10%);
+}
+
+/* Disabled State */
+.btn-disabled {
+  background-color: var(--color-gray);
+  cursor: not-allowed;
+}
+
+/* Additional Utility Classes */
+
+/* Flex Grow and Shrink */
+.flex-grow {
+  flex-grow: 1;
+}
+
+.flex-shrink {
+  flex-shrink: 1;
+}
+
+/* Align Items */
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+
+/* Justify Content */
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+
+/* Text Decoration */
+.text-underline { text-decoration: underline; }
+
+/* Responsive Utilities */
+
+/* Example: Adjust text size on larger screens */
+@media (min-width: 768px) {
+  .text-xl {
+    font-size: 1.25rem; /* Adjust as per design */
+  }
+
+  .text-2xl {
+    font-size: 1.75rem;
+  }
+}
+
+/* Add more utility classes as needed to support other components */
 

@@ -10,7 +10,7 @@ import './Home.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLichess } from '../contexts/LichessContext'; // Import Lichess context
+import { useLichess } from '../contexts/LichessContext';
 
 const Home = () => {
   const { token } = useAuth();
@@ -51,7 +51,6 @@ const Home = () => {
 
   const openPlaceBetModal = (variant) => {
     if (!lichessConnected) {
-      // Trigger shake animation and display notification
       triggerShake();
       createNotification({
         message: 'Please connect your Lichess account before placing a bet.',
@@ -69,98 +68,86 @@ const Home = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="flex-center h-screen text-xl text-primary">Loading...</div>;
   }
 
   return (
-    <div className="home-container">
-      <header className="header">
-        <div className="lichess-greeting">
-          {lichessConnected ? (
-            <h2>Welcome back, {lichessUsername || statistics.username}!</h2>
-          ) : (
-            <h2>Welcome! Please connect your Lichess account.</h2>
-          )}
-        </div>
+    <div className="p-sm">
+      {/* Removed additional header to prevent redundancy */}
+      <div className="lichess-greeting mb-md text-center">
+        {lichessConnected ? (
+          <h2 className="text-white font-bold text-xl">Welcome back, {lichessUsername || statistics.username}!</h2>
+        ) : (
+          <h2 className="text-white font-bold text-xl">Welcome! Please connect your Lichess account.</h2>
+        )}
+      </div>
 
-        <div className="stats-grid">
-          <StatCard title="Total Games Played" value={statistics.totalGames} />
-          <StatCard
-            title="Average Wager"
-            value={`${statistics.averageWager} PTK`}
-          />
-          <StatCard
-            title="Total Wagered"
-            value={`${statistics.totalWagered} PTK`}
-          />
-          <StatCard title="Average ROI" value={`${statistics.averageROI}%`} />
-          <StatCard
-            title="Total Winnings"
-            value={`${statistics.totalWinnings} PTK`}
-          />
-          <StatCard
-            title="Total Losses"
-            value={`${statistics.totalLosses} PTK`}
-          />
-        </div>
-        <div className="additional-info">
-          <div className="info-item">Karma: {statistics.karma}</div>
-        </div>
-      </header>
+      <div className="stats-grid">
+        <StatCard title="Total Games Played" value={statistics.totalGames} />
+        <StatCard title="Average Wager" value={`${statistics.averageWager} PTK`} />
+        <StatCard title="Total Wagered" value={`${statistics.totalWagered} PTK`} />
+        <StatCard title="Average ROI" value={`${statistics.averageROI}%`} />
+        <StatCard title="Total Winnings" value={`${statistics.totalWinnings} PTK`} />
+        <StatCard title="Total Losses" value={`${statistics.totalLosses} PTK`} />
+      </div>
 
-      <div className="content">
-        <main className="main">
-          <div className="home-options">
-            {/* Existing game mode cards */}
-            <div
-              className="card clickable-card"
-              onClick={() => openPlaceBetModal('standard')}
-            >
-              <div className="icon">
-                <FaChessKnight />
-              </div>
-              <div>
-                <h3>Classic Blitz</h3>
-                <p>Our most popular game mode!</p>
-              </div>
+      <div className="additional-info">
+        <div className="info-item">Karma: {statistics.karma}</div>
+      </div>
+
+      <main className="main">
+        <div className="home-options flex items-center gap-5">
+          {/* Classic Blitz Card */}
+          <div
+            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-md shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+            onClick={() => openPlaceBetModal('standard')}
+          >
+            <div className="icon text-2xl text-yellow-400 mr-4">
+              <FaChessKnight />
             </div>
-
-            <div
-              className="card clickable-card"
-              onClick={() => openPlaceBetModal('chess960')}
-            >
-              <div className="icon">
-                <FaChessKing />
-              </div>
-              <div>
-                <h3>Chess 960</h3>
-                <p>Pieces start on random squares!</p>
-              </div>
-            </div>
-
-            <div
-              className="card clickable-card"
-              onClick={() => openPlaceBetModal(null)}
-            >
-              <div className="icon">
-                <FaCoins />
-              </div>
-              <div>
-                <h3>Play for Horsey Coins</h3>
-                <button
-                  className="get-coins-button"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering card's onClick
-                    navigate('/store'); // Navigate to store page
-                  }}
-                >
-                  Get Coins
-                </button>
-              </div>
+            <div>
+              <h3 className="text-yellow-400 font-semibold">Classic Blitz</h3>
+              <p className="text-white text-sm">Our most popular game mode!</p>
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* Chess 960 Card */}
+          <div
+            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-md shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+            onClick={() => openPlaceBetModal('chess960')}
+          >
+            <div className="icon text-2xl text-yellow-400 mr-4">
+              <FaChessKing />
+            </div>
+            <div>
+              <h3 className="text-yellow-400 font-semibold">Chess 960</h3>
+              <p className="text-white text-sm">Pieces start on random squares!</p>
+            </div>
+          </div>
+
+          {/* Play for Horsey Coins Card */}
+          <div
+            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-md shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+            onClick={() => openPlaceBetModal(null)}
+          >
+            <div className="icon text-2xl text-yellow-400 mr-4">
+              <FaCoins />
+            </div>
+            <div className="flex flex-col">
+              <h3 className="text-yellow-400 font-semibold">Play for Horsey Coins</h3>
+              <button
+                className="btn btn-primary get-coins-button mt-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/store');
+                }}
+              >
+                Get Coins
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
 
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}

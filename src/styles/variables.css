@@ -1,0 +1,40 @@
+
+/* src/styles/variables.css */
+
+:root {
+  /* Colors */
+  --color-primary: #0a2a4d;
+  --color-secondary: #0074cc;
+  --color-statcard-bg: rgba(65, 84, 113, 0.6); /* New variable for StatCard background */
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-light: #f9f9f9;
+  --color-dark: #333333;
+  --color-white: #ffffff;
+  --color-gray: #6c757d;
+  --color-border: #dddddd;
+
+  /* Font Sizes */
+  --font-size-small: 12px;
+  --font-size-medium: 16px;
+  --font-size-large: 20px;
+  --font-size-xlarge: 24px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+
+  /* Transition */
+  --transition-fast: 0.2s;
+  --transition-medium: 0.3s;
+  --transition-slow: 0.5s;
+}

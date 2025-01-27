@@ -1,14 +1,13 @@
 
 /* src/components/AvailableBets.css */
 
-/* General container styling */
 .available-bets-container {
-  border-radius: 10px;
-  max-width: 900px; /* Set a maximum width */
-  width: 90%; /* Allow some flexibility */
-  margin: 40px auto; /* Center the container */
-  color: white;
-  font-family: Arial, sans-serif;
+  border-radius: var(--border-radius-md);
+  max-width: 900px;
+  width: 90%;
+  margin: var(--spacing-lg) auto;
+  color: var(--color-white);
+  font-family: var(--font-family, Arial, sans-serif);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -20,11 +19,12 @@
 
 /* Error message styling */
 .error-message {
-  color: #ff4d4f;
+  color: var(--color-danger);
   font-weight: bold;
   text-align: center;
-  margin: 10px 0;
+  margin: var(--spacing-sm) 0;
 }
+
 
 /* Table wrapper for responsiveness and scroll */
 .table-wrapper {

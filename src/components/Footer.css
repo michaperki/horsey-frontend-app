@@ -1,32 +1,41 @@
 
 /* Footer Styles */
 .footer {
-  padding: 10px 20px; /* Reduced padding to decrease height */
-  background-color: transparent; /* Set background to transparent */
-  color: #fff;
-  border-radius: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  color: var(--color-white);
+  border-radius: var(--border-radius-md);
   /* Remove margin-top to prevent pushing the footer down */
   margin-top: 0;
 }
 
-.footer-container {
+.footer__container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  flex-wrap: wrap;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.footer-left,
-.footer-middle,
-.footer-right {
+.footer__left,
+.footer__middle,
+.footer__right {
   display: flex;
   align-items: center;
 }
 
-.footer-left {
-  gap: 10px; /* Reduced spacing between version and language */
+.footer__left {
+  gap: var(--spacing-sm);
+}
+
+.footer__middle {
+  gap: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+}
+
+.footer__right {
+  gap: var(--spacing-sm);
 }
 
 .version {
