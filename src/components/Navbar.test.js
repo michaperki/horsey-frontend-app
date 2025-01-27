@@ -1,30 +1,58 @@
 // src/components/Navbar.test.js
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor } from '../utils/test-utils'; // Use custom render from test-utils.js
+import Navbar from './Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import { useToken } from '../contexts/TokenContext';
 import { useNotifications } from '../contexts/NotificationsContext';
 import { useSelectedToken } from '../contexts/SelectedTokenContext';
-import Navbar from './Navbar';
+import { useLichess } from '../contexts/LichessContext';
 
-// Mock the context hooks
-jest.mock('../contexts/AuthContext', () => ({
-  useAuth: jest.fn(),
-}));
+// Partial mock of AuthContext
+jest.mock('../contexts/AuthContext', () => {
+  const actual = jest.requireActual('../contexts/AuthContext');
+  return {
+    ...actual,
+    useAuth: jest.fn(),
+  };
+});
 
-jest.mock('../contexts/TokenContext', () => ({
-  useToken: jest.fn(),
-}));
+// Partial mock of TokenContext
+jest.mock('../contexts/TokenContext', () => {
+  const actual = jest.requireActual('../contexts/TokenContext');
+  return {
+    ...actual,
+    useToken: jest.fn(),
+  };
+});
 
-jest.mock('../contexts/NotificationsContext', () => ({
-  useNotifications: jest.fn(),
-}));
+// Partial mock of NotificationsContext
+jest.mock('../contexts/NotificationsContext', () => {
+  const actual = jest.requireActual('../contexts/NotificationsContext');
+  return {
+    ...actual,
+    useNotifications: jest.fn(),
+  };
+});
 
-jest.mock('../contexts/SelectedTokenContext', () => ({
-  useSelectedToken: jest.fn(),
-}));
+// Partial mock of SelectedTokenContext
+jest.mock('../contexts/SelectedTokenContext', () => {
+  const actual = jest.requireActual('../contexts/SelectedTokenContext');
+  return {
+    ...actual,
+    useSelectedToken: jest.fn(),
+  };
+});
+
+// Partial mock of LichessContext
+jest.mock('../contexts/LichessContext', () => {
+  const actual = jest.requireActual('../contexts/LichessContext');
+  return {
+    ...actual,
+    useLichess: jest.fn(),
+  };
+});
 
 // Mock useNavigate from react-router-dom
 const mockedNavigate = jest.fn();
@@ -33,69 +61,43 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedNavigate,
 }));
 
-// Helper function to mock useToken
-const mockUseTokenHook = (tokenBalance = 1000, sweepstakesBalance = 500) => {
-  useToken.mockReturnValue({
-    tokenBalance,
-    sweepstakesBalance,
-    loading: false,
-    error: null,
-    fetchBalances: jest.fn(),
-    updateTokenBalance: jest.fn(),
-    updateSweepstakesBalance: jest.fn(),
-  });
-};
-
-// Helper function to mock useNotifications
-const mockUseNotificationsHook = (unreadCount = 0) => {
-  useNotifications.mockReturnValue({
-    unreadCount,
-    notifications: [],
-    markAsRead: jest.fn(),
-    markAllAsRead: jest.fn(),
-    loading: false,
-  });
-};
-
-// Helper function to mock useSelectedToken
-const mockUseSelectedTokenHook = (selectedToken = 'token', updateSelectedToken = jest.fn()) => {
-  useSelectedToken.mockReturnValue({
-    selectedToken,
-    updateSelectedToken,
-  });
-};
-
-describe('Navbar', () => {
+describe('Navbar Component', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
-
-    // Mock global.fetch for Lichess connection status
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ connected: false }),
-      })
-    );
-  });
-
-  afterEach(() => {
-    // Restore global fetch
-    global.fetch.mockRestore();
   });
 
   it('renders the basic links for unauthenticated users', () => {
     // Setup mocks for unauthenticated user
     useAuth.mockReturnValue({ token: null, user: null, logout: jest.fn() });
-    mockUseTokenHook(); // Provide default mock values
-    mockUseNotificationsHook(); // Provide default mock notifications
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 0,
+      sweepstakesBalance: 0,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
     // Check for Logo (assuming 'Horsey' text)
     expect(screen.getByText(/Horsey/i)).toBeInTheDocument();
@@ -111,22 +113,41 @@ describe('Navbar', () => {
     expect(screen.queryByLabelText(/Store/i)).not.toBeInTheDocument();
   });
 
-  it('renders user links when a user is logged in', async () => {
+  it('renders user links when a user is logged in', () => {
     // Setup mocks for authenticated user
     useAuth.mockReturnValue({
       token: 'mockToken',
       user: { role: 'user', avatar: 'user-avatar.png' },
       logout: jest.fn(),
     });
-    mockUseTokenHook(1000, 500);
-    mockUseNotificationsHook(2);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 2,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
     // Check for Logo
     expect(screen.getByText(/Horsey/i)).toBeInTheDocument();
@@ -158,15 +179,34 @@ describe('Navbar', () => {
       user: { role: 'admin', avatar: 'admin-avatar.png' },
       logout: jest.fn(),
     });
-    mockUseTokenHook(2000, 1000);
-    mockUseNotificationsHook(0);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 2000,
+      sweepstakesBalance: 1000,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
     // Check for Logo
     expect(screen.getByText(/Horsey/i)).toBeInTheDocument();
@@ -195,15 +235,34 @@ describe('Navbar', () => {
       user: { role: 'user', avatar: 'user-avatar.png' },
       logout: mockLogout,
     });
-    mockUseTokenHook(1000, 500);
-    mockUseNotificationsHook(1);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 1,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
     // Open the user dropdown
     const userAvatar = screen.getByAltText(/User Avatar/i);
@@ -214,108 +273,175 @@ describe('Navbar', () => {
     fireEvent.click(logoutButton);
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
+    expect(mockedNavigate).toHaveBeenCalledWith('/');
   });
 
-  it('renders the Lichess connection status correctly', async () => {
-    // Mock fetch to return connected: true
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ connected: true }),
-      })
-    );
-
+  it('renders the Lichess connection status correctly when connected', async () => {
     useAuth.mockReturnValue({
       token: 'mockToken',
       user: { role: 'user', avatar: 'user-avatar.png' },
       logout: jest.fn(),
     });
-    mockUseTokenHook(1000, 500);
-    mockUseNotificationsHook(0);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
-
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
-
-    // Wait for the fetch to complete and the component to update
-    await waitFor(() => {
-      // Since Lichess is connected, "Connect Lichess" button should not be present
-      expect(screen.queryByLabelText(/Connect Lichess/i)).not.toBeInTheDocument();
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
     });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: true, // Simulate connected state
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
+
+    render(<Navbar />);
+
+    // Since Lichess is connected, "Connect Lichess" button should not be present
+    expect(screen.queryByLabelText(/Connect Lichess/i)).not.toBeInTheDocument();
   });
 
-  it('shows loading spinner when Lichess connection is in progress', async () => {
-    // Mock fetch to take time
-    global.fetch.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({ connected: false }),
-            });
-          }, 100);
-        })
-    );
-
+  it('shows loading spinner and disables the button when Lichess connection is in progress', () => {
+    // Setup mocks with loading: true
     useAuth.mockReturnValue({
       token: 'mockToken',
       user: { role: 'user', avatar: 'user-avatar.png' },
       logout: jest.fn(),
     });
-    mockUseTokenHook(1000, 500);
-    mockUseNotificationsHook(0);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: true, // Simulate loading state
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
-    // Initially, loading spinner should be present on "Connect Lichess" button
     const connectButton = screen.getByLabelText(/Connect Lichess/i);
     expect(connectButton).toBeDisabled();
     expect(screen.getByLabelText(/Connecting/i)).toBeInTheDocument();
-
-    // Wait for the fetch to complete
-    await waitFor(() => {
-      expect(connectButton).not.toBeDisabled();
-      expect(screen.queryByLabelText(/Connecting/i)).not.toBeInTheDocument();
-    });
   });
 
-  it('displays error message when data fails to load', async () => {
-    // Mock fetch to fail
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-        status: 500,
-      })
-    );
-
-    const mockLogout = jest.fn();
+  it('does not show loading spinner and enables the button when Lichess connection is not in progress', () => {
+    // Setup mocks with loading: false
     useAuth.mockReturnValue({
       token: 'mockToken',
       user: { role: 'user', avatar: 'user-avatar.png' },
-      logout: mockLogout,
+      logout: jest.fn(),
     });
-    mockUseTokenHook(1000, 500);
-    mockUseNotificationsHook(0);
-    mockUseSelectedTokenHook(); // Provide default selectedToken
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: jest.fn(),
+      loading: false, // Simulate not loading
+      shake: false,
+    });
 
-    render(
-      <Router>
-        <Navbar />
-      </Router>
-    );
+    render(<Navbar />);
 
-    // Wait for the fetch to complete and error to be set
+    const connectButton = screen.getByLabelText(/Connect Lichess/i);
+    expect(connectButton).not.toBeDisabled();
+    expect(screen.queryByLabelText(/Connecting/i)).not.toBeInTheDocument();
+  });
+
+  it('displays error message when Lichess connection fails', async () => {
+    // Mock connectLichess to reject
+    const mockConnectLichess = jest.fn().mockRejectedValue(new Error('Connection failed'));
+    useLichess.mockReturnValue({
+      lichessConnected: false,
+      connectLichess: mockConnectLichess,
+      loading: false,
+      shake: false,
+    });
+
+    useAuth.mockReturnValue({
+      token: 'mockToken',
+      user: { role: 'user', avatar: 'user-avatar.png' },
+      logout: jest.fn(),
+    });
+    useToken.mockReturnValue({
+      tokenBalance: 1000,
+      sweepstakesBalance: 500,
+      loading: false,
+      error: null,
+      fetchBalances: jest.fn(),
+      updateTokenBalance: jest.fn(),
+      updateSweepstakesBalance: jest.fn(),
+    });
+    useNotifications.mockReturnValue({
+      unreadCount: 0,
+      notifications: [],
+      markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      loading: false,
+    });
+    useSelectedToken.mockReturnValue({
+      selectedToken: 'token',
+      updateSelectedToken: jest.fn(),
+    });
+
+    render(<Navbar />);
+
+    // Click on the "Connect Lichess" button
+    const connectButton = screen.getByLabelText(/Connect Lichess/i);
+    fireEvent.click(connectButton);
+
+    // Wait for the error message to appear
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data. Please try again.');
+      expect(screen.getByRole('alert')).toHaveTextContent('Failed to connect to Lichess. Please try again.');
     });
   });
 });

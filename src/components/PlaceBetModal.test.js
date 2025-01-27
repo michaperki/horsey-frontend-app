@@ -127,8 +127,10 @@ describe('PlaceBetModal Component', () => {
     // Mock placeBet to resolve successfully
     placeBet.mockResolvedValueOnce({ success: true });
 
+    // Render the component with default props
     renderComponent();
 
+    // Fill in the form fields
     const amountInput = screen.getByLabelText(/Bet Amount:/i);
     fireEvent.change(amountInput, { target: { value: '50' } });
 
@@ -146,13 +148,18 @@ describe('PlaceBetModal Component', () => {
       amount: 50,
       colorPreference: 'random', // Default value
       timeControl: '5|3', // Default value
-      variant: 'standard', // Default value
+      variant: 'standard', // Default value (handled in the component)
     });
 
     // Ensure updateTokenBalance is called with the correct value
     expect(mockUpdateTokenBalance).toHaveBeenCalledWith(50);
 
-    // **Removed** assertions for form fields being reset
+    // Ensure the form fields are no longer present
+    expect(screen.queryByLabelText(/Bet Amount:/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Currency:/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Color Preference:/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Time Control:/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Variant:/i)).not.toBeInTheDocument();
   });
 
   test('handles API error when placing a bet', async () => {

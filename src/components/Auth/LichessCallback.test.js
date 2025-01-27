@@ -137,7 +137,7 @@ describe('LichessCallback Component', () => {
     // Wait for the unexpected error message to appear
     await waitFor(() => {
       expect(
-        screen.getByText(/An unexpected error occurred. Please try again./i)
+        screen.getByText(/Network Error/i)
       ).toBeInTheDocument();
     });
 

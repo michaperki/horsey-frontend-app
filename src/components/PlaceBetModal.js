@@ -4,14 +4,14 @@
 import React, { useState, useEffect } from "react";
 import { placeBet } from "../services/api";
 import { useToken } from "../contexts/TokenContext";
-import "./PlaceBet.css"; // Ensure this CSS file includes styles for the modal
+import "./PlaceBet.css";
 import PropTypes from "prop-types";
 
-const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
+const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => {
   const [currencyType, setCurrencyType] = useState("token"); // 'token' or 'sweepstakes'
   const [colorPreference, setColorPreference] = useState("random");
   const [timeControl, setTimeControl] = useState("5|3");
-  const [variant, setVariant] = useState("standard");
+  const [variant, setVariant] = useState(preSelectedVariant || "standard");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -196,8 +196,5 @@ PlaceBetModal.propTypes = {
   preSelectedVariant: PropTypes.string,
 };
 
-PlaceBetModal.defaultProps = {
-  preSelectedVariant: "standard",
-};
-
 export default PlaceBetModal;
+

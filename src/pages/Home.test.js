@@ -2,47 +2,122 @@
 // src/pages/Home.test.js
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '../utils/test-utils'; // Use custom render from test-utils.js
 import Home from './Home';
-import * as AuthContextModule from '../contexts/AuthContext';
-import * as TokenContextModule from '../contexts/TokenContext'; // Mock Token Context
-import * as api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { useToken } from '../contexts/TokenContext';
+import { useLichess } from '../contexts/LichessContext';
+import { getUserProfile, createNotification, getLichessStatus } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
-// Mock the API functions
+// Partial mock of AuthContext
+jest.mock('../contexts/AuthContext', () => {
+  const actual = jest.requireActual('../contexts/AuthContext');
+  return {
+    ...actual,
+    useAuth: jest.fn(),
+  };
+});
+
+// Partial mock of TokenContext
+jest.mock('../contexts/TokenContext', () => {
+  const actual = jest.requireActual('../contexts/TokenContext');
+  return {
+    ...actual,
+    useToken: jest.fn(),
+  };
+});
+
+// Partial mock of LichessContext
+jest.mock('../contexts/LichessContext', () => {
+  const actual = jest.requireActual('../contexts/LichessContext');
+  return {
+    ...actual,
+    useLichess: jest.fn(),
+  };
+});
+
+// Mock the API functions including getLichessStatus
 jest.mock('../services/api', () => ({
   getUserProfile: jest.fn(),
-  createNotification: jest.fn(), // Mock createNotification as well
+  createNotification: jest.fn(),
+  getLichessStatus: jest.fn(), // Added this line
 }));
 
-// Mock the useAuth and useToken hooks
-jest.mock('../contexts/AuthContext', () => ({
-  useAuth: jest.fn(),
-}));
-jest.mock('../contexts/TokenContext', () => ({
-  useToken: jest.fn(),
+// Mock useNavigate from react-router-dom
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
 }));
 
 describe('Home Component', () => {
-  const mockedUseAuth = AuthContextModule.useAuth;
-  const mockedUseToken = TokenContextModule.useToken;
+  const mockedUseAuthHook = useAuth;
+  const mockedUseTokenHook = useToken;
+  const mockedUseLichessHook = useLichess;
 
   beforeEach(() => {
-    api.getUserProfile.mockClear();
-    api.createNotification.mockClear();
-    mockedUseAuth.mockClear();
-    mockedUseToken.mockClear();
+    // Clear all mocks before each test
     jest.clearAllMocks();
+
+    // Mock global fetch
+    jest.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url.endsWith('/lichess/status')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ connected: true }),
+        });
+      }
+
+      if (url.endsWith('/balances')) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              tokenBalance: 100,
+              sweepstakesBalance: 50,
+            }),
+        });
+      }
+
+      // Add more endpoints as needed
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+    });
+
+    // Mock getLichessStatus to return connected status
+    getLichessStatus.mockResolvedValue(true);
   });
 
-  test('renders stats and PlaceBet when user is authenticated', async () => {
+  afterEach(() => {
+    // Restore fetch after each test
+    global.fetch.mockRestore();
+  });
+
+  it('renders stats and PlaceBet when user is authenticated and Lichess is connected', async () => {
     // Mock authentication and token balance
-    mockedUseAuth.mockReturnValue({ token: 'fake-token' });
-    mockedUseToken.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+    mockedUseAuthHook.mockReturnValue({ token: 'fake-token' });
+    mockedUseTokenHook.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+
+    // Mock Lichess context
+    mockedUseLichessHook.mockReturnValue({
+      lichessConnected: true,
+      lichessUsername: 'TestUser',
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
     // Mock API response
-    api.getUserProfile.mockResolvedValue({
-      lichessUsername: 'TestUser',
+    getUserProfile.mockResolvedValue({
       statistics: {
         totalGames: 10,
         averageWager: 20,
@@ -53,13 +128,10 @@ describe('Home Component', () => {
         karma: 5,
         membership: 'Free',
       },
+      username: 'TestUser',
     });
 
-    render(
-      <MemoryRouter>
-        <Home />
-      </MemoryRouter>
-    );
+    render(<Home />);
 
     // Wait for the stats to be rendered
     expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
@@ -92,56 +164,151 @@ describe('Home Component', () => {
     expect(screen.getByText(/Play for Horsey Coins/i)).toBeInTheDocument();
   });
 
-  test('handles membership button click', async () => {
+  it('handles membership button click', async () => {
     // Mock authentication and token balance
-    mockedUseAuth.mockReturnValue({ token: 'fake-token' });
-    mockedUseToken.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+    mockedUseAuthHook.mockReturnValue({ token: 'fake-token' });
+    mockedUseTokenHook.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+
+    // Mock Lichess context
+    mockedUseLichessHook.mockReturnValue({
+      lichessConnected: true,
+      lichessUsername: 'TestUser',
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
 
     // Mock API response
-    api.getUserProfile.mockResolvedValue({
-      lichessUsername: 'TestUser',
+    getUserProfile.mockResolvedValue({
       statistics: {
-        membership: 'Free',
-        karma: 5,
         totalGames: 10,
         averageWager: 20,
         totalWagered: 200,
         averageROI: '10.00',
         totalWinnings: 100,
         totalLosses: 100,
+        karma: 5,
+        membership: 'Free',
       },
+      username: 'TestUser',
     });
 
     // Mock createNotification API call
-    api.createNotification.mockResolvedValue({ success: true });
+    createNotification.mockResolvedValue({ success: true });
 
-    render(
-      <MemoryRouter>
-        <Home />
-      </MemoryRouter>
-    );
+    render(<Home />);
 
-    // Wait for the loading to finish and the button to appear
-    const membershipButton = await screen.findByRole('button', { name: /Become a Member/i });
-    expect(membershipButton).toBeInTheDocument();
+    // Wait for the stats to be rendered
+    expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
 
-    // Click the membership button
-    fireEvent.click(membershipButton);
+    // Find the "Get Coins" button
+    const getCoinsButton = screen.getByRole('button', { name: /Get Coins/i });
+    expect(getCoinsButton).toBeInTheDocument();
 
-    // Ensure the button shows 'Processing...' while loading
-    expect(membershipButton).toHaveTextContent(/Processing.../i);
-    expect(membershipButton).toBeDisabled();
+    // Click the "Get Coins" button
+    fireEvent.click(getCoinsButton);
 
-    // Wait for the button to update back to "Become a Member"
-    await waitFor(() => {
-      expect(membershipButton).toHaveTextContent(/Become a Member/i);
-      expect(membershipButton).not.toBeDisabled();
+    // Ensure navigate was called with '/store'
+    expect(mockedNavigate).toHaveBeenCalledWith('/store');
+  });
+
+  it('opens PlaceBetModal when a game mode is clicked and Lichess is connected', async () => {
+    // Mock authentication and token balance
+    mockedUseAuthHook.mockReturnValue({ token: 'fake-token' });
+    mockedUseTokenHook.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+
+    // Mock Lichess context
+    mockedUseLichessHook.mockReturnValue({
+      lichessConnected: true,
+      lichessUsername: 'TestUser',
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
     });
 
-    // Ensure the API call was made
-    expect(api.createNotification).toHaveBeenCalledWith({
-      message: 'Membership coming soon!',
-      type: 'membership',
+    // Mock API response
+    getUserProfile.mockResolvedValue({
+      statistics: {
+        totalGames: 10,
+        averageWager: 20,
+        totalWagered: 200,
+        averageROI: '10.00',
+        totalWinnings: 100,
+        totalLosses: 100,
+        karma: 5,
+        membership: 'Free',
+      },
+      username: 'TestUser',
+    });
+
+    render(<Home />);
+
+    // Wait for the stats to be rendered
+    expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
+
+    // Click on "Classic Blitz" card
+    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.clickable-card');
+    expect(classicBlitzCard).toBeInTheDocument();
+    fireEvent.click(classicBlitzCard);
+
+    // Verify that PlaceBetModal is open
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Close the modal
+    const closeButton = screen.getByLabelText(/Close Modal/i);
+    fireEvent.click(closeButton);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('triggers shake animation and shows notification when Lichess is not connected', async () => {
+    // Mock authentication and token balance
+    mockedUseAuthHook.mockReturnValue({ token: 'fake-token' });
+    mockedUseTokenHook.mockReturnValue({ tokenBalance: 100, sweepstakesBalance: 50 });
+
+    // Mock Lichess context with lichessConnected as false
+    const mockTriggerShake = jest.fn();
+    mockedUseLichessHook.mockReturnValue({
+      lichessConnected: false,
+      triggerShake: mockTriggerShake,
+      connectLichess: jest.fn(),
+      loading: false,
+      shake: false,
+    });
+
+    // Mock API response
+    getUserProfile.mockResolvedValue({
+      statistics: {
+        totalGames: 10,
+        averageWager: 20,
+        totalWagered: 200,
+        averageROI: '10.00',
+        totalWinnings: 100,
+        totalLosses: 100,
+        karma: 5,
+        membership: 'Free',
+      },
+      username: 'TestUser',
+    });
+
+    render(<Home />);
+
+    // Wait for the stats to be rendered
+    expect(await screen.findByText(/Total Games Played/i)).toBeInTheDocument();
+
+    // Click on "Classic Blitz" card
+    const classicBlitzCard = screen.getByText(/Classic Blitz/i).closest('.clickable-card');
+    expect(classicBlitzCard).toBeInTheDocument();
+    fireEvent.click(classicBlitzCard);
+
+    // Since Lichess is not connected, PlaceBetModal should not open
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    // Ensure shake is triggered and notification is created
+    expect(mockTriggerShake).toHaveBeenCalledTimes(1);
+    expect(createNotification).toHaveBeenCalledWith({
+      message: 'Please connect your Lichess account before placing a bet.',
+      type: 'warning',
     });
   });
 });

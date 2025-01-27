@@ -87,7 +87,12 @@ describe('Register Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Registration successful. You can now log in.')).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) =>
+          content.includes('Registration successful. You can now') &&
+          element.querySelector('a')?.textContent === 'log in'
+        )
+      ).toBeInTheDocument();
     });
   });
 
