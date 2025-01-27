@@ -1,7 +1,7 @@
 
 // src/contexts/LichessContext.js
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getLichessStatus, getUserLichessInfo, initiateLichessOAuth } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -14,7 +14,7 @@ export const LichessProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const fetchLichessStatus = async () => {
+  const fetchLichessStatus = useCallback(async () => {
     if (!token) {
       setLichessConnected(false);
       setLichessUsername(null);
@@ -38,11 +38,11 @@ export const LichessProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, logout]);
 
   useEffect(() => {
     fetchLichessStatus();
-  }, [token]);
+  }, [fetchLichessStatus]);
 
   const connectLichess = () => {
     initiateLichessOAuth();

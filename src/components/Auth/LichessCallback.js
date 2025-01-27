@@ -22,7 +22,8 @@ const LichessCallback = () => {
       }
 
       try {
-        const response = await lichessCallback({ code, state });
+        // const response = await lichessCallback({ code, state });
+        await lichessCallback({ code, state });
 
         setMessage('Lichess account connected successfully!');
         // Optionally refresh user data or update global state here

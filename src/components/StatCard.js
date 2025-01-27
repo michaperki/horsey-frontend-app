@@ -2,6 +2,7 @@
 // src/components/StatCard.js
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './StatCard.css';
 
 const StatCard = ({ title, value }) => {
@@ -13,5 +14,10 @@ const StatCard = ({ title, value }) => {
   );
 };
 
-export default StatCard;
+// Add prop validation
+StatCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
+export default StatCard;

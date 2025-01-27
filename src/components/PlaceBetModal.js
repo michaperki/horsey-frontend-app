@@ -5,6 +5,19 @@ import React, { useState, useEffect } from "react";
 import { placeBet } from "../services/api";
 import { useToken } from "../contexts/TokenContext";
 import "./PlaceBet.css"; // Ensure this CSS file includes styles for the modal
+import PropTypes from "prop-types";
+
+// At the end of the component definition
+PlaceBetModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired, // Expected to be a boolean and required
+  onClose: PropTypes.func.isRequired, // Expected to be a function and required
+  preSelectedVariant: PropTypes.string, // Expected to be a string and optional
+};
+
+// Default props (optional but recommended)
+PlaceBetModal.defaultProps = {
+  preSelectedVariant: "standard", // Default variant if not provided
+};
 
 const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant }) => {
   const [currencyType, setCurrencyType] = useState("token"); // 'token' or 'sweepstakes'

@@ -16,7 +16,6 @@ import {
   FaStore,
   FaBars,
   FaTimes,
-  FaChess,
   FaSignInAlt,
   FaUserPlus,
 } from 'react-icons/fa';
@@ -27,7 +26,7 @@ const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const { tokenBalance, sweepstakesBalance } = useToken();
-  const { lichessConnected, connectLichess, loading, triggerShake, shake } = useLichess(); // Destructure from Lichess context
+  const { lichessConnected, connectLichess, loading, shake } = useLichess(); // Destructure from Lichess context
   const { unreadCount } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,8 +47,12 @@ const Navbar = () => {
     navigate('/');
   };
 
-  const handleConnectLichess = () => {
-    connectLichess(); // Use context function
+  const handleConnectLichess = async () => {
+    try {
+      await connectLichess(); // Use context function
+    } catch (err) {
+      setError("Failed to connect to Lichess. Please try again."); // Set an error message
+    }
   };
 
   // Handler to close the dropdown

@@ -2,6 +2,7 @@
 // src/components/Profile/VerticalTabs.js
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './VerticalTabs.css';
 
 const tabs = ['Overview', 'Ratings', 'History', 'Items', 'Friends', 'Account'];
@@ -20,6 +21,11 @@ const VerticalTabs = ({ activeTab, setActiveTab }) => {
       ))}
     </div>
   );
+};
+
+VerticalTabs.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
 };
 
 export default VerticalTabs;

@@ -17,7 +17,7 @@ const ProfileHeader = () => {
 
   return (
     <div className="profile-header">
-      <h1>{user?.username}'s Profile</h1>
+      <h1>{user?.username}&apos;s Profile</h1>
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"

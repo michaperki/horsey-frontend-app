@@ -62,7 +62,7 @@ const UserLogin = () => {
         {message && <p>{message}</p>}
       </form>
       <p style={styles.linkText}>
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link to="/register" style={styles.link}>
           Sign up here
         </Link>
