@@ -5,7 +5,7 @@
   /* Colors */
   --color-primary: #0a2a4d;
   --color-secondary: #0074cc;
-  --color-statcard-bg: rgba(65, 84, 113, 0.6); /* New variable for StatCard background */
+  --color-statcard-bg: rgba(65, 84, 113, 0.6); /* Existing variable for StatCard background */
   --color-success: #28a745;
   --color-danger: #dc3545;
   --color-warning: #ffc107;
@@ -14,6 +14,14 @@
   --color-white: #ffffff;
   --color-gray: #6c757d;
   --color-border: #dddddd;
+  --color-yellow-400: #fbbf24; /* Adjust the hex value to your desired yellow */
+
+  /* Additional Info Specific Colors */
+  --color-info-bg: var(--color-light); /* Background for additional info section */
+  --color-info-border: var(--color-border); /* Border color for additional info section */
+  --color-info-title: var(--color-dark); /* Title color for additional info section */
+  --color-info-text: var(--color-dark); /* Text color for additional info items */
+  --color-info-highlight: var(--color-secondary); /* Highlight color for spans in info items */
 
   /* Font Sizes */
   --font-size-small: 12px;
@@ -37,4 +45,9 @@
   --transition-fast: 0.2s;
   --transition-medium: 0.3s;
   --transition-slow: 0.5s;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }

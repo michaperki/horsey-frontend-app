@@ -1,47 +1,266 @@
-
 /* src/pages/Home.css */
 
-/* Custom Styles Only */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 20px;
+/* --------------------------------------------------
+   General Styles
+-------------------------------------------------- */
+
+/* Ensure the container has appropriate padding */
+.p-sm {
+  padding: var(--spacing-sm);
 }
 
+/* Flex center utility */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Text primary color */
+.text-primary {
+  color: var(--color-primary);
+}
+
+/* Text white color */
+.text-white {
+  color: var(--color-white);
+}
+
+/* Font bold utility */
+.font-bold {
+  font-weight: 700;
+}
+
+/* Font size utilities */
+.text-xl {
+  font-size: 1.25rem; /* 20px */
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+}
+
+/* Margin utilities */
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mt-2 {
+  margin-top: 0.5rem; /* 8px */
+}
+
+/* --------------------------------------------------
+   Greeting and Additional Info Styles
+-------------------------------------------------- */
+
+/* Merged Greeting and Additional Info */
+.lichess-greeting-and-info {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.lichess-greeting-and-info h2 {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Additional Info Section */
+.additional-info-section {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* Info Grid Styles */
+.info-grid {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  flex-wrap: nowrap;
+}
+
+/* Style Info Items */
+.info-item {
+  font-size: var(--font-size-medium);
+  color: var(--color-white);
+  text-align: center;
+}
+
+/* Highlight Span Text */
+.info-item span {
+  font-weight: 600;
+  color: var(--color-secondary);
+}
+
+/* --------------------------------------------------
+   Stats Grid Styles
+-------------------------------------------------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Keep three columns */
+  gap: 20px; /* Reduced spacing between grid items for condensing */
+  margin-bottom: 30px; /* Add more space below the grid */
+}
+
+.stats-grid .stat-card {
+  padding: 8px; /* Further reduced padding inside each stat card */
+  font-size: 13px; /* Make text slightly smaller */
+  background-color: var(--color-statcard-bg); /* Use global variable for background */
+  border-radius: var(--border-radius-sm); /* Small rounding for grid items */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Responsive Adjustments for Stats Grid */
 @media (max-width: 1024px) {
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* Adjust for smaller screens */
+    gap: 15px; /* Slightly reduce gap */
   }
 }
 
 @media (max-width: 600px) {
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single-column layout for small screens */
+    gap: 10px;
   }
 }
 
-.additional-info {
+/* --------------------------------------------------
+   Home Options (Cards) Styles
+-------------------------------------------------- */
+
+.home-options {
   display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
 }
 
-.info-item {
-  font-size: 16px;
+/* Card Styles */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
 }
 
-.info-item a {
-  color: #ffeb3b;
-  text-decoration: underline;
+.card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
 }
 
-.info-item a:hover {
-  color: #fff;
+/* Icon Styles */
+.icon {
+  font-size: 2rem; /* 32px */
+  color: var(--color-yellow-400);
+  margin-right: var(--spacing-md);
 }
 
-/* Specific Component Styles */
-.become-member-button {
-  color: #ffeb3b; /* Override text color */
+/* Card Titles */
+.card h3 {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-yellow-400);
 }
+
+/* Card Descriptions */
+.card p {
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-white);
+}
+
+/* Get Coins Button */
+.get-coins-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.get-coins-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* --------------------------------------------------
+   Responsive Adjustments for Home Options
+-------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .home-options {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .home-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* --------------------------------------------------
+   Additional Responsive Styles
+-------------------------------------------------- */
+
+/* Responsive Adjustments for Greeting and Additional Info */
+@media (max-width: 1024px) {
+  .additional-info-section {
+    gap: var(--spacing-sm);
+  }
+
+  .info-grid {
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .info-item {
+    font-size: var(--font-size-medium);
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .additional-info-section {
+    /* No additional styles needed unless desired */
+  }
+
+  .info-grid {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .info-item {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+}
+
+/* --------------------------------------------------
+   Main Content Styles
+-------------------------------------------------- */
+
+.main {
+  /* Add any additional styles for main content if needed */
+}
+
+/* --------------------------------------------------
+   Optional: Remove any padding/margin that was applied via additional-info-section
+-------------------------------------------------- */
+/* .additional-info {
+  padding: 0;
+  margin-bottom: var(--spacing-md); 
+} */

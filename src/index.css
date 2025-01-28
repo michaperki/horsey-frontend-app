@@ -164,9 +164,9 @@ body {
 .font-light { font-weight: 300; }
 
 .text-sm { font-size: var(--font-size-small); }
+.text-lg { font-size: 1.125rem; } /* Optional addition */
 .text-xl { font-size: var(--font-size-large); }
 .text-2xl { font-size: 1.5rem; } /* Adjust as per variables.css */
-.text-lg { font-size: 1.125rem; } /* Optional addition */
 
 /* Spacing Utilities */
 .mt-xs { margin-top: var(--spacing-xs); }
@@ -202,9 +202,9 @@ body {
 .duration-500 { transition-duration: 500ms; }
 
 /* Shadow Utilities */
-.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-.shadow-md { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-.shadow-lg { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
 
 /* Hover Shadow */
 .hover\:shadow-lg:hover {
@@ -313,5 +313,29 @@ body {
   }
 }
 
-/* Add more utility classes as needed to support other components */
+/* Dark Mode Variables (Optional) */
+:root.dark-mode {
+  --color-info-bg: #1a1a1a;
+  --color-info-border: #333333;
+  --color-info-title: #ffffff;
+  --color-info-text: #dddddd;
+  --color-info-highlight: #1e90ff;
+}
 
+/* Apply dark mode styles */
+.dark-mode .additional-info-section {
+  background-color: var(--color-info-bg);
+  border-color: var(--color-info-border);
+}
+
+.dark-mode .additional-info-section h3 {
+  color: var(--color-info-title);
+}
+
+.dark-mode .info-item {
+  color: var(--color-info-text);
+}
+
+.dark-mode .info-item span {
+  color: var(--color-info-highlight);
+}
