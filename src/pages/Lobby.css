@@ -1,34 +1,64 @@
+/* src/pages/Lobby.css */
 
+/* Lobby Container */
 .lobby-container {
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-primary);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-md);
 }
 
+/* Tabs */
 .tabs {
-  position: relative;
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  position: relative;
+  margin-bottom: var(--spacing-md);
 }
 
+/* Tab Button */
 .tab-button {
-  color: white;
-  padding: 10px 20px;
+  color: var(--color-white);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   border-bottom: 2px solid transparent;
   background: none;
-  font-size: 16px;
+  font-size: var(--font-size-medium);
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color var(--transition-medium);
   position: relative;
 }
 
 .tab-button:hover {
-  color: #007bff;
+  color: var(--color-secondary);
 }
 
 .tab-button.active {
-  color: #007bff;
+  color: var(--color-secondary);
   font-weight: bold;
 }
 
+/* Tab Underline */
+.tab-underline {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--color-secondary);
+  width: calc(100% / 3); /* Assuming three tabs */
+  transition: transform var(--transition-medium);
+}
 
+/* Positioning the underline based on active tab */
+/* Updated class names to start with a letter */
+
+.tab-underline.tab-1v1 {
+  transform: translateX(0%);
+}
+
+.tab-underline.tab-sit-and-go {
+  transform: translateX(100%);
+}
+
+.tab-underline.tab-tournament {
+  transform: translateX(200%);
+}

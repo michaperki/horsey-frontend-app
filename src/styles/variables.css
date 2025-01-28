@@ -14,7 +14,9 @@
   --color-white: #ffffff;
   --color-gray: #6c757d;
   --color-border: #dddddd;
+
   --color-yellow-400: #fbbf24; /* Adjust the hex value to your desired yellow */
+  --color-text-light: #f9f9f9; /* Adjust the hex value to your desired yellow */
 
   /* Additional Info Specific Colors */
   --color-info-bg: var(--color-light); /* Background for additional info section */

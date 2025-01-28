@@ -1,4 +1,3 @@
-
 // src/pages/Lobby.js
 
 import React, { useState } from "react";
@@ -6,10 +5,10 @@ import AvailableBets from "../components/AvailableBets";
 import './Lobby.css'; // Styles specific to Lobby
 
 const Lobby = () => {
-  const [activeTab, setActiveTab] = useState("1v1"); // Default to 1v1
+  const [activeTab, setActiveTab] = useState("tab-1v1"); // Default to tab-1v1
 
   const handleTabClick = (tab) => {
-    if (tab !== "1v1") {
+    if (tab !== "tab-1v1") {
       // Optionally, prevent switching to unimplemented tabs
       // alert(`${tab} feature is coming soon!`);
       // return;
@@ -20,27 +19,27 @@ const Lobby = () => {
   return (
     <div className="lobby-container">
       <div className="tabs">
-        {["1v1", "Sit and Go", "Tournament"].map((tab) => (
+        {["tab-1v1", "tab-sit-and-go", "tab-tournament"].map((tab) => (
           <button
             key={tab}
             onClick={() => handleTabClick(tab)}
             className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-            disabled={tab !== "1v1"} // Disable buttons for unimplemented features
+            disabled={tab !== "tab-1v1"} // Disable buttons for unimplemented features
           >
-            {tab}
+            {tab.replace('tab-', '').replace('-', ' ')}
           </button>
         ))}
         <div className={`tab-underline ${activeTab}`}></div>
       </div>
       
       {/* Conditional Rendering Based on Active Tab */}
-      {activeTab === "1v1" && <AvailableBets format={activeTab} />}
-      {activeTab === "Sit and Go" && (
+      {activeTab === "tab-1v1" && <AvailableBets format="1v1" />}
+      {activeTab === "tab-sit-and-go" && (
         <div style={styles.placeholder}>
           <p>🌟 Sit and Go feature is coming soon! Stay tuned. 🌟</p>
         </div>
       )}
-      {activeTab === "Tournament" && (
+      {activeTab === "tab-tournament" && (
         <div style={styles.placeholder}>
           <p>🏆 Tournament feature is coming soon! Stay tuned. 🏆</p>
         </div>
@@ -62,4 +61,3 @@ const styles = {
 };
 
 export default Lobby;
-

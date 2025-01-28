@@ -1,15 +1,16 @@
+/* src/components/Leaderboard.css */
 
 .leaderboard {
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  color: #333;
+  padding: var(--spacing-md);
+  font-family: var(--font-family-base);
+  color: var(--color-text);
 }
 
 .leaderboard__title {
-  color: #fff;
-  font-size: 24px;
+  color: var(--color-white);
+  font-size: var(--font-size-xl);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-md);
 }
 
 .leaderboard__table-container {
@@ -20,44 +21,47 @@
   width: 100%;
   border-collapse: collapse;
   margin: 0 auto;
-  background-color: #fff;
+  background-color: var(--color-white);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .leaderboard__table th,
 .leaderboard__table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
   text-align: center;
+  font-size: var(--font-size-sm);
 }
 
 .leaderboard__table th {
-  background-color: #0074cc;
-  color: #fff;
-  font-weight: bold;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
 }
 
 .leaderboard__table tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--color-background-alt);
 }
 
 .leaderboard__table tr:hover {
-  background-color: #f1f1f1;
+  background-color: var(--color-hover);
 }
 
 .leaderboard__loading {
   text-align: center;
-  font-size: 18px;
-  margin-top: 50px;
+  font-size: var(--font-size-md);
+  margin-top: var(--spacing-lg);
+  color: var(--color-text-light);
 }
 
 .leaderboard__no-data {
-  color: #f9f9f9; /* Light background */
-  font-size: 18px; /* Slightly larger font size */
-  font-weight: 500; /* Medium font weight */
-  text-align: center; /* Center align text */
-  padding: 20px; /* Add spacing inside the box */
-  margin: 20px auto; /* Add margin for spacing and center it */
-  border: 1px solid #ddd; /* Subtle border */
-  border-radius: 8px; /* Rounded corners */
+  color: var(--color-text-light);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-background);
 }

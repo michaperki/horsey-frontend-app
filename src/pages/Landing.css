@@ -1,112 +1,115 @@
-
 /* frontend/src/pages/Landing.css */
 
-/* General styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
+/* Remove redundant global styles */
 
+/* Logo Styles */
 .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff; /* White text for logo */
+  font-size: 24px; /* Consider using a global utility class like .text-2xl if available */
+  font-weight: bold; /* Consider using .font-bold */
+  color: var(--color-white); /* Utilize global color variable */
 }
 
-/* Hero section */
+/* Hero Section */
 .hero-section {
   text-align: center;
   padding: 100px 20px;
-  color: #ffffff; /* White text for hero section */
+  color: var(--color-white);
 }
 
 .hero-section h1 {
-  font-size: 48px;
+  font-size: 48px; /* Consider using a global utility class like .text-4xl */
   margin-bottom: 20px;
-  color: #ffffff; /* White text for the main heading */
+  color: var(--color-white);
 }
 
 .hero-section p {
-  font-size: 20px;
+  font-size: 20px; /* Consider using .text-lg */
   margin-bottom: 30px;
-  color: #ffffff; /* White text for paragraph */
+  color: var(--color-white);
 }
 
+/* Hero Buttons Container */
 .hero-buttons {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 20px; /* Utilize global gap utility if available */
 }
 
+/* Call-to-Action Button */
 .cta-button {
-  padding: 15px 30px;
-  font-size: 18px;
-  background-color: #ff4500;
+  padding: 15px 30px; /* Consider using global padding classes */
+  font-size: 18px; /* Consider using .text-lg */
+  background-color: #ff4500; /* You can define this in variables.css as --color-cta */
   border: none;
-  border-radius: 5px;
-  color: #ffffff; /* White text for button */
+  border-radius: 5px; /* Consider using a global border-radius class like .rounded-md */
+  color: var(--color-white);
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .cta-button:hover {
-  background-color: #e03e00;
+  background-color: #e03e00; /* You can define this as --color-cta-hover */
 }
 
+/* Login Button */
 .login-button {
   padding: 15px 30px;
   font-size: 18px;
   background-color: transparent;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--color-white);
   border-radius: 5px;
-  color: #ffffff; /* White text for button */
+  color: var(--color-white);
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .login-button:hover {
-  background-color: #ffffff;
-  color: #0a2a4d;
+  background-color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .login-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5); /* Consider using a global shadow utility */
 }
 
-/* Live stats section */
+/* Live Stats Section */
 .live-stats {
   text-align: center;
   margin: 50px 0;
-  color: #ffffff; /* White text for stats */
+  color: var(--color-white);
 }
 
 .live-stats h3 {
-  font-size: 24px;
+  font-size: 24px; /* Consider using .text-2xl */
   margin-bottom: 15px;
-  color: #ffffff; /* White text for stats heading */
+  color: var(--color-white);
 }
 
 .live-stats p {
-  font-size: 18px;
+  font-size: 18px; /* Consider using .text-lg */
   margin: 5px 0;
-  color: #ffffff; /* White text for stats paragraph */
+  color: var(--color-white);
 }
 
-/* Responsive design */
+/* Responsive Design */
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 20px; /* Adjust padding for smaller screens */
+  }
+
   .hero-section h1 {
-    font-size: 36px;
+    font-size: 36px; /* Consider using .text-3xl */
   }
 
   .hero-section p {
-    font-size: 16px;
+    font-size: 16px; /* Consider using .text-base */
   }
 
   .cta-button,
   .login-button {
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: 16px; /* Consider using .text-base */
+    padding: 10px 20px; /* Adjust padding for smaller screens */
   }
 
   .hero-buttons {
@@ -118,5 +121,12 @@ body {
     width: 100%;
     text-align: center;
   }
-}
 
+  .live-stats h3 {
+    font-size: 20px; /* Adjust heading size */
+  }
+
+  .live-stats p {
+    font-size: 16px; /* Adjust paragraph size */
+  }
+}
