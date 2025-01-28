@@ -50,3 +50,14 @@
   font-size: 18px;
   margin-top: 50px;
 }
+
+.leaderboard__no-data {
+  color: #f9f9f9; /* Light background */
+  font-size: 18px; /* Slightly larger font size */
+  font-weight: 500; /* Medium font weight */
+  text-align: center; /* Center align text */
+  padding: 20px; /* Add spacing inside the box */
+  margin: 20px auto; /* Add margin for spacing and center it */
+  border: 1px solid #ddd; /* Subtle border */
+  border-radius: 8px; /* Rounded corners */
+}
