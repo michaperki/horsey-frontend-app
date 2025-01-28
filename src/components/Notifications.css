@@ -1,113 +1,68 @@
+/* src/components/Notifications.css */
 
-/* Base Styles */
-.notifications-container {
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  margin-top: 50px;
-  max-height: 60vh;
-}
+/* Remove all custom styles and rely on global utility classes */
 
-/* Button Styles */
-.mark-all-button {
-  background-color: #0a2a4d;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-bottom: 10px;
-}
+/* If any specific styles are still needed, they are included below */
 
-.mark-all-button:hover {
-  background-color: #09407a;
-}
-
-/* List Styles */
+/* Example: Custom scrollbar for notification list */
 .notification-list {
-  list-style: none;
-  padding: 0;
+  /* Use global utility classes for overflow and padding */
   overflow: auto;
   max-height: 30vh;
+  list-style: none;
+  padding: 0;
   margin: 0;
 }
 
-/* Individual Notification Styles */
+/* Optional: Custom styles for read and unread notifications */
+.notification-read,
+.notification-unread {
+  /* Utilize global spacing and border utilities */
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+}
+
+/* Background colors using global color variables */
 .notification-read {
-  background-color: #fff;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  background-color: var(--color-white);
 }
 
 .notification-unread {
-  background-color: #e6f7ff;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  background-color: var(--color-info-bg); /* Assuming var(--color-info-bg) is suitable */
 }
 
-/* Notification Message Styles */
+/* Notification message styling */
 .notification-message {
-  font-size: 16px;
+  font-size: var(--font-size-medium);
+  color: var(--color-dark);
 }
 
-/* Metadata and Buttons */
+/* Metadata styling */
 .notification-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  color: #555;
-  margin-top: 5px;
+  font-size: var(--font-size-small);
+  color: var(--color-gray-300);
+  margin-top: var(--spacing-xs);
 }
 
-.mark-button {
-  background-color: #28a745;
-  color: #fff;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
+/* Hover effects using global transition and shadow utilities */
+.notification-read:hover,
+.notification-unread:hover {
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
 }
 
-.mark-button:hover {
-  background-color: #218838;
-}
-
-/* Responsive Adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .notifications-container {
-    padding: 15px;
-    margin-top: 30px;
-    max-height: 70vh;
-  }
-
   .notification-list {
     max-height: 50vh;
-  }
-
-  .mark-all-button {
-    padding: 6px 10px;
-  }
-
-  .mark-button {
-    padding: 3px 6px;
-    font-size: 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .notifications-container {
-    padding: 10px;
-    margin-top: 20px;
+  .notification-list {
     max-height: 80vh;
   }
-
-  .notification-message {
-    font-size: 14px;
-  }
-
-  .notification-meta {
-    font-size: 10px;
-  }
 }
-

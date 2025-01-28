@@ -1,4 +1,3 @@
-
 /* src/components/PlaceBetModal.css */
 
 /* Overlay Styling */
@@ -20,8 +19,8 @@
 .place-bet-modal {
   background-color: #ffffff;
   border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
+  width: 95%;
+  max-width: 750px;
   padding: 30px 25px;
   position: relative;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -105,34 +104,110 @@
 /* Form Groups */
 .place-bet-form-group {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .place-bet-form-group label {
-  margin-bottom: 5px;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.place-bet-select,
-.place-bet-input {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  flex: 1;
   font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  color: #333;
+  margin-right: 5px;
+  text-align: left;
 }
 
-.place-bet-select:focus,
-.place-bet-input:focus {
+/* Adjust form group layout for larger screens */
+@media (min-width: 768px) {
+  .place-bet-form-group {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .place-bet-form-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .place-bet-form-group label {
+    margin-bottom: 10px;
+    margin-right: 0;
+    text-align: left;
+  }
+}
+
+/* Tile Group Container */
+.place-bet-tile-group {
+  display: flex;
+  flex-direction: row; /* Ensure horizontal layout */
+  gap: 10px;
+  flex: 1; /* Allow tile group to take available space */
+}
+
+/* Hide the native radio input */
+.place-bet-tile-group input[type="radio"] {
+  display: none;
+}
+
+/* Tile Styles */
+.place-bet-tile {
+  flex: none; /* Prevent tiles from stretching */
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px; /* Ensure tiles have a minimum width */
+  box-sizing: border-box;
+}
+
+/* Icon within Tile */
+.place-bet-tile .toggle-icon {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Active/Selected Tile */
+.place-bet-tile.selected {
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  outline: none;
+  background-color: #e6f0ff;
 }
 
-.place-bet-input::placeholder {
-  color: #aaa;
+.place-bet-tile:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.place-bet-tile:active {
+  transform: translateY(2px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .place-bet-form-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .place-bet-form-group label {
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+
+  .place-bet-tile-group {
+    flex: none;
+    width: 100%;
+  }
+
+  .place-bet-tile {
+    min-width: 80px; /* Adjusted for smaller screens */
+    padding: 8px 12px;
+  }
 }
 
 /* Place Bet Button */
@@ -226,9 +301,68 @@
     font-size: 0.95rem;
     padding: 10px;
   }
+
+  /* Adjust tile sizes on small screens */
+  .place-bet-tile {
+    min-width: 80px;
+    padding: 8px 12px;
+  }
 }
 
-/* Toggle Buttons */
+/* Additional Styles for Bet Amount */
+.bet-amount-input-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.place-bet-input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+  margin-bottom: 10px;
+}
+
+.place-bet-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.place-bet-slider {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.bet-amount-display {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.bet-amount-display .bet-amount-value {
+  margin-left: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #007bff;
+  transition: color 0.3s;
+}
+
+.bet-amount-display .bet-amount-value:hover {
+  color: #0056b3;
+}
+
+/* Responsive adjustments for slider */
+@media (max-width: 480px) {
+  .place-bet-slider {
+    width: 100%;
+  }
+}
+
+/* Toggle Buttons (Retained if needed elsewhere) */
 .place-bet-toggle-group {
   display: flex;
   gap: 10px;
@@ -280,40 +414,14 @@
   padding: 2px;
 }
 
-.bet-amount-input-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.place-bet-slider {
-  width: 100%;
-  margin-top: 10px;
-}
-
-.bet-amount-display {
-  margin-top: 10px;
-  font-size: 1rem;
-  color: #333;
-  display: flex;
-  align-items: center;
-}
-
-.bet-amount-display .bet-amount-value {
-  margin-left: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #007bff;
-  transition: color 0.3s;
-}
-
-.bet-amount-display .bet-amount-value:hover {
-  color: #0056b3;
-}
-
-/* Responsive adjustments for slider */
+/* Responsive adjustments for toggle buttons if necessary */
 @media (max-width: 480px) {
-  .place-bet-slider {
-    width: 100%;
+  .place-bet-toggle-group {
+    flex-wrap: wrap;
+  }
+
+  .place-bet-toggle {
+    flex: 1 1 45%;
+    text-align: center;
   }
 }
-

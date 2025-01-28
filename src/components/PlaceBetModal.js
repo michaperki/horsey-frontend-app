@@ -41,8 +41,6 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     }
   }, [isOpen, preSelectedVariant]);
 
-  // Removed useEffect that caps the amount to maxBet
-
   const handlePlaceBet = async () => {
     setMessage("");
     if (!amount || Number(amount) <= 0) {
@@ -144,145 +142,145 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
               Your Balance: {currentBalance} {currencyType === "sweepstakes" ? "Sweepstakes" : "Tokens"}
             </p>
 
-            {/* Currency Toggle using Radio Buttons */}
+            {/* Currency Toggle using Radio Buttons as Tiles */}
             <div className="place-bet-form-group">
-              <fieldset>
-                <legend>Currency:</legend>
-                <div className="place-bet-toggle-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="currency"
-                      value="token"
-                      checked={currencyType === "token"}
-                      onChange={() => setCurrencyType("token")}
-                    />
-                    <FaCoins className="toggle-icon" />
-                    Tokens
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="currency"
-                      value="sweepstakes"
-                      checked={currencyType === "sweepstakes"}
-                      onChange={() => setCurrencyType("sweepstakes")}
-                    />
-                    <FaGift className="toggle-icon" />
-                    Sweepstakes
-                  </label>
-                </div>
-              </fieldset>
+              <label>Currency:</label>
+              <div className="place-bet-tile-group">
+                {/* Token Option */}
+                <label className={`place-bet-tile ${currencyType === "token" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="currency"
+                    value="token"
+                    checked={currencyType === "token"}
+                    onChange={() => setCurrencyType("token")}
+                  />
+                  <FaCoins className="toggle-icon" />
+                  Tokens
+                </label>
+                {/* Sweepstakes Option */}
+                <label className={`place-bet-tile ${currencyType === "sweepstakes" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="currency"
+                    value="sweepstakes"
+                    checked={currencyType === "sweepstakes"}
+                    onChange={() => setCurrencyType("sweepstakes")}
+                  />
+                  <FaGift className="toggle-icon" />
+                  Sweepstakes
+                </label>
+              </div>
             </div>
 
-            {/* Color Preference Toggle using Radio Buttons */}
+            {/* Color Preference Toggle using Radio Buttons as Tiles */}
             <div className="place-bet-form-group">
-              <fieldset>
-                <legend>Color Preference:</legend>
-                <div className="place-bet-toggle-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="colorPreference"
-                      value="white"
-                      checked={colorPreference === "white"}
-                      onChange={() => setColorPreference("white")}
-                    />
-                    <MdColorLens className="toggle-icon white-icon" />
-                    White
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="colorPreference"
-                      value="black"
-                      checked={colorPreference === "black"}
-                      onChange={() => setColorPreference("black")}
-                    />
-                    <MdColorLens className="toggle-icon black-icon" />
-                    Black
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="colorPreference"
-                      value="random"
-                      checked={colorPreference === "random"}
-                      onChange={() => setColorPreference("random")}
-                    />
-                    <FaRandom className="toggle-icon" />
-                    Random
-                  </label>
-                </div>
-              </fieldset>
+              <label>Color Preference:</label>
+              <div className="place-bet-tile-group">
+                {/* White Option */}
+                <label className={`place-bet-tile ${colorPreference === "white" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="colorPreference"
+                    value="white"
+                    checked={colorPreference === "white"}
+                    onChange={() => setColorPreference("white")}
+                  />
+                  <MdColorLens className="toggle-icon white-icon" />
+                  White
+                </label>
+                {/* Black Option */}
+                <label className={`place-bet-tile ${colorPreference === "black" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="colorPreference"
+                    value="black"
+                    checked={colorPreference === "black"}
+                    onChange={() => setColorPreference("black")}
+                  />
+                  <MdColorLens className="toggle-icon black-icon" />
+                  Black
+                </label>
+                {/* Random Option */}
+                <label className={`place-bet-tile ${colorPreference === "random" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="colorPreference"
+                    value="random"
+                    checked={colorPreference === "random"}
+                    onChange={() => setColorPreference("random")}
+                  />
+                  <FaRandom className="toggle-icon" />
+                  Random
+                </label>
+              </div>
             </div>
 
-            {/* Time Control Toggle using Radio Buttons */}
+            {/* Time Control Toggle using Radio Buttons as Tiles */}
             <div className="place-bet-form-group">
-              <fieldset>
-                <legend>Time Control:</legend>
-                <div className="place-bet-toggle-group">
-                  {["3|2", "5|3", "10|0", "15|10"].map((control) => (
-                    <label key={control}>
-                      <input
-                        type="radio"
-                        name="timeControl"
-                        value={control}
-                        checked={timeControl === control}
-                        onChange={() => setTimeControl(control)}
-                      />
-                      {["3|2", "5|3"].includes(control) ? (
-                        <GiRabbit className="toggle-icon" />
-                      ) : (
-                        <GiTurtle className="toggle-icon" />
-                      )}
-                      {control}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <label>Time Control:</label>
+              <div className="place-bet-tile-group">
+                {["3|2", "5|3", "10|0", "15|10"].map((control) => (
+                  <label
+                    key={control}
+                    className={`place-bet-tile ${timeControl === control ? "selected" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="timeControl"
+                      value={control}
+                      checked={timeControl === control}
+                      onChange={() => setTimeControl(control)}
+                    />
+                    {["3|2", "5|3"].includes(control) ? (
+                      <GiRabbit className="toggle-icon" />
+                    ) : (
+                      <GiTurtle className="toggle-icon" />
+                    )}
+                    {control}
+                  </label>
+                ))}
+              </div>
             </div>
 
-            {/* Variant Toggle using Radio Buttons */}
+            {/* Variant Toggle using Radio Buttons as Tiles */}
             <div className="place-bet-form-group">
-              <fieldset>
-                <legend>Variant:</legend>
-                <div className="place-bet-toggle-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="variant"
-                      value="standard"
-                      checked={variant === "standard"}
-                      onChange={() => setVariant("standard")}
-                    />
-                    <FaChess className="toggle-icon" />
-                    Standard
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="variant"
-                      value="crazyhouse"
-                      checked={variant === "crazyhouse"}
-                      onChange={() => setVariant("crazyhouse")}
-                    />
-                    <FaChessKnight className="toggle-icon" />
-                    Crazyhouse
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="variant"
-                      value="chess960"
-                      checked={variant === "chess960"}
-                      onChange={() => setVariant("chess960")}
-                    />
-                    <FaChess className="toggle-icon" />
-                    Chess960
-                  </label>
-                </div>
-              </fieldset>
+              <label>Variant:</label>
+              <div className="place-bet-tile-group">
+                <label className={`place-bet-tile ${variant === "standard" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="variant"
+                    value="standard"
+                    checked={variant === "standard"}
+                    onChange={() => setVariant("standard")}
+                  />
+                  <FaChess className="toggle-icon" />
+                  Standard
+                </label>
+                <label className={`place-bet-tile ${variant === "crazyhouse" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="variant"
+                    value="crazyhouse"
+                    checked={variant === "crazyhouse"}
+                    onChange={() => setVariant("crazyhouse")}
+                  />
+                  <FaChessKnight className="toggle-icon" />
+                  Crazyhouse
+                </label>
+                <label className={`place-bet-tile ${variant === "chess960" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="variant"
+                    value="chess960"
+                    checked={variant === "chess960"}
+                    onChange={() => setVariant("chess960")}
+                  />
+                  <FaChess className="toggle-icon" />
+                  Chess960
+                </label>
+              </div>
             </div>
 
             {/* Bet Amount Input and Slider */}
@@ -296,7 +294,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
                   onChange={handleInputChange}
                   className="place-bet-input"
                   min="1"
-                  // Removed max={maxBet} to allow entering any amount
+                  max={maxBet}
                   placeholder="Enter amount"
                 />
                 <input
@@ -307,18 +305,18 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
                   onChange={handleSliderChange}
                   className="place-bet-slider"
                 />
-              </div>
-              <div className="bet-amount-display">
-                <span>Amount: </span>
-                <span
-                  className="bet-amount-value"
-                  onClick={() => {
-                    // Focus the input field when the display is clicked
-                    document.getElementById("amount").focus();
-                  }}
-                >
-                  {amount || 0}
-                </span>
+                <div className="bet-amount-display">
+                  <span>Amount:</span>
+                  <span
+                    className="bet-amount-value"
+                    onClick={() => {
+                      // Focus the input field when the display is clicked
+                      document.getElementById("amount").focus();
+                    }}
+                  >
+                    {amount || 0}
+                  </span>
+                </div>
               </div>
             </div>
 

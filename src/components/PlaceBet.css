@@ -1,12 +1,4 @@
 
-/* General Container Styles */
-.place-bet-container {
-  padding: 20px;
-  max-width: 400px;
-  margin: auto;
-  background-color: #f9fafb; /* Subtle, light background for contrast */
-}
-
 /* Open Button Styles */
 .place-bet-open-button {
   padding: 14px 28px;
