@@ -1,7 +1,42 @@
 // Leaderboard.jsx
+
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import './Leaderboard.css';
+
+// Define mockData outside the component to prevent re-creation on each render
+const mockData = [
+  {
+    username: "PlayerOne",
+    rating: 2500,
+    winPercentage: 75,
+    games: 40,
+  },
+  {
+    username: "ChessMaster",
+    rating: 2400,
+    winPercentage: 68,
+    games: 35,
+  },
+  {
+    username: "GrandMaster",
+    rating: 2300,
+    winPercentage: 60,
+    games: 30,
+  },
+  {
+    username: "Novice",
+    rating: 2200,
+    winPercentage: 55,
+    games: 25,
+  },
+  {
+    username: "Beginner",
+    rating: 2100,
+    winPercentage: 50,
+    games: 20,
+  },
+];
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -10,40 +45,6 @@ const Leaderboard = () => {
 
   // Flag to toggle between mock data and real data
   const useMockData = false; // Set to false to use real fetched data
-
-  // Define mock data
-  const mockData = [
-    {
-      username: "PlayerOne",
-      rating: 2500,
-      winPercentage: 75,
-      games: 40,
-    },
-    {
-      username: "ChessMaster",
-      rating: 2400,
-      winPercentage: 68,
-      games: 35,
-    },
-    {
-      username: "GrandMaster",
-      rating: 2300,
-      winPercentage: 60,
-      games: 30,
-    },
-    {
-      username: "Novice",
-      rating: 2200,
-      winPercentage: 55,
-      games: 25,
-    },
-    {
-      username: "Beginner",
-      rating: 2100,
-      winPercentage: 50,
-      games: 20,
-    },
-  ];
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -77,7 +78,7 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [token, useMockData]);
+  }, [token, useMockData]); // No need to include mockData
 
   if (loading) {
     return (
