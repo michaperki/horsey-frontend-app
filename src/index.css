@@ -278,6 +278,14 @@ body {
   cursor: not-allowed;
 }
 
+.btn-danger {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+}
+
+.btn-danger:hover {
+  background-color: #c82333; /* Darker shade for hover */
+}
 /* Additional Utility Classes */
 
 /* Flex Grow and Shrink */

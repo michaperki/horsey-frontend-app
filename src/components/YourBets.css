@@ -1,169 +1,70 @@
 
 /* src/components/YourBets.css */
 
-/* Container */
-.your-bets-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-/* Header */
-.your-bets-container h3 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-/* Filter Bar */
+/* Filter Bar Container */
 .filter-bar {
-  margin-bottom: 20px;
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: var(--spacing-sm);
   align-items: center;
+  margin-bottom: var(--spacing-md);
 }
 
-.filter-bar label {
-  margin-right: 5px;
-  font-weight: bold;
-}
-
-.filter-bar select,
-.filter-bar input {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.wager-input {
-  width: 80px;
-}
-
-.apply-filter-button {
-  padding: 6px 12px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.apply-filter-button:hover {
-  background-color: #0056b3;
-}
-
-/* Error Message */
-.error-message {
-  color: red;
-  margin-bottom: 10px;
-}
-
-/* Bets Table */
-.bets-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.bets-table th,
-.bets-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-.bets-table th {
-  background-color: #f2f2f2;
-  cursor: pointer;
-  position: relative;
-}
-
-.bets-table th.sortable:hover {
-  background-color: #e0e0e0;
-}
-
-.bets-table th.sortable::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  font-size: 12px;
-}
-
-.bets-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.bets-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.status-red {
-  color: red;
-}
-
-/* Cancel Button */
-.cancel-button {
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 5px 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.cancel-button:hover {
-  background-color: #c82333;
-}
-
-/* Pagination */
-.pagination {
+/* Individual Filter Item */
+.filter-item {
   display: flex;
-  gap: 10px;
   align-items: center;
-  justify-content: center;
+  flex: 1 1 150px; /* Adjust the base width as needed */
+  min-width: 120px; /* Prevent items from becoming too small */
+  transition: flex-basis var(--transition-fast) ease-in-out;
 }
 
-.pagination button {
-  padding: 6px 12px;
-  background-color: #6c757d;
-  color: #fff;
+/* Label Styling */
+.filter-item label {
+  margin-right: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Input and Select Styling */
+.filter-item input,
+.filter-item select {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--border-radius-sm);
+}
+
+/* Apply to Wager Inputs Specifically */
+.wager-input {
+  width: 100%;
+}
+
+/* Apply to Apply Filters Button */
+.apply-filters-button {
+  flex: 1 1 100%;
+  max-width: 200px; /* Optional: Limit the button's maximum width */
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
-.pagination button:disabled {
-  background-color: #adb5bd;
-  cursor: not-allowed;
+.apply-filters-button:hover {
+  background-color: darken(var(--color-primary), 10%);
 }
 
-.pagination button:hover:not(:disabled) {
-  background-color: #5a6268;
-}
-
-.pagination span {
-  font-weight: bold;
-}
-
-/* Responsive Design */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .filter-bar {
-    flex-direction: column;
-    align-items: flex-start;
+  .filter-item {
+    flex: 1 1 100%;
+    min-width: unset;
   }
 
-  .wager-input {
-    width: 100px;
-  }
-
-  .bets-table th,
-  .bets-table td {
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  .pagination button {
-    padding: 5px 10px;
-    font-size: 14px;
+  .apply-filters-button {
+    max-width: 100%;
   }
 }

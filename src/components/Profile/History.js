@@ -1,11 +1,10 @@
-
 // src/components/Profile/History.js
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserBets } from '../../services/api';
 import YourBets from '../YourBets';
-import './History.css'; // Import the CSS file
+import './History.css'; // Import the CSS file (now empty)
 
 const History = () => {
   const { token } = useAuth();
@@ -41,18 +40,16 @@ const History = () => {
   }, [token]);
 
   return (
-    <div>
-      <h2>History</h2>
-      <section>
-        <h3>Your Bets</h3>
+    <div className="p-md font-sans">
+      <section className="mb-md">
         {loadingBets ? (
-          <p>Loading your bets...</p>
+          <p className="text-primary">Loading your bets...</p>
         ) : errorBets ? (
-          <p style={{ color: 'red' }}>{errorBets}</p>
+          <p className="text-danger mb-2">{errorBets}</p>
         ) : bets.length > 0 ? (
-          <YourBets bets={bets} />
+          <YourBets />
         ) : (
-          <p>You have no active bets.</p>
+          <p className="text-gray-300">You have no active bets.</p>
         )}
       </section>
     </div>

@@ -1,4 +1,3 @@
-
 // src/components/Profile/Account.js
 
 import React, { useEffect, useState } from 'react';
@@ -6,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getUserLichessInfo } from '../../services/api';
 import LichessInfo from '../LichessInfo';
 import DisconnectLichess from '../Auth/DisconnectLichess';
-import './Account.css'; // Import the CSS file
+import './Account.css'; // Import the revised CSS file
 
 const Account = () => {
   const { token } = useAuth();
@@ -52,23 +51,23 @@ const Account = () => {
   };
 
   return (
-    <div className="account-container">
-      <h2>Account</h2>
-      <section className="account-section">
-        <h3>
+    <div className="p-md bg-light rounded-md max-w-600px mx-auto">
+      <h2 className="text-2xl mb-md text-center">Account</h2>
+      <section className="mb-5">
+        <h3 className="text-xl mb-2 flex items-center justify-between">
           Lichess Account
         </h3>
         {loadingLichess ? (
-          <p className="account-loading">Loading Lichess information...</p>
+          <p className="text-primary text-sm my-1">Loading Lichess information...</p>
         ) : errorLichess && !lichessInfo ? (
-          <p className="account-error">{errorLichess}</p>
+          <p className="text-danger text-sm my-1">{errorLichess}</p>
         ) : lichessInfo ? (
-          <div className="lichess-container">
+          <div className="flex flex-col gap-2">
             <LichessInfo info={lichessInfo} />
             <DisconnectLichess onDisconnect={handleLichessChange} />
           </div>
         ) : (
-          <p className="account-message">Your Lichess account is not connected.</p>
+          <p className="text-gray-300 text-sm my-1">Your Lichess account is not connected.</p>
           // Optionally, add a <LichessConnect /> component if available
         )}
       </section>
