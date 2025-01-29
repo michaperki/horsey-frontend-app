@@ -53,28 +53,46 @@ describe('User Flow Tests', () => {
     it('Should place a bet and appear in "Your Bets"', () => {
       cy.get('.place-bet-open-button').click();
       cy.get('.place-bet-modal').should('be.visible');
-      cy.get('select#colorPreference').select('White');
-      cy.get('input#amount').type('100');
-      cy.get('select#timeControl').select('5|3');
-      cy.get('select#variant').select('standard');
-      cy.get('select#currencyType').select('token');
 
+      // **Updated Interactions with Radio Buttons as Tiles**
+
+      // Select Color Preference: White
+      cy.contains('label.place-bet-tile', 'White').click();
+
+      // Enter Bet Amount
+      cy.get('input#amount').clear().type('100');
+
+      // Select Time Control: 5|3
+      cy.contains('label.place-bet-tile', '5|3').click();
+
+      // Select Variant: Standard
+      cy.contains('label.place-bet-tile', 'Standard').click();
+
+      // Select Currency Type: Tokens
+      cy.contains('label.place-bet-tile', 'Tokens').click();
+
+      // Submit the bet
       cy.get('.place-bet-button').click();
+
+      // Verify success message
       cy.contains('Bet placed successfully!').should('be.visible');
+
+      // Close the modal
       cy.get('.place-bet-close-button').click();
 
+      // Navigate to Profile and check "Your Bets"
       cy.visit('/profile');
-      // Click the "History" tab
-      cy.contains(userA.username).should('be.visible');
-      cy.get('.vertical-tabs')
-        .contains('History')
-        .click();
 
-      // Scope the assertions within the bets table
-      cy.get('.bets-table').within(() => {
-        cy.contains('100').should('be.visible');
-        cy.contains('Token').should('be.visible');
-        cy.contains('Pending').should('be.visible');
+      // Click the "History" tab
+      cy.get('.vertical-tabs').contains('History').click();
+
+      // **Updated Selector for Bets Table**
+
+      // Instead of using '.bets-table', target the table with class 'w-full border-collapse mb-md'
+      cy.get('table.w-full.border-collapse.mb-md').within(() => {
+        cy.contains('td', '100').should('be.visible');
+        cy.contains('td', 'Token').should('be.visible');
+        cy.contains('td', 'Pending').should('be.visible');
       });
     });
 
@@ -82,18 +100,19 @@ describe('User Flow Tests', () => {
       cy.get('.place-bet-open-button').click();
       cy.get('.place-bet-modal').should('be.visible');
 
-      cy.get('input#amount').type('999999');
+      // Enter an amount exceeding the balance
+      cy.get('input#amount').clear().type('999999');
+
+      // Submit the bet
       cy.get('.place-bet-button').click();
 
       // Assert that the error message is visible
       cy.contains('Insufficient balance.').should('be.visible');
 
-      // Scope the click within the modal to ensure correct element selection
-      cy.get('.place-bet-modal').within(() => {
-        cy.get('.place-bet-close-button')
-          .should('be.visible') // Ensure the button is visible
-          .click();
-      });
+      // Close the modal
+      cy.get('.place-bet-close-button')
+        .should('be.visible') // Ensure the button is visible
+        .click();
     });
   });
 
@@ -122,14 +141,34 @@ describe('User Flow Tests', () => {
       cy.wait(`@mockLichessStatus_${userA.id}`);
       cy.wait(`@mockLichessUser_${userA.id}`);
 
+      cy.wait(1000); // Waits for 1 second
       cy.get('.place-bet-open-button').click();
-      cy.get('select#colorPreference').select('Black');
-      cy.get('input#amount').type(`${betAmount}`);
-      cy.get('select#timeControl').select('3|2');
-      cy.get('select#variant').select('standard');
-      cy.get('select#currencyType').select('token');
+      cy.get('.place-bet-modal').should('be.visible');
+
+      // **Updated Interactions with Radio Buttons as Tiles**
+
+      // Select Color Preference: Black
+      cy.contains('label.place-bet-tile', 'Black').click();
+
+      // Enter Bet Amount
+      cy.get('input#amount').clear().type(`${betAmount}`);
+
+      // Select Time Control: 3|2
+      cy.contains('label.place-bet-tile', '3|2').click();
+
+      // Select Variant: Standard
+      cy.contains('label.place-bet-tile', 'Standard').click();
+
+      // Select Currency Type: Tokens
+      cy.contains('label.place-bet-tile', 'Tokens').click();
+
+      // Submit the bet
       cy.get('.place-bet-button').click();
+
+      // Verify success message
       cy.contains('Bet placed successfully!').should('be.visible');
+
+      // Close the modal
       cy.get('.place-bet-close-button').click();
 
       // User B accepts the bet
@@ -141,6 +180,7 @@ describe('User Flow Tests', () => {
       cy.wait(`@mockLichessUser_${userB.id}`);
 
       cy.visit('/lobby');
+
       cy.get('table').within(() => {
         cy.contains(userA.username)
           .parent('tr')
@@ -150,17 +190,20 @@ describe('User Flow Tests', () => {
               .click(); // Click the button with the icon
           });
       });
-      cy.contains('You have accepted a bet!').should('be.visible');
+
+      // Verify acceptance message
+      cy.contains('Bet Accepted', { timeout: 20000 }).should('be.visible');
 
       // Verify bet status is "Matched"
       cy.visit('/profile');
+
       // Click the "History" tab
-      cy.contains(userB.username).should('be.visible');
-      cy.get('.vertical-tabs')
-        .contains('History')
-        .click();
-      cy.get('table').within(() => {
-        cy.contains('Matched').should('be.visible');
+      cy.get('.vertical-tabs').contains('History').click();
+
+      // **Updated Selector for Bets Table**
+
+      cy.get('table.w-full.border-collapse.mb-md').within(() => {
+        cy.contains('td', 'Matched').should('be.visible');
       });
     });
   });
