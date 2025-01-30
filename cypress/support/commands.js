@@ -1,4 +1,3 @@
-
 // cypress/support/commands.js
 
 // Log in a regular user via the UI
@@ -64,21 +63,8 @@ Cypress.Commands.add('registerUser', (username, email, password) => {
   cy.contains('Registration successful.').should('be.visible');
 });
 
-// Mocks the Lichess endpoints for a specific user
+// **Mocking Lichess API Endpoints for a Specific User**
 Cypress.Commands.add('mockLichessForUser', (userId) => {
-  // Remove the mockedUsers check to allow re-mocking
-  /*
-  const mockedUsers = Cypress.env('mockedUsers') || new Set();
-
-  if (mockedUsers.has(userId)) {
-    cy.log(`Lichess mock already applied for user: ${userId}`);
-    return; // Skip mocking if it's already applied
-  }
-
-  mockedUsers.add(userId);
-  Cypress.env('mockedUsers', mockedUsers);
-  */
-
   // Intercept GET /lichess/status
   cy.intercept('GET', '**/lichess/status', (req) => {
     const connected = Cypress.env(`lichessConnected_${userId}`) || false;
@@ -115,13 +101,33 @@ Cypress.Commands.add('mockLichessForUser', (userId) => {
     });
   }).as(`mockLichessUser_${userId}`);
 
-  // Intercept GET /auth/lichess/callback** to perform a redirect
-  cy.intercept('GET', '**/auth/lichess/callback**', (req) => {
-    req.reply((res) => {
-      // Simulate redirect with query parameters indicating success
-      res.redirect(`${Cypress.env('frontendUrl')}/dashboard?lichess=connected`);
+  // Intercept POST /lichess/game (mocked game creation)
+  cy.intercept('POST', '**/lichess/game', (req) => {
+    const { variant, rated, clock, color } = req.body;
+    const userIdFromAuth = req.headers['authorization']?.split('Bearer ')[1] || 'unknown';
+    req.reply({
+      statusCode: 200,
+      body: {
+        success: true,
+        gameId: `mockGame_${userIdFromAuth}_${Date.now()}`,
+        gameLink: `https://lichess.org/mockGame_${userIdFromAuth}_${Date.now()}`,
+      },
     });
-  }).as(`mockLichessCallback_${userId}`);
+  }).as(`mockCreateLichessGame_${userId}`);
+
+  // Intercept POST /lichess/game/conclude (mocked game conclusion)
+  cy.intercept('POST', '**/lichess/game/conclude', (req) => {
+    const { gameId, outcome } = req.body;
+    req.reply({
+      statusCode: 200,
+      body: {
+        success: true,
+        gameId: gameId,
+        outcome: outcome, // 'white', 'black', or 'draw'
+        status: 'concluded',
+      },
+    });
+  }).as(`mockConcludeLichessGame_${userId}`);
 });
 
 /**

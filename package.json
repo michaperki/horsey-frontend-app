@@ -32,6 +32,7 @@
     "format": "prettier --write src/",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
+    "cypress:real": "cypress run --config-file cypress.real.config.js --env-file cypress.real.env.json",
     "code2prompt": "code2prompt ./ --exclude=\"node_modules/**,**/package-lock.json,**/*.txt,**/*.test.js,**/*.css,**/*.spec.js,**/*.json,**/*.svg,**/*.html\" --tokens"
   },
   "eslintConfig": {

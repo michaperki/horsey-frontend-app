@@ -94,6 +94,14 @@ const Register = () => {
       </form>
       {message && <p style={{ color: 'green' }}>{message}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      
+      {/* Added Link to Login Page */}
+      <p style={styles.linkText}>
+        Already have an account?{' '}
+        <Link to="/login" style={styles.link}>
+          Log in here
+        </Link>
+      </p>
     </div>
   );
 };
@@ -124,6 +132,10 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
+  },
+  linkText: {
+    marginTop: '15px',
+    textAlign: 'center',
   },
   link: {
     color: '#007bff',

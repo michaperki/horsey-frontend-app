@@ -8,6 +8,7 @@
 # testing
 /coverage
 cypress.env.json
+cypress.real.env.json
 
 # Cypress artifacts
 cypress/screenshots/

@@ -193,7 +193,7 @@ const AvailableBets = () => {
                 } = bet;
 
                 return (
-                  <tr key={id}>
+                  <tr key={id} data-bet-id={id}>
                     <td>{creatorLichessUsername || creator}</td>
                     <td>{getRating(bet)}</td>
                     <td>{renderColorIcon(colorPreference)}</td>
