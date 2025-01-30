@@ -39,7 +39,8 @@ describe('API Service Functions', () => {
 
       const balance = await getUserBalances();
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
+      // **Updated URL Below**
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/user/balances', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -61,7 +62,8 @@ describe('API Service Functions', () => {
 
       await expect(getUserBalances()).rejects.toThrow(mockError);
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
+      // **Updated URL Below**
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/user/balances', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +80,8 @@ describe('API Service Functions', () => {
 
       await expect(getUserBalances()).rejects.toThrow('API request failed');
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
+      // **Updated URL Below**
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/user/balances', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -96,7 +99,8 @@ describe('API Service Functions', () => {
 
       await expect(getUserBalances()).rejects.toThrow('Network Error');
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/tokens/balance/user', {
+      // **Updated URL Below**
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/user/balances', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
