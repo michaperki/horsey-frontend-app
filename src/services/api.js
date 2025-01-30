@@ -21,10 +21,9 @@ export const register = async (userData) => {
  * @returns {Promise<object>} - An object containing tokenBalance and sweepstakesBalance.
  */
 export const getUserBalances = async () => {
-  const data = await apiFetch('/tokens/balance/user', {
+  const data = await apiFetch('/user/balances', {
     method: 'GET',
   });
-  // Assume the backend returns { tokenBalance, sweepstakesBalance }
   return {
     tokenBalance: data.tokenBalance,
     sweepstakesBalance: data.sweepstakesBalance,
