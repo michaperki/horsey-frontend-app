@@ -1,18 +1,26 @@
+
 // src/utils/api.js
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
 /**
  * Custom fetch wrapper that prepends the API base URL and includes common headers.
+ * Handles query parameters by appending them to the URL.
  * @param {string} endpoint - The API endpoint (e.g., '/auth/login').
- * @param {object} options - Fetch options (method, headers, body, etc.).
+ * @param {object} options - Fetch options (method, headers, body, params, etc.).
  * @returns {Promise<object>} - The parsed JSON response.
  */
 export const apiFetch = async (endpoint, options = {}) => {
   // Remove any trailing slash from API_BASE_URL and leading slash from endpoint
   const normalizedBaseUrl = API_BASE_URL.replace(/\/+$/, '');
   const normalizedEndpoint = endpoint.replace(/^\/+/, '');
-  const url = `${normalizedBaseUrl}/${normalizedEndpoint}`;
+
+  // Handle query parameters
+  let url = `${normalizedBaseUrl}/${normalizedEndpoint}`;
+  if (options.params) {
+    const queryParams = new URLSearchParams(options.params).toString();
+    url += `?${queryParams}`;
+  }
 
   // Default headers
   const headers = {
@@ -48,3 +56,4 @@ export const apiFetch = async (endpoint, options = {}) => {
     throw error;
   }
 };
+

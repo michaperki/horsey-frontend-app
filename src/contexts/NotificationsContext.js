@@ -27,9 +27,12 @@ export const NotificationsProvider = ({ children }) => {
     const getNotifications = async () => {
       if (token && user) {
         try {
-          const data = await fetchNotifications(false);
+          // Fetch all notifications without filtering by read status
+          const data = await fetchNotifications(); // Remove or adjust the parameter
           setNotifications(data.notifications);
-          setUnreadCount(data.total);
+          // Calculate unread count based on fetched data
+          const unread = data.notifications.filter(n => !n.read).length;
+          setUnreadCount(unread);
         } catch (error) {
           console.error('Error fetching notifications:', error);
         } finally {

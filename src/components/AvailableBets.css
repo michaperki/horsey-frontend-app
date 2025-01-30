@@ -8,7 +8,6 @@
   margin: var(--spacing-lg) auto;
   color: var(--color-white);
   font-family: var(--font-family, Arial, sans-serif);
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .available-bets-container h2 {
