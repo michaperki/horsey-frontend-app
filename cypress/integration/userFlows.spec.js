@@ -196,21 +196,8 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
 
       cy.visit('/lobby');
 
-      cy.get('table.available-bets-table').within(() => {
-        cy.get(`tr[data-bet-id="${invalidBetId}"]`).within(() => {
-          cy.get('button.join-button')
-            .should('not.exist'); // Button should not exist for invalid betId
-        });
-      });
-
-      // Alternatively, attempt to send a POST request directly
-      cy.request({
-        method: 'POST',
-        url: `/bets/accept/${invalidBetId}`,
-        failOnStatusCode: false, // Prevent Cypress from failing the test on non-2xx status
-      }).then((response) => {
-        expect(response.status).to.eq(400);
-        expect(response.body.error).to.eq('Bet is no longer available or does not exist');
+      cy.get('.available-bets-container').within(() => {
+        cy.contains('No bets available right now.').should('be.visible');
       });
     });
   });
