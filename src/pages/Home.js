@@ -1,5 +1,5 @@
-// src/pages/Home.js
 
+// src/pages/Home.js
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile, createNotification } from '../services/api';
@@ -10,9 +10,12 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useLichess } from '../contexts/LichessContext';
+// Import the selected token context
+import { useSelectedToken } from '../contexts/SelectedTokenContext';
 
 const Home = () => {
   const { token } = useAuth();
+  const { selectedToken } = useSelectedToken();
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState({
     totalGames: 0,
@@ -36,7 +39,8 @@ const Home = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getUserProfile(token);
+        // Pass the selected token (either 'token' or 'sweepstakes') to the API call
+        const response = await getUserProfile(selectedToken);
         const { statistics, username, ratingBand } = response;
         setStatistics({ ...statistics, username, ratingBand });
       } catch (error) {
@@ -47,7 +51,7 @@ const Home = () => {
     };
 
     fetchProfile();
-  }, [token]);
+  }, [token, selectedToken]);
 
   const openPlaceBetModal = (variant) => {
     if (!lichessConnected) {
@@ -177,3 +181,4 @@ const Home = () => {
 };
 
 export default Home;
+

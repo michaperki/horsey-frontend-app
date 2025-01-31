@@ -122,8 +122,8 @@ export const acceptBet = async (betId, currencyType) => {
  * Fetches the authenticated user's profile.
  * @returns {Promise<object>} - The user's profile data.
  */
-export const getUserProfile = async () => {
-  const data = await apiFetch('/auth/profile', {
+export const getUserProfile = async (currencyType = 'token') => {
+  const data = await apiFetch(`/auth/profile?currencyType=${currencyType}`, {
     method: 'GET',
     credentials: 'include',
   });
