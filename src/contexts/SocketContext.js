@@ -1,90 +1,88 @@
 
 // src/contexts/SocketContext.js
-
-import React, { createContext, useContext, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
 
-export const useSocket = () => {
-  return useContext(SocketContext);
-};
+export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const { token } = useAuth();
-  const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    if (!token) {
-      if (socketRef.current) {
-        console.log('No token available. Disconnecting existing socket.');
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-      return;
+    // Always connect—if token exists, include it; otherwise, connect as guest.
+    const auth = token ? { token } : {};
+
+    // Disconnect any existing socket
+    if (socket) {
+      socket.disconnect();
     }
 
-    console.log('Attempting to connect to Socket.io server with token.');
-
-    socketRef.current = io(process.env.REACT_APP_API_URL, {
-      auth: { token },
+    console.log('Attempting to connect to Socket.io server', token ? 'with token' : 'as guest');
+    const socketInstance = io(process.env.REACT_APP_API_URL, {
+      auth,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 5000,
     });
+    setSocket(socketInstance);
 
-    const currentSocket = socketRef.current;
-
-    currentSocket.on('connect', () => {
-      console.log(`Socket.io connected: ID=${currentSocket.id}`);
+    socketInstance.on('connect', () => {
+      console.log(`Socket.io connected: ID=${socketInstance.id}`);
+      // Request live stats on connection
+      socketInstance.emit('getLiveStats');
     });
 
-    currentSocket.on('connect_error', (err) => {
+    socketInstance.on('connect_error', (err) => {
       console.error('Socket.io connection error:', err.message);
       console.error('Error details:', err);
     });
 
-    currentSocket.on('connect_timeout', () => {
+    socketInstance.on('connect_timeout', () => {
       console.warn('Socket.io connection timed out.');
     });
 
-    currentSocket.on('reconnect_attempt', (attempt) => {
+    socketInstance.on('reconnect_attempt', (attempt) => {
       console.log(`Socket.io reconnection attempt ${attempt}`);
     });
 
-    currentSocket.on('reconnect_failed', () => {
+    socketInstance.on('reconnect_failed', () => {
       console.error('Socket.io reconnection failed after maximum attempts.');
     });
 
-    currentSocket.on('disconnect', (reason) => {
+    socketInstance.on('disconnect', (reason) => {
       console.warn(`Socket.io disconnected: ${reason}`);
       if (reason === 'io server disconnect') {
-        currentSocket.connect();
+        socketInstance.connect();
       }
     });
 
-    currentSocket.on('error', (error) => {
+    socketInstance.on('error', (error) => {
       console.error('Socket.io encountered an error:', error);
     });
 
     return () => {
-      if (currentSocket) {
+      if (socketInstance) {
         console.log('Disconnecting Socket.io client.');
-        currentSocket.disconnect();
+        socketInstance.disconnect();
       }
     };
-  }, [token]);
+  }, [token]); // Re-run when token changes
 
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider value={socket}>
       {children}
     </SocketContext.Provider>
   );
 };
 
-// Add propTypes for validation
 SocketProvider.propTypes = {
-  children: PropTypes.node.isRequired, // Define 'children' as required
+  children: PropTypes.node.isRequired,
 };
+
+export default SocketContext;
+

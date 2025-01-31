@@ -1,12 +1,15 @@
 
 // frontend/src/pages/Landing.js
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // Corrected import
-import "./Landing.css"; // Link to the CSS file
+import { useSocket } from "../contexts/SocketContext";
+import { jwtDecode } from "jwt-decode";
+import "./Landing.css";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const socket = useSocket();
+  const [stats, setStats] = useState({ onlineUsers: 0, gamesPlayed: 0 });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -25,6 +28,23 @@ const Landing = () => {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    console.log("Landing: Setting up liveStats listener");
+    if (socket) {
+      socket.on("liveStats", (data) => {
+        console.log("Received liveStats event:", data);
+        setStats(data);
+      });
+      // Request live stats explicitly in case the initial event was missed
+      socket.emit("getLiveStats");
+    }
+    return () => {
+      if (socket) {
+        socket.off("liveStats");
+      }
+    };
+  }, [socket]);
+
   return (
     <div className="landing-container">
       <div className="hero-section">
@@ -41,12 +61,11 @@ const Landing = () => {
       </div>
       <div className="live-stats">
         <h3>Live Stats</h3>
-        <p>Online Users: 6,100</p>
-        <p>Games Played Today: 168,148</p>
+        <p>Online Users: {stats.onlineUsers}</p>
+        <p>Games Played Today: {stats.gamesPlayed}</p>
       </div>
     </div>
   );
 };
 
 export default Landing;
-
