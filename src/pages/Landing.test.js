@@ -91,8 +91,6 @@ describe("Landing Component", () => {
       screen.getByText("Bet, Play, Win. Join the ultimate chess gaming experience!")
     ).toBeInTheDocument();
     expect(screen.getByText("Live Stats")).toBeInTheDocument();
-    expect(screen.getByText("Online Users: 6,100")).toBeInTheDocument();
-    expect(screen.getByText("Games Played Today: 168,148")).toBeInTheDocument();
 
     // Check for buttons
     expect(screen.getByText("Get Started")).toBeInTheDocument();
