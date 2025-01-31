@@ -10,7 +10,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useLichess } from '../contexts/LichessContext';
-// Import the selected token context
 import { useSelectedToken } from '../contexts/SelectedTokenContext';
 
 const Home = () => {
@@ -27,7 +26,7 @@ const Home = () => {
     karma: 0,
     membership: 'Free',
     username: 'User',
-    ratingBand: 'Class B', // Added for completeness
+    ratingClass: 'Beginner', // Changed from ratingBand
   });
 
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
@@ -93,7 +92,7 @@ const Home = () => {
                   <span>Membership:</span> {statistics.membership}
                 </div>
                 <div className="info-item">
-                  <span>Rating Band:</span> {statistics.ratingBand || 'Class B'}
+                  <span>Rating Class:</span> {statistics.ratingClass || 'Class B'}
                 </div>
               </div>
             </div>
