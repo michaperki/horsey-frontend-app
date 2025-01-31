@@ -1,3 +1,4 @@
+
 // cypress/integration/userFlows.spec.js
 
 describe('User Flow Tests with Mocked Lichess Interactions', () => {
@@ -16,9 +17,12 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
   };
   const betAmount = 100;
 
-  // Variables to store bet IDs
+  // Variables to store bet IDs and gameIds
   let placedBetId;
+  let placedBetGameId; // Game ID from placeBet (expected to be null)
   let acceptedBetId;
+  let acceptedBetGameId; // Game ID from acceptBet
+  let finalGameId; // The gameId to use in conclude-game
 
   before(() => {
     // Reset DB and seed admin
@@ -46,7 +50,7 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
       cy.contains('Horsey').should('be.visible');
     });
 
-    it('Should place a bet and capture the betId', () => {
+    it('Should place a bet and capture the betId and gameId', () => {
       cy.login(userA.email, userA.password);
 
       cy.wait(1000);
@@ -69,7 +73,7 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
       // Select Currency Type: Tokens
       cy.contains('label.place-bet-tile', 'Tokens').click();
 
-      // Intercept the place-bet API call to capture the betId
+      // Intercept the place-bet API call to capture the betId and gameId
       cy.intercept('POST', '**/bets/place').as('placeBet');
 
       // Submit the bet
@@ -81,11 +85,12 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
       // Close the modal
       cy.get('.place-bet-close-button').click();
 
-      // Wait for the placeBet API call and capture the betId
+      // Wait for the placeBet API call and capture the betId and gameId
       cy.wait('@placeBet').then((interception) => {
         expect(interception.response.statusCode).to.eq(201);
         placedBetId = interception.response.body.bet._id; // Adjust based on your API response structure
-        cy.log(`Bet placed with ID: ${placedBetId}`);
+        placedBetGameId = interception.response.body.bet.gameId; // This should be null initially
+        cy.log(`Bet placed with ID: ${placedBetId}, Game ID: ${placedBetGameId}`);
       });
 
       // Navigate to Profile and check "Your Bets"
@@ -134,25 +139,63 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
   });
 
   context('Multi-User Betting Flow', () => {
-    it('User B accepts User A\'s bet successfully', () => {
-      // Ensure User A is logged out and User B is logged in
-      cy.logout();
-      cy.mockLichessFlowForUser(userB.id, true);
-      cy.login(userB.email, userB.password);
+    it('User A places a real bet and User B accepts it', () => {
+      // User A places a real bet
+      cy.logout(); // Log out User B
+      cy.login(userA.email, userA.password); // Login as User A
 
-      // Wait for mocked Lichess status and user data
-      cy.wait(`@mockLichessStatus_${userB.id}`);
-      cy.wait(`@mockLichessUser_${userB.id}`);
+      cy.wait(1000);
+      cy.get('.place-bet-open-button').click(); // Open the place bet modal
+      cy.get('.place-bet-modal').should('be.visible');
 
-      // Navigate to Lobby to view available bets
-      cy.visit('/lobby');
+      // **Real Interactions Without Mocks**
 
-      // **Intercept the accept-bet API call before clicking the button**
+      // Select Color Preference: Black
+      cy.contains('label.place-bet-tile', 'Black').click();
+
+      // Enter Bet Amount
+      cy.get('input#amount').clear().type(`${betAmount}`);
+
+      // Select Time Control: 3|2
+      cy.contains('label.place-bet-tile', '3|2').click();
+
+      // Select Variant: Standard
+      cy.contains('label.place-bet-tile', 'Standard').click();
+
+      // Select Currency Type: Tokens
+      cy.contains('label.place-bet-tile', 'Tokens').click();
+
+      // Intercept the place-bet API call to capture the betId and gameId
+      cy.intercept('POST', '**/bets/place').as('placeBetReal');
+
+      // Submit the bet
+      cy.get('.place-bet-button').click();
+
+      // Verify success message
+      cy.contains('Bet placed successfully!').should('be.visible');
+
+      // Close the modal
+      cy.get('.place-bet-close-button').click();
+
+      // Wait for the placeBet API call and capture the betId and gameId (should be null)
+      cy.wait('@placeBetReal').then((interception) => {
+        expect(interception.response.statusCode).to.eq(201);
+        placedBetId = interception.response.body.bet._id;
+        placedBetGameId = interception.response.body.bet.gameId; // Expected to be null
+        cy.log(`Real Bet placed with ID: ${placedBetId}, Game ID: ${placedBetGameId}`);
+      });
+
+      // User B accepts the real bet
+      cy.logout(); // Log out User A
+      cy.login(userB.email, userB.password); // Login as User B
+
+      cy.visit('/lobby'); // Navigate to lobby
+
+      // **Intercept the accept-bet API call BEFORE clicking the join button**
       cy.intercept('POST', '**/bets/accept/**').as('acceptBet');
 
-      // **Find and Accept the Specific Bet**
-      // Assuming each bet row has a data attribute like data-bet-id
-      cy.get('table.available-bets-table').within(() => {
+      // **Find and Accept the Real Bet**
+      cy.get('table').within(() => {
         cy.get(`tr[data-bet-id="${placedBetId}"]`).within(() => {
           cy.get('button.join-button')
             .should('be.visible')
@@ -160,20 +203,35 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
         });
       });
 
-      // Wait for the acceptBet API call and capture the acceptedBetId
+      // Wait for the acceptBet API call and capture the acceptedBetId and gameId
       cy.wait('@acceptBet', { timeout: 10000 }).then((interception) => {
         expect(interception.response.statusCode).to.eq(200);
         acceptedBetId = interception.response.body.bet._id;
-        cy.log(`Bet accepted with ID: ${acceptedBetId}`);
+        acceptedBetGameId = interception.response.body.bet.gameId; // Capture gameId from acceptBet
+        cy.log(`Bet accepted with ID: ${acceptedBetId}, Game ID: ${acceptedBetGameId}`);
 
         // Assert that acceptedBetId matches the original placedBetId
         expect(acceptedBetId).to.eq(placedBetId, `Expected betId to match but got: ${acceptedBetId}`);
+
+        // Assign the finalGameId for concluding the game
+        finalGameId = acceptedBetGameId;
+        cy.log(`Final Game ID to conclude: ${finalGameId}`);
+
+        // **Real Game Conclusion**
+        // Now, conclude the game via the test endpoint
+        cy.request('POST', `${Cypress.env('backendUrl')}/test/conclude-game`, {
+          gameId: finalGameId, // Use the captured gameId from acceptBet
+          outcome: 'white', // or 'black' or 'draw'
+        }).then((response) => {
+          expect(response.status).to.eq(200);
+          cy.log('Game concluded via test endpoint');
+        });
       });
 
       // Verify acceptance message
       cy.contains('Bet Accepted', { timeout: 20000 }).should('be.visible');
 
-      // Verify that the bet status has been updated in User B's profile
+      // Assert Final Status
       cy.visit('/profile');
 
       // Click the "History" tab
@@ -181,10 +239,11 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
 
       // **Selector for Bets Table**
       cy.get('table.w-full.border-collapse.mb-md').within(() => {
-        cy.contains('td', `${betAmount}`).should('be.visible');
-        cy.contains('td', 'Token').should('be.visible');
-        cy.contains('td', 'Matched').should('be.visible'); // Assuming status changes to 'Matched'
+        cy.contains('td', 'Won').should('be.visible'); // Adjust based on outcome
       });
+
+      // Optionally, verify token balances
+      // This can be implemented by fetching user balances and asserting the expected values
     });
 
     it('Should handle acceptance of non-existent or already accepted bets gracefully', () => {
@@ -199,6 +258,10 @@ describe('User Flow Tests with Mocked Lichess Interactions', () => {
       cy.get('.available-bets-container').within(() => {
         cy.contains('No bets available right now.').should('be.visible');
       });
+
+      // Optionally, attempt to click a non-existent join button and verify error handling
+      cy.get(`tr[data-bet-id="${invalidBetId}"]`).should('not.exist');
     });
   });
 });
+
