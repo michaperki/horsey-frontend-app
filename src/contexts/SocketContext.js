@@ -1,6 +1,6 @@
 
 // src/contexts/SocketContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
@@ -11,29 +11,30 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const { token } = useAuth();
-  const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    // Always connect—if token exists, include it; otherwise, connect as guest.
     const auth = token ? { token } : {};
 
-    // Disconnect any existing socket
-    if (socket) {
-      socket.disconnect();
+    // Disconnect existing socket if any
+    if (socketRef.current) {
+      socketRef.current.disconnect();
     }
 
-    console.log('Attempting to connect to Socket.io server', token ? 'with token' : 'as guest');
+    console.log(
+      'Attempting to connect to Socket.io server',
+      token ? 'with token' : 'as guest'
+    );
     const socketInstance = io(process.env.REACT_APP_API_URL, {
       auth,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 5000,
     });
-    setSocket(socketInstance);
+    socketRef.current = socketInstance;
 
     socketInstance.on('connect', () => {
       console.log(`Socket.io connected: ID=${socketInstance.id}`);
-      // Request live stats on connection
       socketInstance.emit('getLiveStats');
     });
 
@@ -71,10 +72,10 @@ export const SocketProvider = ({ children }) => {
         socketInstance.disconnect();
       }
     };
-  }, [token]); // Re-run when token changes
+  }, [token]);
 
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={socketRef.current}>
       {children}
     </SocketContext.Provider>
   );
