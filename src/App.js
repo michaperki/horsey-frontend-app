@@ -18,6 +18,11 @@ import Lobby from './pages/Lobby';
 import Leaderboard from './pages/Leaderboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProfilePage from './pages/Profile';
+import RulesPage from './pages/Info/Rules'; // Import the RulesPage component
+import AboutPage from './pages/Info/About'; // Import the RulesPage component
+import CareersPage from './pages/Info/Careers'; // Import the RulesPage component
+import BlogPage from './pages/Info/Blog'; // Import the RulesPage component
+import PrivacyPage from './pages/Info/Privacy'; // Import the RulesPage component
 import Notifications from './components/Notifications';
 import LichessCallback from './components/Auth/LichessCallback';
 import Layout from './components/Layout'; // Import Layout
@@ -105,6 +110,11 @@ function App() {
                 />
                 {/* Optionally, you can keep the /place-bet route if you want to access it as a separate page */}
                 <Route path="/place-bet" element={<PlaceBet isOpen={true} onClose={() => {}} />} />
+                <Route path="/rules" element={<RulesPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
               </Routes>
             </NotificationsProvider>
           </LichessProvider>
