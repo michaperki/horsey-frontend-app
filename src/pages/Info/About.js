@@ -8,7 +8,7 @@ const AboutPage = () => {
     <div className="about-page bg-primary text-white p-lg rounded-md shadow-md">
       <h1 className="text-2xl font-bold mb-md text-center">About Us</h1>
       <p className="text-lg mb-md">
-        Welcome to our gaming platform! We're building an exciting space where players can enjoy
+        Welcome to our gaming platform! We are building an exciting space where players can enjoy
         competitive games, challenge themselves, and eventually place real wagers.
       </p>
       <div className="about-content p-md bg-secondary rounded-md shadow-sm">
@@ -32,7 +32,7 @@ const AboutPage = () => {
         </p>
         <h2 className="text-xl font-semibold mt-md mb-sm">Join Us!</h2>
         <p>
-          Whether you're here for fun or future competition, there's a place for you. Sign up now
+          Whether you are here for fun or future competition, there is a place for you. Sign up now
           and be part of our journey as we continue to grow and innovate!
         </p>
       </div>
