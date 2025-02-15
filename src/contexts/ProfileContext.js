@@ -55,7 +55,7 @@ export const ProfileProvider = ({ children }) => {
   );
 };
 
-ProfileContext.propTypes = {
+ProfileProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
