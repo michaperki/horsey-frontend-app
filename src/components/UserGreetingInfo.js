@@ -1,5 +1,6 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const UserGreetingInfo = ({ lichessConnected, lichessUsername, statistics }) => (
   <div className="lichess-greeting-and-info mb-md text-center">
@@ -29,5 +30,16 @@ const UserGreetingInfo = ({ lichessConnected, lichessUsername, statistics }) => 
     )}
   </div>
 );
+
+UserGreetingInfo.propTypes = {
+  lichessConnected: PropTypes.bool.isRequired,
+  lichessUsername: PropTypes.string.isRequired,
+  statistics: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    karma: PropTypes.number.isRequired,
+    membership: PropTypes.string.isRequired,
+    ratingClass: PropTypes.string.isRequired,
+  }).isRequired,
+};
 
 export default UserGreetingInfo;

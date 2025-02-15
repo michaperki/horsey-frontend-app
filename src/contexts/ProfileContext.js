@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserProfile } from '../services/api';
 import { useAuth } from './AuthContext';
 import { useSelectedToken } from './SelectedTokenContext';
+import PropTypes from 'prop-types';
 
 const ProfileContext = createContext();
 
@@ -52,6 +53,10 @@ export const ProfileProvider = ({ children }) => {
       {children}
     </ProfileContext.Provider>
   );
+};
+
+ProfileContext.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useProfile = () => useContext(ProfileContext);
