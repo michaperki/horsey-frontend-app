@@ -4,7 +4,7 @@
 .lobby-container {
   border-radius: var(--border-radius-md);
   background-color: var(--color-primary);
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
   box-shadow: var(--shadow-md);
 }
 
