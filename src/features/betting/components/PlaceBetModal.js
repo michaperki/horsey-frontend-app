@@ -1,108 +1,118 @@
-// src/features/betting/components/PlaceBetModal.js
+// Enhanced PlaceBetModal.js
 
 import React, { useState, useEffect } from "react";
 import { placeBet } from "../services/api";
 import { useToken } from "../../token/contexts/TokenContext";
-import "./PlaceBetModal.css";
+import { useSelectedToken } from "../../token/contexts/SelectedTokenContext";
 import PropTypes from "prop-types";
+import "./PlaceBetModal.css";
 
-// Importing React Icons
-import { FaCoins, FaGift, FaChess, FaChessKnight, FaRandom } from "react-icons/fa";
+// Import React Icons
+import { 
+  FaCoins, 
+  FaChess, 
+  FaChessKnight, 
+  FaChessRook,
+  FaRandom, 
+  FaTimes,
+  FaCheckCircle,
+  FaChessPawn
+} from "react-icons/fa";
 import { GiRabbit, GiTurtle } from "react-icons/gi";
-import { MdColorLens } from "react-icons/md";
 
 const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => {
-  const [currencyType, setCurrencyType] = useState("token");
+  // State variables
   const [colorPreference, setColorPreference] = useState("random");
   const [timeControl, setTimeControl] = useState("5|3");
   const [variant, setVariant] = useState(preSelectedVariant || "standard");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const [modalMessage, setModalMessage] = useState("");
-
+  // Context hooks
   const {
     tokenBalance,
     sweepstakesBalance,
     updateTokenBalance,
     updateSweepstakesBalance,
   } = useToken();
+  
+  const { selectedToken } = useSelectedToken();
 
-  const currentBalance =
-    currencyType === "sweepstakes" ? sweepstakesBalance : tokenBalance;
+  // Current balance based on selected token from context
+  const currentBalance = selectedToken === "sweepstakes" ? sweepstakesBalance : tokenBalance;
+  
+  // Maximum bet amount based on balance
+  const maxBet = currentBalance || 1000;
 
-  // Define maximum bet amount based on current balance or a predefined limit
-  const maxBet = currentBalance || 1000; // Adjust 1000 as needed
-
+  // Effect to set variant when modal is opened
   useEffect(() => {
     if (isOpen && preSelectedVariant) {
       setVariant(preSelectedVariant);
     }
   }, [isOpen, preSelectedVariant]);
 
+  // Handle bet placement
   const handlePlaceBet = async () => {
     setMessage("");
+    
+    // Validate amount
     if (!amount || Number(amount) <= 0) {
       setMessage("Please enter a valid bet amount.");
       return;
     }
+    
+    // Validate balance
     if (Number(amount) > currentBalance) {
-      setMessage("Insufficient balance.");
+      setMessage("You don't have enough " + (selectedToken === "sweepstakes" ? "sweepstakes tokens" : "tokens") + " for this bet.");
       return;
     }
 
     setLoading(true);
     try {
       const betData = {
-        currencyType,
+        currencyType: selectedToken,
         amount: Number(amount),
         colorPreference,
         timeControl,
         variant,
       };
+      
       await placeBet(betData);
-      setModalMessage("Bet placed successfully!");
-      if (currencyType === "sweepstakes") {
+      
+      // Update balances
+      if (selectedToken === "sweepstakes") {
         updateSweepstakesBalance(sweepstakesBalance - Number(amount));
       } else {
         updateTokenBalance(tokenBalance - Number(amount));
       }
 
-      // Reset form fields
-      setCurrencyType("token");
-      setColorPreference("random");
-      setTimeControl("5|3");
-      setVariant("standard");
-      setAmount("");
+      // Show success state
+      setSuccessMessage(`Your bet of ${amount} ${selectedToken === "token" ? "Tokens" : "Sweepstakes Tokens"} has been placed successfully! An opponent will be matched soon.`);
+      setSuccess(true);
+
     } catch (err) {
       console.error("Error placing bet:", err);
       if (err.response?.data?.error) {
         setMessage(`Error: ${err.response.data.error}`);
       } else {
-        setMessage(err.message || "Failed to place bet.");
+        setMessage(err.message || "Failed to place bet. Please try again.");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Close modal and reset state
   const handleCloseModal = () => {
-    setModalMessage("");
+    setSuccess(false);
     setMessage("");
     onClose();
   };
 
-  if (!isOpen) {
-    return null;
-  }
-
-  // Handler for slider change
-  const handleSliderChange = (e) => {
-    setAmount(e.target.value);
-  };
-
-  // Handler for input change
+  // Handle input change
   const handleInputChange = (e) => {
     const value = e.target.value;
     // Allow only numbers
@@ -111,233 +121,243 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     }
   };
 
+  // Quick bet amount presets
+  const getBetPresets = () => {
+    const presets = [];
+    if (currentBalance >= 10) presets.push(10);
+    if (currentBalance >= 25) presets.push(25);
+    if (currentBalance >= 50) presets.push(50);
+    if (currentBalance >= 100) presets.push(100);
+    if (currentBalance >= 250) presets.push(250);
+    if (currentBalance >= 500) presets.push(500);
+    
+    // Always include All-in option
+    if (currentBalance > 0) {
+      presets.push("All-in");
+    }
+    
+    return presets;
+  };
+
+  // Apply a preset amount
+  const applyPreset = (preset) => {
+    if (preset === "All-in") {
+      setAmount(currentBalance.toString());
+    } else {
+      setAmount(preset.toString());
+    }
+  };
+
+  if (!isOpen) {
+    return null;
+  }
+
+  // Render success message screen
+  if (success) {
+    return (
+      <div className="place-bet-overlay" onClick={handleCloseModal}>
+        <div
+          className="place-bet-modal"
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          style={{animation: 'zoomIn 0.25s ease-out'}}
+        >
+          <button
+            onClick={handleCloseModal}
+            className="place-bet-close-button"
+            aria-label="Close Modal"
+          >
+            <FaTimes />
+          </button>
+          
+          <div className="place-bet-success">
+            <div className="place-bet-success-icon">
+              <FaCheckCircle />
+            </div>
+            <h2>Bet Placed!</h2>
+            <p>{successMessage}</p>
+            <button 
+              onClick={handleCloseModal} 
+              className="place-bet-success-button"
+            >
+              Return to Game
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render main bet form
   return (
     <div className="place-bet-overlay" onClick={handleCloseModal}>
       <div
         className="place-bet-modal"
+        onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="place-bet-title"
-        onClick={(e) => e.stopPropagation()}
+        style={{animation: 'zoomIn 0.25s ease-out'}}
       >
         <button
           onClick={handleCloseModal}
           className="place-bet-close-button"
           aria-label="Close Modal"
         >
-          &times;
+          <FaTimes />
         </button>
-        {modalMessage ? (
-          <div className="place-bet-success">
-            <h2 id="place-bet-title">Success</h2>
-            <p>{modalMessage}</p>
-            <button onClick={handleCloseModal} className="place-bet-modal-button">
-              Close
-            </button>
-          </div>
-        ) : (
-          <div className="place-bet-container">
-            <h2 id="place-bet-title">Place a Bet</h2>
-            <p className="place-bet-balance">
-              Your Balance: {currentBalance} {currencyType === "sweepstakes" ? "Sweepstakes" : "Tokens"}
-            </p>
 
-            {/* Currency Toggle using Radio Buttons as Tiles */}
-            <div className="place-bet-form-group">
-              <label>Currency:</label>
-              <div className="place-bet-tile-group">
-                {/* Token Option */}
-                <label className={`place-bet-tile ${currencyType === "token" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="currency"
-                    value="token"
-                    checked={currencyType === "token"}
-                    onChange={() => setCurrencyType("token")}
-                  />
-                  <FaCoins className="toggle-icon" />
-                  Tokens
-                </label>
-                {/* Sweepstakes Option */}
-                <label className={`place-bet-tile ${currencyType === "sweepstakes" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="currency"
-                    value="sweepstakes"
-                    checked={currencyType === "sweepstakes"}
-                    onChange={() => setCurrencyType("sweepstakes")}
-                  />
-                  <FaGift className="toggle-icon" />
-                  Sweepstakes
-                </label>
-              </div>
-            </div>
+        <h2 id="place-bet-title" className="place-bet-title">Place a Bet</h2>
+        
+        <div className="place-bet-balance">
+          Your Balance: <span>{currentBalance}</span> {selectedToken === "sweepstakes" ? "Sweepstakes Tokens" : "Tokens"}
+        </div>
 
-            {/* Color Preference Toggle using Radio Buttons as Tiles */}
-            <div className="place-bet-form-group">
-              <label>Color Preference:</label>
-              <div className="place-bet-tile-group">
-                {/* White Option */}
-                <label className={`place-bet-tile ${colorPreference === "white" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="colorPreference"
-                    value="white"
-                    checked={colorPreference === "white"}
-                    onChange={() => setColorPreference("white")}
-                  />
-                  <MdColorLens className="toggle-icon white-icon" />
-                  White
-                </label>
-                {/* Black Option */}
-                <label className={`place-bet-tile ${colorPreference === "black" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="colorPreference"
-                    value="black"
-                    checked={colorPreference === "black"}
-                    onChange={() => setColorPreference("black")}
-                  />
-                  <MdColorLens className="toggle-icon black-icon" />
-                  Black
-                </label>
-                {/* Random Option */}
-                <label className={`place-bet-tile ${colorPreference === "random" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="colorPreference"
-                    value="random"
-                    checked={colorPreference === "random"}
-                    onChange={() => setColorPreference("random")}
-                  />
-                  <FaRandom className="toggle-icon" />
-                  Random
-                </label>
-              </div>
-            </div>
-
-            {/* Time Control Toggle using Radio Buttons as Tiles */}
-            <div className="place-bet-form-group">
-              <label>Time Control:</label>
-              <div className="place-bet-tile-group">
-                {["3|2", "5|3", "10|0", "15|10"].map((control) => (
-                  <label
-                    key={control}
-                    className={`place-bet-tile ${timeControl === control ? "selected" : ""}`}
-                  >
-                    <input
-                      type="radio"
-                      name="timeControl"
-                      value={control}
-                      checked={timeControl === control}
-                      onChange={() => setTimeControl(control)}
-                    />
-                    {["3|2", "5|3"].includes(control) ? (
-                      <GiRabbit className="toggle-icon" />
-                    ) : (
-                      <GiTurtle className="toggle-icon" />
-                    )}
-                    {control}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Variant Toggle using Radio Buttons as Tiles */}
-            <div className="place-bet-form-group">
-              <label>Variant:</label>
-              <div className="place-bet-tile-group">
-                <label className={`place-bet-tile ${variant === "standard" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="variant"
-                    value="standard"
-                    checked={variant === "standard"}
-                    onChange={() => setVariant("standard")}
-                  />
-                  <FaChess className="toggle-icon" />
-                  Standard
-                </label>
-                <label className={`place-bet-tile ${variant === "crazyhouse" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="variant"
-                    value="crazyhouse"
-                    checked={variant === "crazyhouse"}
-                    onChange={() => setVariant("crazyhouse")}
-                  />
-                  <FaChessKnight className="toggle-icon" />
-                  Crazyhouse
-                </label>
-                <label className={`place-bet-tile ${variant === "chess960" ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="variant"
-                    value="chess960"
-                    checked={variant === "chess960"}
-                    onChange={() => setVariant("chess960")}
-                  />
-                  <FaChess className="toggle-icon" />
-                  Chess960
-                </label>
-              </div>
-            </div>
-
-            {/* Bet Amount Input and Slider */}
-            <div className="place-bet-form-group">
-              <label htmlFor="amount">Bet Amount:</label>
-              <div className="bet-amount-input-container">
-                <input
-                  type="number"
-                  id="amount"
-                  value={amount}
-                  onChange={handleInputChange}
-                  className="place-bet-input"
-                  min="1"
-                  max={maxBet}
-                  placeholder="Enter amount"
-                />
-                <input
-                  type="range"
-                  min="1"
-                  max={maxBet}
-                  value={amount}
-                  onChange={handleSliderChange}
-                  className="place-bet-slider"
-                />
-                <div className="bet-amount-display">
-                  <span>Amount:</span>
-                  <span
-                    className="bet-amount-value"
-                    onClick={() => {
-                      // Focus the input field when the display is clicked
-                      document.getElementById("amount").focus();
-                    }}
-                  >
-                    {amount || 0}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handlePlaceBet}
-              className="place-bet-button"
-              disabled={loading}
+        {/* Color Preference */}
+        <div className="place-bet-section">
+          <label className="place-bet-section-label">Color Preference:</label>
+          <div className="place-bet-options">
+            <div 
+              className={`place-bet-option color-option white-option ${colorPreference === "white" ? "selected" : ""}`}
+              onClick={() => setColorPreference("white")}
             >
-              {loading ? (
-                <>
-                  <span className="spinner"></span> Placing Bet...
-                </>
-              ) : (
-                "Place Bet"
-              )}
-            </button>
-
-            {message && <p className="place-bet-message">{message}</p>}
+              <FaChessPawn className="place-bet-option-icon" />
+              <span className="place-bet-option-text">White</span>
+            </div>
+            <div 
+              className={`place-bet-option color-option black-option ${colorPreference === "black" ? "selected" : ""}`}
+              onClick={() => setColorPreference("black")}
+            >
+              <FaChessPawn className="place-bet-option-icon" />
+              <span className="place-bet-option-text">Black</span>
+            </div>
+            <div 
+              className={`place-bet-option color-option random-option ${colorPreference === "random" ? "selected" : ""}`}
+              onClick={() => setColorPreference("random")}
+            >
+              <FaRandom className="place-bet-option-icon" />
+              <span className="place-bet-option-text">Random</span>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Time Control */}
+        <div className="place-bet-section">
+          <label className="place-bet-section-label">Time Control:</label>
+          <div className="place-bet-options">
+            <div 
+              className={`place-bet-option time-control-option fast ${timeControl === "3|2" ? "selected" : ""}`}
+              onClick={() => setTimeControl("3|2")}
+            >
+              <GiRabbit className="place-bet-option-icon" />
+              <span className="place-bet-option-text">3|2</span>
+            </div>
+            <div 
+              className={`place-bet-option time-control-option fast ${timeControl === "5|3" ? "selected" : ""}`}
+              onClick={() => setTimeControl("5|3")}
+            >
+              <GiRabbit className="place-bet-option-icon" />
+              <span className="place-bet-option-text">5|3</span>
+            </div>
+            <div 
+              className={`place-bet-option time-control-option slow ${timeControl === "10|0" ? "selected" : ""}`}
+              onClick={() => setTimeControl("10|0")}
+            >
+              <GiTurtle className="place-bet-option-icon" />
+              <span className="place-bet-option-text">10|0</span>
+            </div>
+            <div 
+              className={`place-bet-option time-control-option slow ${timeControl === "15|10" ? "selected" : ""}`}
+              onClick={() => setTimeControl("15|10")}
+            >
+              <GiTurtle className="place-bet-option-icon" />
+              <span className="place-bet-option-text">15|10</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Game Variant */}
+        <div className="place-bet-section">
+          <label className="place-bet-section-label">Game Variant:</label>
+          <div className="place-bet-options">
+            <div 
+              className={`place-bet-option variant-option ${variant === "standard" ? "selected" : ""}`}
+              onClick={() => setVariant("standard")}
+            >
+              <FaChess className="place-bet-option-icon" />
+              <span className="place-bet-option-text">Standard</span>
+            </div>
+            <div 
+              className={`place-bet-option variant-option ${variant === "crazyhouse" ? "selected" : ""}`}
+              onClick={() => setVariant("crazyhouse")}
+            >
+              <FaChessKnight className="place-bet-option-icon" />
+              <span className="place-bet-option-text">Crazyhouse</span>
+            </div>
+            <div 
+              className={`place-bet-option variant-option ${variant === "chess960" ? "selected" : ""}`}
+              onClick={() => setVariant("chess960")}
+            >
+              <FaChessRook className="place-bet-option-icon" />
+              <span className="place-bet-option-text">Chess960</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bet Amount */}
+        <div className="place-bet-amount-section">
+          <label className="place-bet-section-label">Bet Amount:</label>
+          
+          {/* Quick bet presets */}
+          <div className="bet-presets">
+            {getBetPresets().map((preset) => (
+              <div 
+                key={preset} 
+                className="bet-preset-button"
+                onClick={() => applyPreset(preset)}
+              >
+                {preset}
+              </div>
+            ))}
+          </div>
+          
+          {/* Amount input field */}
+          <div className="place-bet-input-wrapper">
+            <input
+              type="text"
+              id="amount"
+              value={amount}
+              onChange={handleInputChange}
+              className="place-bet-input"
+              placeholder="Enter amount"
+              aria-label="Bet amount"
+              min="1"
+              max={maxBet}
+            />
+            <span className="place-bet-currency-indicator">
+              {selectedToken === "token" ? "PTK" : "SWP"}
+            </span>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {message && <div className="place-bet-error">{message}</div>}
+
+        {/* Submit Button */}
+        <button
+          onClick={handlePlaceBet}
+          className={`place-bet-submit ${loading ? "loading" : ""}`}
+          disabled={loading || !amount || Number(amount) <= 0 || Number(amount) > currentBalance}
+        >
+          {loading ? (
+            <>
+              <span className="spinner"></span> Processing...
+            </>
+          ) : (
+            "Place Bet"
+          )}
+        </button>
       </div>
     </div>
   );

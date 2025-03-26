@@ -9,7 +9,7 @@
 
 /* App Wrapper */
 .app-wrapper {
-  max-width: 1200px; /* Adjust as needed */
+  max-width: 1300px; /* Adjust as needed */
   width: 100%; /* Ensure it uses full available width */
   margin: 0 auto;
   padding: 10px; /* Reduced padding for better space utilization */

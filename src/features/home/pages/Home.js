@@ -1,30 +1,20 @@
-// src/features/home/pages/Home.js
-import React, { useState } from 'react';
-import { motion } from 'framer-motion'; // Note: You'll need to install framer-motion
+// Enhanced Home.js with proper integration
+
+import React, { useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useLichess } from '../../auth/contexts/LichessContext';
 import { useProfile } from '../../profile/contexts/ProfileContext';
-import StatCard from '../../layout/components/StatCard'; // Import the StatCard component
-import PlaceBetModal from '../../betting/components/PlaceBetModal';
-import GameModes from '../components/GameModes'; // Import the new GameModes component
+import StatCard from '../../layout/components/StatCard';
+import GameModes from '../components/GameModes';
 import './Home.css';
 
 const Home = () => {
   const { lichessConnected, lichessUsername } = useLichess();
   const { profile, loading } = useProfile();
-  const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState(null);
+  const { openPlaceBetModal } = useOutletContext() || {};
 
-  const openPlaceBetModal = (variant) => {
-    setSelectedVariant(variant);
-    setIsPlaceBetModalOpen(true);
-  };
-
-  const closePlaceBetModal = () => {
-    setSelectedVariant(null);
-    setIsPlaceBetModalOpen(false);
-  };
-
-  // Variants for animations
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -72,15 +62,15 @@ const Home = () => {
             <motion.div variants={containerVariants} className="welcome-info mt-3">
               <div className="welcome-info-item">
                 <div className="welcome-info-icon">Karma:</div>
-                <span>{profile.karma}</span>
+                <span>{profile.karma || 0}</span>
               </div>
               <div className="welcome-info-item">
                 <div className="welcome-info-icon">Membership:</div>
-                <span>{profile.membership}</span>
+                <span>{profile.membership || 'Free'}</span>
               </div>
               <div className="welcome-info-item">
                 <div className="welcome-info-icon">Rating Class:</div>
-                <span>{profile.ratingClass}</span>
+                <span>{profile.ratingClass || 'Beginner'}</span>
               </div>
             </motion.div>
           </>
@@ -99,34 +89,52 @@ const Home = () => {
           animate="visible"
         >
           <motion.div variants={statVariants}>
-            <StatCard title="Total Games Played" value={profile.totalGames} />
+            <StatCard 
+              title="Total Games Played" 
+              value={profile.totalGames || 0} 
+              icon="game"
+            />
           </motion.div>
           <motion.div variants={statVariants}>
-            <StatCard title="Average Wager" value={`${profile.averageWager} PTK`} />
+            <StatCard 
+              title="Average Wager" 
+              value={`${profile.averageWager || 0} PTK`} 
+              icon="coin"
+            />
           </motion.div>
           <motion.div variants={statVariants}>
-            <StatCard title="Total Wagered" value={`${profile.totalWagered} PTK`} />
+            <StatCard 
+              title="Total Wagered" 
+              value={`${profile.totalWagered || 0} PTK`} 
+              icon="money"
+            />
           </motion.div>
           <motion.div variants={statVariants}>
-            <StatCard title="Average ROI" value={`${profile.averageROI}%`} />
+            <StatCard 
+              title="Average ROI" 
+              value={`${profile.averageROI || '0.00'}%`} 
+              icon="percentage"
+            />
           </motion.div>
           <motion.div variants={statVariants}>
-            <StatCard title="Total Winnings" value={`${profile.totalWinnings} PTK`} />
+            <StatCard 
+              title="Total Winnings" 
+              value={`${profile.totalWinnings || 0} PTK`} 
+              icon="win"
+            />
           </motion.div>
           <motion.div variants={statVariants}>
-            <StatCard title="Total Losses" value={`${profile.totalLosses} PTK`} />
+            <StatCard 
+              title="Total Losses" 
+              value={`${profile.totalLosses || 0} PTK`} 
+              icon="loss"
+            />
           </motion.div>
         </motion.div>
       )}
 
-      {/* Use the new GameModes component */}
+      {/* Game Modes with proper bet modal integration */}
       <GameModes openPlaceBetModal={openPlaceBetModal} />
-
-      <PlaceBetModal
-        isOpen={isPlaceBetModalOpen}
-        onClose={closePlaceBetModal}
-        preSelectedVariant={selectedVariant}
-      />
     </div>
   );
 };
