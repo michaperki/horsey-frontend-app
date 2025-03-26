@@ -1,13 +1,48 @@
-// src/components/StatCard.js
+// src/features/layout/components/StatCard.js
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { 
+  FaGamepad, 
+  FaCoins, 
+  FaMoneyBillWave, 
+  FaPercentage, 
+  FaArrowUp, 
+  FaArrowDown 
+} from 'react-icons/fa';
+import "./StatCard.css"
 
 const StatCard = ({ title, value }) => {
+  // Function to determine which icon to use based on the title
+  const getIcon = () => {
+    const titleLower = title.toLowerCase();
+    
+    if (titleLower.includes('game')) {
+      return <FaGamepad className="stat-icon" />;
+    } else if (titleLower.includes('wager')) {
+      return <FaCoins className="stat-icon" />;
+    } else if (titleLower.includes('roi') || titleLower.includes('percent')) {
+      return <FaPercentage className="stat-icon" />;
+    } else if (titleLower.includes('win')) {
+      return <FaArrowUp className="stat-icon win" />;
+    } else if (titleLower.includes('loss')) {
+      return <FaArrowDown className="stat-icon loss" />;
+    } else {
+      return <FaMoneyBillWave className="stat-icon" />;
+    }
+  };
+
   return (
-    <div className="stat-card bg-statcard p-xs rounded-sm flex flex-col items-center shadow-sm transition-colors duration-200">
-      <h3 className="text-yellow-400 font-semibold text-xs">{title}</h3>
-      <p className="text-white font-bold text-sm">{value}</p>
+    <div className="stat-card">
+      <div className="stat-card-content">
+        <div className="stat-card-icon">
+          {getIcon()}
+        </div>
+        <div className="stat-card-text">
+          <h3>{title}</h3>
+          <p>{value}</p>
+        </div>
+      </div>
     </div>
   );
 };

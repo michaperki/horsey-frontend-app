@@ -17,6 +17,10 @@ import {
   FaTimes,
   FaSignInAlt,
   FaUserPlus,
+  FaChess,
+  FaCog,
+  FaSignOutAlt,
+  FaUserCircle
 } from 'react-icons/fa';
 import { useNotifications } from '../../notifications/contexts/NotificationsContext';
 import './Navbar.css';
@@ -30,6 +34,7 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const userInfoRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -51,6 +56,7 @@ const Navbar = () => {
       await connectLichess();
     } catch (err) {
       setError("Failed to connect to Lichess. Please try again.");
+      setTimeout(() => setError(null), 5000);
     }
   };
 
@@ -61,6 +67,20 @@ const Navbar = () => {
   const handleGetCoins = () => {
     navigate('/store');
   };
+
+  // Add a scroll event listener to change navbar on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -82,33 +102,41 @@ const Navbar = () => {
   }, [showDropdown]);
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar__container">
         <div className="navbar__logo">
-          <Link to={token ? "/home" : "/"} onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+          <Link to={token ? "/home" : "/"} onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} className="navbar__logo-link">
             <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
             <span className="navbar__logo-text">Horsey</span>
           </Link>
         </div>
 
-        <div className="navbar__hamburger" onClick={toggleMobileMenu} aria-label="Toggle navigation menu">
-          {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+        <div 
+          className="navbar__hamburger" 
+          onClick={toggleMobileMenu} 
+          aria-label="Toggle navigation menu"
+        >
+          {isMobileMenuOpen ? <FaTimes className="hamburger-icon" /> : <FaBars className="hamburger-icon" />}
         </div>
 
         <div className={`navbar__links ${isMobileMenuOpen ? 'navbar__links--active' : ''}`}>
           {token && user?.role === 'user' && (
             <>
               <Link to="/home" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaHome title="Home" aria-label="Home" />
+                <FaHome className="nav-icon" title="Home" aria-label="Home" />
+                <span className="nav-text">Home</span>
               </Link>
               <Link to="/lobby" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaUsers title="Lobby" aria-label="Lobby" />
+                <FaUsers className="nav-icon" title="Lobby" aria-label="Lobby" />
+                <span className="nav-text">Lobby</span>
               </Link>
               <Link to="/leaderboards" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaTrophy title="Leaderboards" aria-label="Leaderboards" />
+                <FaTrophy className="nav-icon" title="Leaderboards" aria-label="Leaderboards" />
+                <span className="nav-text">Leaderboards</span>
               </Link>
               <Link to="/store" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaStore title="Store" aria-label="Store" />
+                <FaStore className="nav-icon" title="Store" aria-label="Store" />
+                <span className="nav-text">Store</span>
               </Link>
               {!lichessConnected && (
                 <button
@@ -120,13 +148,19 @@ const Navbar = () => {
                   aria-label="Connect Lichess"
                 >
                   {loading ? (
-                    <FaSpinner className="spinner" aria-label="Connecting" />
+                    <>
+                      <FaSpinner className="spinner" aria-label="Connecting" />
+                      <span>Connecting...</span>
+                    </>
                   ) : (
-                    <img
-                      src="/assets/lichess-icon.png"
-                      alt="Lichess Icon"
-                      className="navbar__lichess-icon"
-                    />
+                    <>
+                      <img
+                        src="/assets/lichess-icon.png"
+                        alt="Lichess Icon"
+                        className="navbar__lichess-icon"
+                      />
+                      <span>Connect Lichess</span>
+                    </>
                   )}
                 </button>
               )}
@@ -135,19 +169,22 @@ const Navbar = () => {
 
           {token && user?.role === 'admin' && (
             <>
-              <Link to="/admin/dashboard" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaTrophy title="Admin Dashboard" aria-label="Admin Dashboard" />
+              <Link to="/admin/dashboard" className="navbar__link admin-link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaTrophy className="nav-icon" title="Admin Dashboard" aria-label="Admin Dashboard" />
+                <span className="nav-text">Admin Dashboard</span>
               </Link>
             </>
           )}
 
           {!token && (
             <>
-              <Link to="/login" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaSignInAlt title="Login" aria-label="Login" />
+              <Link to="/login" className="navbar__link auth-link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaSignInAlt className="nav-icon" title="Login" aria-label="Login" />
+                <span className="nav-text">Login</span>
               </Link>
-              <Link to="/register" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
-                <FaUserPlus title="Register" aria-label="Register" />
+              <Link to="/register" className="navbar__link auth-link register" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaUserPlus className="nav-icon" title="Register" aria-label="Register" />
+                <span className="nav-text">Register</span>
               </Link>
             </>
           )}
@@ -164,14 +201,15 @@ const Navbar = () => {
         {token && user && (
           <div className="navbar__user-section">
             <div className="navbar__icons">
-              <div className="navbar__icon-container">
+              <div className="navbar__icon-container" onClick={() => navigate('/notifications')}>
                 <FaBell
                   className="navbar__icon"
                   title="Notifications"
                   aria-label="Notifications"
-                  onClick={() => navigate('/notifications')}
                 />
-                {unreadCount > 0 && <span className="navbar__badge">{unreadCount}</span>}
+                {unreadCount > 0 && (
+                  <span className="navbar__badge pulse">{unreadCount}</span>
+                )}
               </div>
             </div>
             <div
@@ -183,22 +221,31 @@ const Navbar = () => {
               aria-haspopup="true"
               aria-expanded={showDropdown}
             >
-              <img src={user.avatar || "/assets/default-avatar.png"} alt="User Avatar" className="navbar__avatar" />
+              {user.avatar ? (
+                <img src={user.avatar} alt="User Avatar" className="navbar__avatar" />
+              ) : (
+                <FaUserCircle className="navbar__avatar-fallback" />
+              )}
+              <span className="navbar__username">{user.username || 'User'}</span>
               <span className="navbar__dropdown-arrow">▼</span>
             </div>
             {showDropdown && (
               <div className="navbar__dropdown" ref={dropdownRef} role="menu">
                 <Link to="/profile" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  Profile
+                  <FaUserCircle className="dropdown-icon" />
+                  <span>Profile</span>
                 </Link>
                 <Link to="/settings" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  Settings
+                  <FaCog className="dropdown-icon" />
+                  <span>Settings</span>
                 </Link>
                 <Link to="/notifications" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  Notifications {unreadCount > 0 && `(${unreadCount})`}
+                  <FaBell className="dropdown-icon" />
+                  <span>Notifications {unreadCount > 0 && `(${unreadCount})`}</span>
                 </Link>
                 <button onClick={() => { handleLogout(); closeDropdown(); setIsMobileMenuOpen(false); }} className="navbar__dropdown-item logout" role="menuitem">
-                  Logout
+                  <FaSignOutAlt className="dropdown-icon" />
+                  <span>Logout</span>
                 </button>
               </div>
             )}
@@ -216,4 +263,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

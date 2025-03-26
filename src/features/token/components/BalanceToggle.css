@@ -1,83 +1,176 @@
-
 .balance-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #0a2a4d; /* Match Navbar's dark background */
-  border: 1px solid #1c3d6b;
-  border-radius: 8px;
-  padding: 10px 15px;
-  color: #fff;
-  cursor: pointer; /* Indicates the component is clickable */
-  font-family: Arial, sans-serif;
-  transition: background-color 0.3s;
+  background: linear-gradient(45deg, var(--color-primary-dark), var(--color-secondary-dark));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--color-white);
+  transition: all var(--transition-medium) var(--transition-timing);
+  box-shadow: var(--shadow-sm);
+  min-width: 220px;
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  z-index: 1;
 }
 
 .balance-toggle:hover {
-  background-color: #142a5e; /* Slightly lighter on hover */
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .balance-toggle__display {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-xs);
+  z-index: 2;
 }
 
 .balance-toggle__icon {
-  color: #ffd700; /* Gold color for the coin icon */
-  font-size: 20px;
+  color: var(--color-yellow-400);
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .balance-toggle__amount {
-  font-size: 18px;
-  font-weight: bold;
-  min-width: 120px; /* Fixed width to prevent shifting */
-  text-align: right; /* Aligns text for better appearance */
-  white-space: nowrap; /* Prevents wrapping */
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  min-width: 60px;
+  text-align: right;
+  color: var(--color-white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.balance-toggle__currency {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
 }
 
 .balance-toggle__active-currency {
-  color: #fff;
-  font-size: 18px;
-  margin-left: 5px;
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-small);
 }
 
 .balance-toggle__inactive-currency {
-  color: #ccc;
-  font-size: 14px;
-  margin-left: 5px;
+  color: var(--color-gray-300);
+  font-size: var(--font-size-xs);
+  opacity: 0.7;
+}
+
+.balance-toggle__switch {
+  background: none;
+  border: none;
+  color: var(--color-gray-300);
+  cursor: pointer;
+  padding: var(--spacing-xxs);
+  border-radius: 50%;
+  transition: all var(--transition-fast) var(--transition-timing);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.balance-toggle__switch:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  transform: rotate(180deg);
 }
 
 .balance-toggle__get-coins {
-  background-color: #ffc107; /* Amber color for the button */
-  color: #0a2a4d;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-white);
   border: none;
-  border-radius: 5px;
-  padding: 6px 12px;
-  font-size: 14px;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-small);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all var(--transition-fast) var(--transition-timing);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
 }
 
 .balance-toggle__get-coins:hover {
-  background-color: #e0a800; /* Darker amber on hover */
+  background: linear-gradient(135deg, var(--color-accent-light), var(--color-accent));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
-@media (max-width: 600px) {
+.balance-toggle__get-coins:active {
+  transform: translateY(1px);
+}
+
+.get-coins-icon {
+  font-size: 0.8rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
   .balance-toggle {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    cursor: default; /* Remove pointer cursor on mobile for better UX */
+    min-width: 180px;
   }
-
-  .balance-toggle__display {
-    gap: 5px;
-  }
-
-  .balance-toggle__get-coins {
-    width: 100%;
-    text-align: center;
+  
+  .balance-toggle__amount {
+    min-width: 50px;
+    font-size: 1rem;
   }
 }
 
+@media (max-width: 768px) {
+  .balance-toggle {
+    min-width: 160px;
+  }
+  
+  .balance-toggle__get-coins span {
+    display: none;
+  }
+  
+  .balance-toggle__get-coins {
+    padding: var(--spacing-xs);
+  }
+  
+  .get-coins-icon {
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .balance-toggle {
+    min-width: 140px;
+  }
+  
+  .balance-toggle__icon {
+    font-size: 1rem;
+  }
+  
+  .balance-toggle__amount {
+    font-size: 0.9rem;
+    min-width: 40px;
+  }
+  
+  .balance-toggle__active-currency {
+    font-size: var(--font-size-xs);
+  }
+  
+  .balance-toggle__inactive-currency {
+    display: none;
+  }
+}

@@ -1,28 +1,20 @@
-// src/pages/Home.js
+// src/features/home/pages/Home.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaChessKnight, FaChessKing, FaCoins } from 'react-icons/fa';
-import StatCard from '../../layout/components/StatCard';
-import PlaceBetModal from '../../betting/components/PlaceBetModal';
-import UserGreetingInfo from '../../profile/components/UserGreetingInfo';
-import './Home.css';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { motion } from 'framer-motion'; // Note: You'll need to install framer-motion
 import { useLichess } from '../../auth/contexts/LichessContext';
 import { useProfile } from '../../profile/contexts/ProfileContext';
+import StatCard from '../../layout/components/StatCard'; // Import the StatCard component
+import PlaceBetModal from '../../betting/components/PlaceBetModal';
+import GameModes from '../components/GameModes'; // Import the new GameModes component
+import './Home.css';
 
 const Home = () => {
-  const { lichessConnected, lichessUsername, triggerShake } = useLichess();
+  const { lichessConnected, lichessUsername } = useLichess();
   const { profile, loading } = useProfile();
-  const navigate = useNavigate();
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   const openPlaceBetModal = (variant) => {
-    if (!lichessConnected) {
-      triggerShake();
-      // Optionally show a notification here.
-      return;
-    }
     setSelectedVariant(variant);
     setIsPlaceBetModalOpen(true);
   };
@@ -32,79 +24,103 @@ const Home = () => {
     setIsPlaceBetModalOpen(false);
   };
 
+  // Variants for animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const statVariants = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { type: "spring", stiffness: 150, delay: 0.2 }
+    }
+  };
+
   if (loading) {
-    return <div className="flex-center h-screen text-xl text-primary">Loading...</div>;
+    return (
+      <div className="flex-center h-screen">
+        <div className="spinner-container">
+          <div className="spinner"></div>
+          <p className="text-xl text-white mt-4">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-sm">
-      <UserGreetingInfo
-        lichessConnected={lichessConnected}
-        lichessUsername={lichessUsername}
-        statistics={profile}
-      />
+    <div className="home-container p-4">
+      <motion.div 
+        className="welcome-section"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {lichessConnected ? (
+          <>
+            <motion.h2 variants={containerVariants} className="text-xl font-bold">
+              Welcome back, <span className="text-yellow-400">{lichessUsername || profile.username}!</span>
+            </motion.h2>
+            <motion.div variants={containerVariants} className="welcome-info mt-3">
+              <div className="welcome-info-item">
+                <div className="welcome-info-icon">Karma:</div>
+                <span>{profile.karma}</span>
+              </div>
+              <div className="welcome-info-item">
+                <div className="welcome-info-icon">Membership:</div>
+                <span>{profile.membership}</span>
+              </div>
+              <div className="welcome-info-item">
+                <div className="welcome-info-icon">Rating Class:</div>
+                <span>{profile.ratingClass}</span>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          <motion.h2 variants={containerVariants} className="text-xl font-bold">
+            Welcome! Please connect your Lichess account.
+          </motion.h2>
+        )}
+      </motion.div>
 
       {lichessConnected && (
-        <div className="stats-grid">
-          <StatCard title="Total Games Played" value={profile.totalGames} />
-          <StatCard title="Average Wager" value={`${profile.averageWager} PTK`} />
-          <StatCard title="Total Wagered" value={`${profile.totalWagered} PTK`} />
-          <StatCard title="Average ROI" value={`${profile.averageROI}%`} />
-          <StatCard title="Total Winnings" value={`${profile.totalWinnings} PTK`} />
-          <StatCard title="Total Losses" value={`${profile.totalLosses} PTK`} />
-        </div>
+        <motion.div 
+          className="stats-grid"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={statVariants}>
+            <StatCard title="Total Games Played" value={profile.totalGames} />
+          </motion.div>
+          <motion.div variants={statVariants}>
+            <StatCard title="Average Wager" value={`${profile.averageWager} PTK`} />
+          </motion.div>
+          <motion.div variants={statVariants}>
+            <StatCard title="Total Wagered" value={`${profile.totalWagered} PTK`} />
+          </motion.div>
+          <motion.div variants={statVariants}>
+            <StatCard title="Average ROI" value={`${profile.averageROI}%`} />
+          </motion.div>
+          <motion.div variants={statVariants}>
+            <StatCard title="Total Winnings" value={`${profile.totalWinnings} PTK`} />
+          </motion.div>
+          <motion.div variants={statVariants}>
+            <StatCard title="Total Losses" value={`${profile.totalLosses} PTK`} />
+          </motion.div>
+        </motion.div>
       )}
 
-      <main className="main">
-        <div className="home-options flex items-center gap-5">
-          <div
-            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-sm shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
-            onClick={() => openPlaceBetModal('standard')}
-          >
-            <div className="icon text-2xl text-yellow-400 mr-4">
-              <FaChessKnight />
-            </div>
-            <div>
-              <h3 className="text-yellow-400 font-semibold text-sm">Classic Blitz</h3>
-              <p className="text-white text-xs">Our most popular game mode!</p>
-            </div>
-          </div>
-
-          <div
-            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-sm shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
-            onClick={() => openPlaceBetModal('chess960')}
-          >
-            <div className="icon text-2xl text-yellow-400 mr-4">
-              <FaChessKing />
-            </div>
-            <div>
-              <h3 className="text-yellow-400 font-semibold text-sm">Chess 960</h3>
-              <p className="text-white text-xs">Pieces start on random squares!</p>
-            </div>
-          </div>
-
-          <div
-            className="card flex items-center justify-between bg-secondary border border-gray-300 rounded-md p-sm shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer"
-            onClick={() => openPlaceBetModal(null)}
-          >
-            <div className="icon text-2xl text-yellow-400 mr-4">
-              <FaCoins />
-            </div>
-            <div className="flex flex-col">
-              <h3 className="text-yellow-400 font-semibold text-sm">Play for Horsey Coins</h3>
-              <button
-                className="btn btn-primary get-coins-button mt-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/store');
-                }}
-              >
-                Get Coins
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Use the new GameModes component */}
+      <GameModes openPlaceBetModal={openPlaceBetModal} />
 
       <PlaceBetModal
         isOpen={isPlaceBetModalOpen}

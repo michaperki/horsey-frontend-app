@@ -1,11 +1,10 @@
-
-/* src/components/BalanceToggle.js */
+// src/features/token/components/BalanceToggle.js
 
 import React from 'react';
 import './BalanceToggle.css';
-import { FaCoins } from 'react-icons/fa'; // Importing a coin icon
-import { useSelectedToken } from '../contexts/SelectedTokenContext'; // Import the custom hook
-import PropTypes from 'prop-types'; // For prop type validation
+import { FaCoins, FaExchangeAlt, FaPlus } from 'react-icons/fa';
+import { useSelectedToken } from '../contexts/SelectedTokenContext';
+import PropTypes from 'prop-types';
 
 const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
   // Define the two currencies
@@ -49,21 +48,24 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
       <div className="balance-toggle__display">
         <FaCoins className="balance-toggle__icon" />
         <span className="balance-toggle__amount">
-          {formatBalance(activeCurrency.balance)}{' '}
-          <span className="balance-toggle__active-currency">
-            {activeCurrency.label}
-          </span>
-          <span className="balance-toggle__inactive-currency">
-            {inactiveCurrency.label}
-          </span>
+          {formatBalance(activeCurrency.balance)}
+        </span>
+        <span className="balance-toggle__currency">
+          <span className="balance-toggle__active-currency">{activeCurrency.label}</span>
+          <button className="balance-toggle__switch" onClick={handleToggle}>
+            <FaExchangeAlt />
+          </button>
+          <span className="balance-toggle__inactive-currency">{inactiveCurrency.label}</span>
         </span>
       </div>
       <button
         className="balance-toggle__get-coins"
         onClick={handleGetCoins}
         type="button"
+        aria-label="Get Coins"
       >
-        Get Coins
+        <FaPlus className="get-coins-icon" />
+        <span>Get Coins</span>
       </button>
     </div>
   );

@@ -1,55 +1,136 @@
-
 /* src/styles/variables.css */
 
 :root {
-  /* Colors */
+  /* Color Palette - Enhanced */
   --color-primary: #0a2a4d;
+  --color-primary-light: #1a3a5d;
+  --color-primary-dark: #051d3a;
   --color-secondary: #0074cc;
-  --color-statcard-bg: rgba(65, 84, 113, 0.6); /* Existing variable for StatCard background */
+  --color-secondary-light: #3993db;
+  --color-secondary-dark: #005fad;
+  
+  /* Accent Colors */
+  --color-accent: #ff9800;
+  --color-accent-light: #ffad33;
+  --color-accent-dark: #e68a00;
+  
+  /* Functional Colors */
   --color-success: #28a745;
+  --color-success-light: #48c265;
+  --color-success-dark: #1e8035;
   --color-danger: #dc3545;
+  --color-danger-light: #e45c69;
+  --color-danger-dark: #bd2130;
   --color-warning: #ffc107;
-  --color-light: #f9f9f9;
-  --color-dark: #333333;
+  --color-warning-light: #ffcd39;
+  --color-warning-dark: #d39e00;
+  
+  /* Neutrals */
   --color-white: #ffffff;
-  --color-gray: #6c757d;
-  --color-border: #dddddd;
-
-  --color-yellow-400: #fbbf24; /* Adjust the hex value to your desired yellow */
-  --color-text-light: #f9f9f9; /* Adjust the hex value to your desired yellow */
-
-  /* Additional Info Specific Colors */
-  --color-info-bg: var(--color-light); /* Background for additional info section */
-  --color-info-border: var(--color-border); /* Border color for additional info section */
-  --color-info-title: var(--color-dark); /* Title color for additional info section */
-  --color-info-text: var(--color-dark); /* Text color for additional info items */
-  --color-info-highlight: var(--color-secondary); /* Highlight color for spans in info items */
-
-  /* Font Sizes */
-  --font-size-small: 12px;
-  --font-size-medium: 16px;
-  --font-size-large: 20px;
-  --font-size-xlarge: 24px;
-
+  --color-light: #f9f9f9;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-dark: #111827;
+  
+  /* Component-specific Colors */
+  --color-statcard-bg: rgba(41, 63, 99, 0.7);
+  --color-statcard-hover: rgba(54, 77, 114, 0.8);
+  --color-card-bg: rgba(26, 58, 93, 0.8);
+  --color-border: var(--color-gray-300);
+  --color-text: var(--color-white);
+  --color-text-muted: var(--color-gray-300);
+  --color-text-dark: var(--color-gray-900);
+  --color-link: var(--color-secondary-light);
+  --color-yellow-400: #fbbf24;
+  
+  /* Additional Info Section Colors */
+  --color-info-bg: rgba(35, 67, 103, 0.6);
+  --color-info-border: rgba(255, 255, 255, 0.1);
+  --color-info-title: var(--color-white);
+  --color-info-text: var(--color-gray-300);
+  --color-info-highlight: var(--color-yellow-400);
+  
+  /* Typography */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-family-heading: var(--font-family-base);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-medium: 1rem;   /* 16px */
+  --font-size-large: 1.25rem; /* 20px */
+  --font-size-xl: 1.5rem;    /* 24px */
+  --font-size-2xl: 1.875rem; /* 30px */
+  --font-size-3xl: 2.25rem;  /* 36px */
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
   /* Spacing */
+  --spacing-xxs: 2px;
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
-
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
   /* Border Radius */
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
-
-  /* Transition */
-  --transition-fast: 0.2s;
+  --border-radius-xl: 16px;
+  --border-radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s;
   --transition-medium: 0.3s;
   --transition-slow: 0.5s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-outline: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  
+  /* Grid Pattern */
+  --square-size: 50px;
+  --square-size-mobile: 30px;
+  --square-size-large: 70px;
+  
+  /* Z-Index */
+  --z-below: -1;
+  --z-normal: 1;
+  --z-above: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-fixed: 200;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-tooltip: 500;
+}
 
-  /* Shadow */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+/* Dark Mode Variables */
+:root.dark-mode {
+  --color-info-bg: #1a1a1a;
+  --color-info-border: #333333;
+  --color-info-title: #ffffff;
+  --color-info-text: #dddddd;
+  --color-info-highlight: #3993db;
 }

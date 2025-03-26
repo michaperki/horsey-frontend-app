@@ -1,266 +1,256 @@
-/* src/pages/Home.css */
+/* src/features/home/pages/Home.css */
 
-/* --------------------------------------------------
-   General Styles
--------------------------------------------------- */
-
-/* Ensure the container has appropriate padding */
-.p-sm {
-  padding: var(--spacing-sm);
+.home-container {
+  padding: var(--spacing-md);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Flex center utility */
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Text primary color */
-.text-primary {
-  color: var(--color-primary);
-}
-
-/* Text white color */
-.text-white {
-  color: var(--color-white);
-}
-
-/* Font bold utility */
-.font-bold {
-  font-weight: 700;
-}
-
-/* Font size utilities */
-.text-xl {
-  font-size: 1.25rem; /* 20px */
-}
-
-.text-sm {
-  font-size: 0.875rem; /* 14px */
-}
-
-.text-xs {
-  font-size: 0.75rem; /* 12px */
-}
-
-/* Margin utilities */
-.mb-md {
-  margin-bottom: var(--spacing-md);
-}
-
-.mt-2 {
-  margin-top: 0.5rem; /* 8px */
-}
-
-/* --------------------------------------------------
-   Greeting and Additional Info Styles
--------------------------------------------------- */
-
-/* Merged Greeting and Additional Info */
-.lichess-greeting-and-info {
+/* Welcome Section */
+.welcome-section {
   text-align: center;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-info-border);
+  box-shadow: var(--shadow-md);
+}
+
+.welcome-section h2 {
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
   margin-bottom: var(--spacing-md);
 }
 
-.lichess-greeting-and-info h2 {
-  margin-bottom: var(--spacing-md);
-}
-
-/* Additional Info Section */
-.additional-info-section {
+.welcome-info {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   flex-wrap: wrap;
 }
 
-/* Info Grid Styles */
-.info-grid {
+.welcome-info-item {
   display: flex;
-  justify-content: center;
-  gap: var(--spacing-md);
-  flex-wrap: nowrap;
-}
-
-/* Style Info Items */
-.info-item {
+  align-items: center;
+  color: var(--color-gray-300);
   font-size: var(--font-size-medium);
-  color: var(--color-white);
-  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-full);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Highlight Span Text */
-.info-item span {
-  font-weight: 600;
-  color: var(--color-secondary);
+.welcome-info-item span {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-yellow-400);
+  margin-left: var(--spacing-xs);
 }
 
-/* --------------------------------------------------
-   Stats Grid Styles
--------------------------------------------------- */
-
+/* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Keep three columns */
-  gap: 20px; /* Reduced spacing between grid items for condensing */
-  margin-bottom: 30px; /* Add more space below the grid */
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
-.stats-grid .stat-card {
-  padding: 8px; /* Further reduced padding inside each stat card */
-  font-size: 13px; /* Make text slightly smaller */
-  background-color: var(--color-statcard-bg); /* Use global variable for background */
-  border-radius: var(--border-radius-sm); /* Small rounding for grid items */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-/* Responsive Adjustments for Stats Grid */
-@media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr); /* Adjust for smaller screens */
-    gap: 15px; /* Slightly reduce gap */
-  }
-}
-
-@media (max-width: 600px) {
-  .stats-grid {
-    grid-template-columns: 1fr; /* Single-column layout for small screens */
-    gap: 10px;
-  }
-}
-
-/* --------------------------------------------------
-   Home Options (Cards) Styles
--------------------------------------------------- */
-
-.home-options {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-/* Card Styles */
-.card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--color-secondary);
-  border: 1px solid var(--color-gray-300);
+.stat-card {
+  background-color: var(--color-statcard-bg);
   border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-medium) var(--transition-timing);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background-color: var(--color-statcard-hover);
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card h3 {
+  font-size: var(--font-size-small);
+  color: var(--color-yellow-400);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+}
+
+.stat-card p {
+  font-size: var(--font-size-large);
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+/* Game Options Grid */
+.game-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.home-option-card {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
 }
 
-.card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transform: translateY(-4px);
+.home-option-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  z-index: 1;
 }
 
-/* Icon Styles */
-.icon {
-  font-size: 2rem; /* 32px */
+.home-option-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.home-option-card .icon {
+  font-size: 2.5rem;
   color: var(--color-yellow-400);
   margin-right: var(--spacing-md);
+  z-index: 2;
 }
 
-/* Card Titles */
-.card h3 {
-  font-size: 0.875rem; /* 14px */
-  font-weight: 600;
+.home-option-card .content {
+  flex: 1;
+  z-index: 2;
+}
+
+.home-option-card h3 {
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-yellow-400);
+  margin-bottom: var(--spacing-xs);
 }
 
-/* Card Descriptions */
-.card p {
-  font-size: 0.75rem; /* 12px */
+.home-option-card p {
+  font-size: var(--font-size-small);
   color: var(--color-white);
+  margin-bottom: var(--spacing-md);
 }
 
-/* Get Coins Button */
-.get-coins-button {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+/* Loading Spinner */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.get-coins-button:hover {
-  background-color: var(--color-primary-dark);
+/* Continuation of Home.css */
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-secondary);
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto;
 }
 
-/* --------------------------------------------------
-   Responsive Adjustments for Home Options
--------------------------------------------------- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
+/* Media Queries for Responsive Design */
 @media (max-width: 1024px) {
-  .home-options {
-    gap: 15px;
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .game-options-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
-  .home-options {
+@media (max-width: 768px) {
+  .welcome-info {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-sm);
+    align-items: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+  
+  .game-options-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .home-option-card {
+    min-height: 120px;
   }
 }
 
-/* --------------------------------------------------
-   Additional Responsive Styles
--------------------------------------------------- */
-
-/* Responsive Adjustments for Greeting and Additional Info */
-@media (max-width: 1024px) {
-  .additional-info-section {
-    gap: var(--spacing-sm);
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
-
-  .info-grid {
-    gap: var(--spacing-sm);
-    flex-wrap: wrap;
-    justify-content: center;
+  
+  .welcome-section h2 {
+    font-size: var(--font-size-large);
   }
-
-  .info-item {
+  
+  .stat-card h3 {
+    font-size: var(--font-size-xs);
+  }
+  
+  .stat-card p {
     font-size: var(--font-size-medium);
-    text-align: center;
+  }
+  
+  .home-option-card .icon {
+    font-size: 1.75rem;
+  }
+  
+  .home-option-card h3 {
+    font-size: var(--font-size-small);
+  }
+  
+  .home-option-card p {
+    font-size: var(--font-size-xs);
   }
 }
-
-@media (max-width: 600px) {
-  .additional-info-section {
-    /* No additional styles needed unless desired */
-  }
-
-  .info-grid {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .info-item {
-    flex: 1 1 100%;
-    text-align: center;
-  }
-}
-
-/* --------------------------------------------------
-   Main Content Styles
--------------------------------------------------- */
-
-.main {
-  /* Add any additional styles for main content if needed */
-}
-
-/* --------------------------------------------------
-   Optional: Remove any padding/margin that was applied via additional-info-section
--------------------------------------------------- */
-/* .additional-info {
-  padding: 0;
-  margin-bottom: var(--spacing-md); 
-} */
