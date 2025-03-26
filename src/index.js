@@ -17,7 +17,12 @@ console.log('API URL:', process.env.REACT_APP_API_URL);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter 
+      future={{
+        v7_relativeSplatPath: true,
+        v7_startTransition: true
+      }}
+    >
       <AuthProvider> {/* Wrap App with AuthProvider */}
         <App />
       </AuthProvider>
