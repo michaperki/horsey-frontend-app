@@ -39,7 +39,7 @@ const ProfilePage = () => {
       <ProfileHeader />
       <div className="profile-content">
         <VerticalTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="tab-content">
+        <div className="profile-tab-content">
           {renderActiveTab()}
         </div>
       </div>

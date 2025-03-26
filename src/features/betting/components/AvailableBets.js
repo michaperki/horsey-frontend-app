@@ -1,53 +1,62 @@
-// src/features/betting/components/AvailableBets.js
+// Updated src/features/betting/components/AvailableBets.js
 
-import React, { useEffect, useState, useCallback } from "react";
-import { acceptBet, getAvailableBets } from "../../../services/api";
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useToken } from "../../token/contexts/TokenContext";
 import { useSelectedToken } from '../../token/contexts/SelectedTokenContext';
-import "./AvailableBets.css";
 import { formatDistanceToNow } from "date-fns";
 
 // Import React Icons
 import { 
-  FaUser, 
-  FaStar, 
-  FaClock, 
-  FaPuzzlePiece, 
-  FaMoneyBill, 
-  FaHourglassHalf, 
   FaSignInAlt, 
-  FaChessPawn, 
-  FaDice 
-} from "react-icons/fa";
+  FaInfoCircle,
+  FaExclamationCircle,
+  FaSortUp,
+  FaSortDown,
+  FaSort,
+  FaSpinner
+} from 'react-icons/fa';
 
-const AvailableBets = () => {
+import "./AvailableBets.css";
+
+const AvailableBets = ({ format = "1v1" }) => {
   const { token } = useAuth();
   const { tokenBalance, sweepstakesBalance, loading: tokenLoading, error: tokenError } = useToken();
   const { selectedToken } = useSelectedToken();
+  
   const [bets, setBets] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState({});
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
 
+  // Fetch available bets
   const fetchAvailableBets = useCallback(async () => {
     if (!token) {
       setError("Please log in to view available bets.");
+      setLoading(false);
       return;
     }
+    
     if (tokenLoading) {
       return;
     }
+    
     if (tokenError) {
       setError("Failed to load your balances. Please try again.");
+      setLoading(false);
       return;
     }
+    
     setLoading(true);
     setError("");
 
     try {
       const fetchedBets = await getAvailableBets(selectedToken);
 
+      // Filter bets based on user's balance
       const filteredBets = fetchedBets.filter((bet) => {
         if (bet.currencyType === "token") {
           return bet.wager <= tokenBalance;
@@ -57,23 +66,35 @@ const AvailableBets = () => {
         return false;
       });
 
-      setBets(filteredBets);
+      // Sort the filtered bets
+      const sortedBets = [...filteredBets].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+
+      setBets(sortedBets);
     } catch (err) {
       setError(err.message || "An error occurred while fetching available bets.");
     } finally {
       setLoading(false);
     }
-  }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken]);
+  }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken, sortConfig]);
 
+  // Setup polling for bets
   useEffect(() => {
     fetchAvailableBets();
-    // Optionally, set up polling or websocket listeners to update balances in real-time
+    const intervalId = setInterval(fetchAvailableBets, 30000); // refresh every 30 seconds
+    
+    return () => clearInterval(intervalId);
   }, [fetchAvailableBets]);
 
   /**
    * Determines the opponent's color based on the bet's color preference.
-   * @param {string} colorPreference - The color preference of the seeker.
-   * @returns {string} - The opponent's color.
    */
   const determineOpponentColor = (colorPreference) => {
     if (colorPreference === "white") return "black";
@@ -84,8 +105,6 @@ const AvailableBets = () => {
 
   /**
    * Retrieves the appropriate rating based on the variant and available data.
-   * @param {object} bet - The bet object.
-   * @returns {number|string} - The rating or "unrated".
    */
   const getRating = (bet) => {
     const { variant, creatorRatings } = bet;
@@ -99,23 +118,46 @@ const AvailableBets = () => {
   };
 
   /**
+   * Handles sorting when a column header is clicked
+   */
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  /**
+   * Renders the appropriate sort indicator based on current sort config
+   */
+  const renderSortIndicator = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <FaSort className="sort-indicator" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <FaSortUp className="sort-indicator" /> : 
+      <FaSortDown className="sort-indicator" />;
+  };
+
+  /**
    * Renders the appropriate icon based on the color preference.
-   * @param {string} colorPreference - The color preference of the bet.
-   * @returns {JSX.Element} - The corresponding icon.
    */
   const renderColorIcon = (colorPreference) => {
     switch (colorPreference.toLowerCase()) {
       case "white":
-        return <FaChessPawn color="white" aria-label="White Pawn" />;
+        return <div className="color-indicator color-white"></div>;
       case "black":
-        return <FaChessPawn color="black" aria-label="Black Pawn" />;
+        return <div className="color-indicator color-black"></div>;
       case "random":
-        return <FaDice color="#ffc107" aria-label="Random Color" />; // Golden color for dice
       default:
-        return <FaDice color="#6c757d" aria-label="Unknown Color" />; // Fallback icon
+        return <div className="color-indicator color-random"></div>;
     }
   };
 
+  /**
+   * Handle accepting a bet
+   */
   const handleAcceptBet = async (betId, colorPreference) => {
     if (!token) {
       setError("Please log in to accept bets.");
@@ -133,99 +175,152 @@ const AvailableBets = () => {
     }
   };
 
+  // Rendering logic based on state
+  if (loading) {
+    return (
+      <div className="bets-loading">
+        <div className="spinner"></div>
+        <p>Loading available bets...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bets-error">
+        <FaExclamationCircle />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (bets.length === 0) {
+    return (
+      <div className="empty-bets">
+        <FaInfoCircle className="empty-bets-icon" />
+        <p className="empty-bets-message">No bets are available right now.</p>
+        <p>Be the first to create a bet and challenge others!</p>
+      </div>
+    );
+  }
+
+  // Animation variants
+  const tableVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.05 
+      }
+    }
+  };
+
+  const rowVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 100, damping: 15 }
+    },
+    exit: { 
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.2 }
+    }
+  };
+
   return (
-    <div className="available-bets-container">
-      <h2>Available Bets</h2>
-      {loading && <p>Loading available bets...</p>}
-      {error && <p className="error-message">{error}</p>}
-      {bets.length === 0 && !loading && !error && (
-        <p>No bets available right now.</p>
-      )}
+    <div className="bets-table-container">
+      <motion.table 
+        className="bets-table"
+        variants={tableVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <thead>
+          <tr>
+            <th onClick={() => handleSort('creatorLichessUsername')}>
+              Player {renderSortIndicator('creatorLichessUsername')}
+            </th>
+            <th onClick={() => handleSort('rating')}>
+              Rating {renderSortIndicator('rating')}
+            </th>
+            <th>Color</th>
+            <th onClick={() => handleSort('wager')}>
+              Wager {renderSortIndicator('wager')}
+            </th>
+            <th>Time</th>
+            <th onClick={() => handleSort('variant')}>
+              Variant {renderSortIndicator('variant')}
+            </th>
+            <th onClick={() => handleSort('createdAt')}>
+              Age {renderSortIndicator('createdAt')}
+            </th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <AnimatePresence>
+            {bets.map((bet) => {
+              const {
+                id,
+                creatorLichessUsername,
+                creator,
+                colorPreference,
+                timeControl,
+                variant,
+                wager,
+                currencyType,
+                createdAt,
+              } = bet;
 
-      {/* Optionally, inform users if some bets are hidden */}
-      {/* Assuming you have access to fetchedBets.length */}
-      {/* <p>Showing {bets.length} of {fetchedBets.length} available bets.</p> */}
-
-      {bets.length > 0 && (
-        <div className="table-wrapper">
-          <table className="available-bets-table">
-            <thead>
-              <tr>
-                <th title="Seeker" className="header-icon">
-                  <FaUser />
-                </th>
-                <th title="Rating" className="header-icon">
-                  <FaStar />
-                </th>
-                <th title="Color" className="header-icon">
-                  <FaChessPawn />
-                </th>
-                <th title="Wager (Currency)" className="header-icon">
-                  <FaMoneyBill />
-                </th>
-                <th title="Time Control" className="header-icon">
-                  <FaClock />
-                </th>
-                <th title="Variant" className="header-icon">
-                  <FaPuzzlePiece />
-                </th>
-                <th title="Time Elapsed" className="header-icon">
-                  <FaHourglassHalf />
-                </th>
-                <th title="Action" className="header-icon">
-                  <FaSignInAlt />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {bets.map((bet) => {
-                const {
-                  id,
-                  creatorLichessUsername,
-                  creator,
-                  colorPreference,
-                  timeControl,
-                  variant,
-                  wager,
-                  currencyType,
-                  createdAt,
-                } = bet;
-
-                return (
-                  <tr key={id} data-bet-id={id}>
-                    <td>{creatorLichessUsername || creator}</td>
-                    <td>{getRating(bet)}</td>
-                    <td>{renderColorIcon(colorPreference)}</td>
-                    <td>{wager} {currencyType.toUpperCase()}</td>
-                    <td>{formatTimeControl(timeControl)}</td>
-                    <td>{capitalizeFirstLetter(variant)}</td>
-                    <td>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</td>
-                    <td>
-                      <button
-                        onClick={() => handleAcceptBet(id, colorPreference)}
-                        className={`join-button ${actionLoading[id] ? "loading" : ""}`}
-                        disabled={actionLoading[id]}
-                        title="Join Bet"
-                        aria-label="Join Bet"
-                      >
-                        {actionLoading[id] ? "Joining..." : <FaSignInAlt />}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+              return (
+                <motion.tr 
+                  key={id} 
+                  data-bet-id={id}
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  layout
+                >
+                  <td>{creatorLichessUsername || creator}</td>
+                  <td className="rating-cell">{getRating(bet)}</td>
+                  <td>{renderColorIcon(colorPreference)}</td>
+                  <td>{wager} {currencyType.toUpperCase()}</td>
+                  <td>{formatTimeControl(timeControl)}</td>
+                  <td>{capitalizeFirstLetter(variant)}</td>
+                  <td>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</td>
+                  <td>
+                    <button
+                      onClick={() => handleAcceptBet(id, colorPreference)}
+                      className={`join-button ${actionLoading[id] ? "loading" : ""}`}
+                      disabled={actionLoading[id]}
+                    >
+                      {actionLoading[id] ? (
+                        <>
+                          <div className="spinner"></div>
+                          Joining...
+                        </>
+                      ) : (
+                        <>
+                          <FaSignInAlt className="join-icon" /> Join
+                        </>
+                      )}
+                    </button>
+                  </td>
+                </motion.tr>
+              );
+            })}
+          </AnimatePresence>
+        </tbody>
+      </motion.table>
     </div>
   );
 };
 
 /**
  * Utility function to capitalize the first letter of a string.
- * @param {string} str - The string to capitalize.
- * @returns {string} - The capitalized string.
  */
 const capitalizeFirstLetter = (str) => {
   if (!str) return "";
@@ -234,8 +329,6 @@ const capitalizeFirstLetter = (str) => {
 
 /**
  * Formats the time control string into a more readable format.
- * @param {string} timeControl - Time control in the format "minutes|increment".
- * @returns {string} - Formatted time control.
  */
 const formatTimeControl = (timeControl) => {
   if (!timeControl) return "N/A";
@@ -244,4 +337,3 @@ const formatTimeControl = (timeControl) => {
 };
 
 export default AvailableBets;
-

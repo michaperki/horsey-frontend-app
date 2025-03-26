@@ -1,5 +1,7 @@
-// Enhanced Layout.js
-import React, { useState, useEffect } from 'react';
+// src/features/layout/components/Layout.js
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Bulletin from './Bulletin';
 import Sidebar from './Sidebar';
@@ -7,14 +9,20 @@ import PlaceBet from '../../betting/components/PlaceBet';
 import PlaceBetModal from '../../betting/components/PlaceBetModal';
 import Footer from './Footer';
 import { Outlet } from 'react-router-dom';
+import PageTransition from '../../common/components/PageTransition';
 import './Layout.css';
 
 const Layout = () => {
+  const location = useLocation();
   const [isPlaceBetModalOpen, setIsPlaceBetModalOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [currentPath, setCurrentPath] = useState(location.pathname);
+  const storeContentRef = useRef(null);
 
-  // Handle scroll events to apply effects
+
+
+  // For handling scroll events
   useEffect(() => {
     const handleScroll = () => {
       setScrollPosition(window.scrollY);
@@ -23,6 +31,11 @@ const Layout = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // For updating currentPath on location change
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location]);
 
   // Open place bet modal with optional variant
   const openPlaceBetModal = (variant = null) => {
@@ -52,11 +65,13 @@ const Layout = () => {
           <aside className="bulletin">
             <Bulletin />
           </aside>
-
-          {/* Main Content */}
-          <main className="main-content">
-            <Outlet context={{ openPlaceBetModal }} />
-          </main>
+          {/*PageTransition location={currentPath}>
+              < Main Content */}
+          <PageTransition location={currentPath}>
+            <main className="main-content">
+              <Outlet context={{ openPlaceBetModal }} />
+            </main>
+          </PageTransition>
 
           {/* Right Sidebar */}
           <aside className="sidebar">

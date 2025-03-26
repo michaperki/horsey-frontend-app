@@ -1,141 +1,318 @@
+/* Updated src/features/betting/components/AvailableBets.css */
 
-/* src/components/AvailableBets.css */
-
+/* Main container */
 .available-bets-container {
   border-radius: var(--border-radius-md);
   max-width: 900px;
-  width: 90%;
+  width: 100%;
   margin: var(--spacing-lg) auto;
   color: var(--color-white);
-  font-family: var(--font-family, Arial, sans-serif);
+  font-family: var(--font-family-base);
+  position: relative;
+  animation: fadeIn 0.6s ease-out;
 }
 
-.available-bets-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 1.5em; /* Reduced font size */
-}
+/* Title - moved to Lobby component to avoid conflicts */
 
 /* Error message styling */
 .error-message {
   color: var(--color-danger);
-  font-weight: bold;
+  font-weight: var(--font-weight-medium);
   text-align: center;
-  margin: var(--spacing-sm) 0;
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: var(--border-radius-md);
+  border-left: 3px solid var(--color-danger);
+  animation: slideIn 0.3s ease-out;
 }
 
+/* Loading container */
+.bets-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  color: #e0e0e0;
+}
 
-/* Table wrapper for responsiveness and scroll */
-.table-wrapper {
-  max-height: 400px; /* Set desired max height */
-  overflow-y: auto; /* Add vertical scrollbar if content exceeds max height */
-  overflow-x: auto; /* Retain horizontal scrollbar for small screens */
+.spinner {
+  margin-bottom: var(--spacing-md);
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--color-accent);
+  animation: spin 1s linear infinite;
+}
+
+.bets-loading p {
+  color: var(--color-gray-300);
+  font-size: var(--font-size-medium);
+}
+
+/* Empty state */
+.empty-bets {
+  text-align: center;
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(41, 63, 99, 0.9) 0%, rgba(35, 56, 91, 0.9) 100%);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  font-size: var(--font-size-large);
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.empty-bets-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-gray-500);
+}
+
+.empty-bets-message {
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Error state */
+.bets-error {
+  text-align: center;
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  color: #e0e0e0;
+  font-size: var(--font-size-medium);
+}
+
+.bets-error svg {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-danger);
+}
+
+/* Table container */
+.bets-table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  margin-top: var(--spacing-md);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, rgba(0, 20, 35, 0.9) 0%, rgba(5, 29, 58, 0.9) 100%);
+  animation: fadeIn 0.5s ease-out;
+  position: relative;
+}
+
+/* Custom scrollbar */
+.bets-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.bets-table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.bets-table-container::-webkit-scrollbar-thumb {
+  background: var(--color-secondary-dark);
+  border-radius: 4px;
+}
+
+.bets-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
 }
 
 /* Table styling */
-.available-bets-table {
+.bets-table {
   width: 100%;
   border-collapse: collapse;
-  background: #003b6f;
-  color: white;
+  color: var(--color-white);
   text-align: center;
-  table-layout: fixed; /* Fixed layout for consistent column widths */
-  font-size: 0.85em; /* Reduced font size */
+  table-layout: fixed;
+  font-size: var(--font-size-small);
+  background: linear-gradient(135deg, rgba(0, 30, 60, 0.95) 0%, rgba(10, 42, 77, 0.95) 100%);
 }
 
-.available-bets-table thead {
-  background: #00509e;
+/* Table header */
+.bets-table thead {
+  background: linear-gradient(90deg, #003366 0%, #004080 100%);
   text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.available-bets-table th,
-.available-bets-table td {
-  padding: 10px 8px; /* Increased padding for better spacing */
-  border: 1px solid #004080;
-  font-size: 0.85em; /* Smaller font size */
+.bets-table thead tr {
+  display: table-row;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bets-table thead th {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.9);
+  vertical-align: middle;
+  border: none;
+  transition: background-color var(--transition-fast) var(--transition-timing);
+  cursor: pointer;
+  position: relative;
+  background-color: inherit;
+}
+
+.bets-table thead th:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Table rows */
+.bets-table tbody tr {
+  transition: all var(--transition-fast) var(--transition-timing);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(10, 42, 77, 0.7);
+}
+
+.bets-table tbody tr:nth-child(odd) {
+  background-color: rgba(5, 29, 58, 0.8);
+}
+
+.bets-table tbody tr:hover {
+  background-color: rgba(33, 150, 243, 0.2);
+}
+
+/* Table cells */
+.bets-table th,
+.bets-table td {
+  padding: var(--spacing-md) var(--spacing-sm);
+  font-size: 0.9em;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap; /* Prevent wrapping */
-  text-align: center; /* Center horizontally */
-  vertical-align: middle; /* Center vertically */
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
 }
 
-/* Icon styling in headers */
-.header-icon svg {
-  width: 20px;
-  height: 20px;
+/* Rating cell */
+.rating-cell {
+  font-weight: 700;
+  color: #ffc107;
 }
 
-/* Icon styling in table cells */
-.available-bets-table td svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Button styling */
-.join-button {
-  padding: 5px 10px; /* Reduced padding */
-  border: none;
-  border-radius: 5px;
-  color: white;
-  background: #28a745; /* Green color for "Join" */
-  cursor: pointer;
-  transition: background 0.3s ease;
-  font-weight: bold;
-  font-size: 0.85em; /* Smaller font */
-  display: flex;
+/* Color indicator */
+.color-indicator {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin: 0 auto;
 }
 
-.join-button svg {
-  width: 16px;
-  height: 16px;
+.color-white {
+  background: #fff;
+  border: 2px solid #ccc;
+}
+
+.color-black {
+  background: #000;
+  border: 2px solid #333;
+}
+
+.color-random {
+  background: linear-gradient(135deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+  border: 2px solid #666;
+}
+
+/* Join button */
+.join-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .join-button:hover {
-  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
 }
 
-.join-button:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
+.join-button:active {
+  transform: translateY(0);
 }
 
+.join-icon {
+  font-size: 16px;
+}
+
+/* Loading state */
 .join-button.loading {
-  background: #ffc107; /* Yellow color to indicate loading */
-  cursor: progress;
+  background: linear-gradient(135deg, #78909C 0%, #546E7A 100%);
+  cursor: wait;
 }
 
-/* Responsive Design */
+.join-button .spinner {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .bets-table th, 
+  .bets-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 768px) {
-  .available-bets-table th,
-  .available-bets-table td {
-    padding: 8px 6px; /* Adjusted padding */
-    font-size: 0.75em; /* Smaller font for small screens */
+  .bets-table {
+    font-size: 13px;
   }
-
-  /* Hide less important columns */
-  .available-bets-table th:nth-child(3),
-  .available-bets-table td:nth-child(3), /* Color */
-  .available-bets-table th:nth-child(5),
-  .available-bets-table td:nth-child(5), /* Variant */
-  .available-bets-table th:nth-child(6),
-  .available-bets-table td:nth-child(6)  /* Time Elapsed */ {
-    display: none;
+  
+  .color-indicator {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .join-button {
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }
-
-@media (max-width: 480px) {
-  .available-bets-table th:nth-child(4),
-  .available-bets-table td:nth-child(4), /* Wager (Currency) */
-  .available-bets-table th:nth-child(7),
-  .available-bets-table td:nth-child(7)  /* Action */ {
-    display: none;
-  }
-
-  .available-bets-container h2 {
-    font-size: 1.3em; /* Adjust heading size */
-  }
-}
-
