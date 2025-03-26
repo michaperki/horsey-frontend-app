@@ -1,45 +1,58 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
+import { formatDate } from 'features/common/utils/formatDate';
 
-const UserGreetingInfo = ({ lichessConnected, lichessUsername, statistics }) => (
-  <div className="lichess-greeting-and-info mb-md text-center">
-    {lichessConnected ? (
-      <>
+const UserGreetingInfo = ({
+  lichessConnected,
+  lichessUsername = '',
+  statistics = { username: '', karma: 0, membership: 'Free', ratingClass: 'Class B' },
+}) => {
+  if (lichessConnected) {
+    const username = lichessUsername || statistics.username || 'User';
+    const karma = statistics.karma;
+    const membership = statistics.membership;
+    const ratingClass = statistics.ratingClass;
+
+    return (
+      <div className="lichess-greeting-and-info mb-md text-center">
         <h2 className="text-white font-bold text-xl mb-md">
-          Welcome back, {lichessUsername || statistics.username}!
+          Welcome back, {username}!
         </h2>
         <div className="additional-info-section flex justify-center gap-5 flex-wrap">
           <div className="info-grid">
             <div className="info-item">
-              <span>Karma:</span> {statistics.karma}
+              <span>Karma:</span> {karma}
             </div>
             <div className="info-item">
-              <span>Membership:</span> {statistics.membership}
+              <span>Membership:</span> {membership}
             </div>
             <div className="info-item">
-              <span>Rating Class:</span> {statistics.ratingClass || 'Class B'}
+              <span>Rating Class:</span> {ratingClass}
             </div>
           </div>
         </div>
-      </>
-    ) : (
-      <h2 className="text-white font-bold text-xl">
-        Welcome! Please connect your Lichess account.
-      </h2>
-    )}
-  </div>
-);
+      </div>
+    );
+  } else {
+    return (
+      <div className="lichess-greeting-and-info mb-md text-center">
+        <h2 className="text-white font-bold text-xl">
+          Welcome! Please connect your Lichess account.
+        </h2>
+      </div>
+    );
+  }
+};
 
 UserGreetingInfo.propTypes = {
   lichessConnected: PropTypes.bool.isRequired,
-  lichessUsername: PropTypes.string.isRequired,
+  lichessUsername: PropTypes.string,
   statistics: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-    karma: PropTypes.number.isRequired,
-    membership: PropTypes.string.isRequired,
-    ratingClass: PropTypes.string.isRequired,
-  }).isRequired,
+    username: PropTypes.string,
+    karma: PropTypes.number,
+    membership: PropTypes.string,
+    ratingClass: PropTypes.string,
+  }),
 };
 
 export default UserGreetingInfo;
