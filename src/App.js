@@ -1,39 +1,50 @@
-
 // src/App.js
 
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing";
-import Mint from "./components/Admin/Mint";
-import Balance from "./components/Admin/Balance";
-import Transfer from "./components/Admin/Transfer";
-import ValidateResult from "./components/Admin/ValidateResult";
-import PlaceBet from "./components/PlaceBet";
-import Register from './components/Auth/Register';
-import UserLogin from './components/Auth/UserLogin';
-import AdminLogin from './components/Auth/AdminLogin';
-import Home from './pages/Home';
-import AdminDashboard from './pages/AdminDashboard';
-import Lobby from './pages/Lobby';
-import Leaderboard from './pages/Leaderboard';
-import ProtectedRoute from './components/ProtectedRoute';
-import ProfilePage from './pages/Profile';
-import RulesPage from './pages/Info/Rules';
-import AboutPage from './pages/Info/About';
-import CareersPage from './pages/Info/Careers';
-import BlogPage from './pages/Info/Blog';
-import PrivacyPage from './pages/Info/Privacy';
-import Notifications from './components/Notifications';
-import LichessCallback from './components/Auth/LichessCallback';
-import Layout from './components/Layout';
-import { SocketProvider } from './contexts/SocketContext';
-import { TokenProvider } from './contexts/TokenContext';
-import { SelectedTokenProvider } from './contexts/SelectedTokenContext';
-import { LichessProvider } from './contexts/LichessContext';
-import { ProfileProvider } from './contexts/ProfileContext';
-import { NotificationsProvider } from './contexts/NotificationsContext';
-import NotificationsModal from './components/NotificationsModal';
-import Store from './pages/Store';
+
+// Feature imports
+import Landing from "./features/landing/pages/Landing";
+import Home from './features/home/pages/Home';
+import Lobby from './features/lobby/pages/Lobby';
+import Leaderboard from './features/leaderboard/pages/Leaderboard';
+import Store from './features/store/pages/Store';
+import Profile from './features/profile/pages';
+
+// Auth feature
+import Register from './features/auth/components/Register';
+import UserLogin from './features/auth/components/UserLogin';
+import AdminLogin from './features/auth/components/AdminLogin';
+import LichessCallback from './features/auth/components/LichessCallback';
+import ProtectedRoute from './features/auth/components/ProtectedRoute';
+import { LichessProvider } from './features/auth/contexts/LichessContext';
+
+// Admin feature
+import AdminDashboard from './features/admin/pages/AdminDashboard';
+
+// Betting feature
+import PlaceBet from "./features/betting/components/PlaceBet";
+
+// Info feature
+import RulesPage from './features/info/pages/Rules';
+import AboutPage from './features/info/pages/About';
+import CareersPage from './features/info/pages/Careers';
+import BlogPage from './features/info/pages/Blog';
+import PrivacyPage from './features/info/pages/Privacy';
+
+// Notifications feature
+import Notifications from './features/notifications/components/Notifications';
+import NotificationsModal from './features/notifications/components/NotificationsModal';
+import { NotificationsProvider } from './features/notifications/contexts/NotificationsContext';
+
+// Layout feature
+import Layout from './features/layout/components/Layout';
+
+// Common/Shared contexts
+import { SocketProvider } from './features/common/contexts/SocketContext';
+import { TokenProvider } from './features/token/contexts/TokenContext';
+import { SelectedTokenProvider } from './features/token/contexts/SelectedTokenContext';
+import { ProfileProvider } from './features/profile/contexts/ProfileContext';
 
 function App() {
   return (
@@ -55,43 +66,11 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/lobby" element={<Lobby />} />
                     <Route path="/leaderboards" element={<Leaderboard />} />
-                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/store" element={<Store />} />
                   </Route>
 
-                  <Route
-                    path="/admin/mint"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <Mint />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/balance"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <Balance />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/transfer"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <Transfer />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin/validate-result"
-                    element={
-                      <ProtectedRoute requiredRole="admin">
-                        <ValidateResult />
-                      </ProtectedRoute>
-                    }
-                  />
                   <Route
                     path="/admin/dashboard"
                     element={

@@ -6,7 +6,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
-import { AuthProvider } from './contexts/AuthContext'; // Import AuthProvider
+import { AuthProvider } from 'features/auth/contexts/AuthContext';
+
+
 // Log which .env file is being used
 console.log('Environment:', process.env.NODE_ENV);
 console.log('ENV File:', process.env.REACT_APP_ENV_FILE);

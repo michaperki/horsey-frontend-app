@@ -1,7 +1,7 @@
 
 // src/services/api.js
 
-import { apiFetch } from '../utils/api';
+import { apiFetch } from 'features/common/services/api';
 
 /**
  * Registers a new user.
