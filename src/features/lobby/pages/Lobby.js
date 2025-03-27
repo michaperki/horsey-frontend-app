@@ -1,22 +1,18 @@
-// src/features/lobby/pages/Lobby.js - Updated to work with fixed CSS
+// src/features/lobby/pages/Lobby.js - Updated to remove greeting component
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import AvailableBets from "../../betting/components/AvailableBets";
-import { useLichess } from '../../auth/contexts/LichessContext';
-import { useProfile } from '../../profile/contexts/ProfileContext';
 import { FaTrophy, FaChessKnight, FaDice, FaInfoCircle } from 'react-icons/fa';
 
 // Import the enhanced styling
 import './Lobby.css';
 
 const Lobby = () => {
-  const { lichessConnected, lichessUsername } = useLichess();
-  const { profile } = useProfile();
   const [activeTab, setActiveTab] = useState("1v1");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Animation variants - matching Home page style
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -68,29 +64,6 @@ const Lobby = () => {
       initial={isInitialLoad ? "hidden" : false}
       animate="visible"
     >
-      <motion.div 
-        className="welcome-section"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2>Welcome back, {lichessUsername || profile.username || 'Player'}!</h2>
-        <div className="user-stats">
-          <div className="stat-item">
-            <span className="stat-label">Karma:</span>
-            <span className="stat-value">{profile.karma || 0}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Membership:</span>
-            <span className="stat-value">{profile.membership || 'Free'}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Rating Class:</span>
-            <span className="stat-value">{profile.ratingClass || 'Beginner'}</span>
-          </div>
-        </div>
-      </motion.div>
-
       <div className="tab-navigation">
         <motion.button
           className={`tab-button ${activeTab === "1v1" ? 'active' : ''}`}

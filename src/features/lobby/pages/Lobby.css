@@ -1,4 +1,4 @@
-/* src/features/lobby/pages/Lobby.css - Updated to fix transparency issues */
+/* src/features/lobby/pages/Lobby.css - Updated to remove welcome section styles */
 
 /* Main container styling */
 .lobby-container {
@@ -26,52 +26,6 @@
   background-position: 0 0, 10px 10px;
   pointer-events: none;
   z-index: 1;
-}
-
-/* Welcome section - matching Home page style */
-.welcome-section {
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
-  z-index: 2;
-  padding: 20px 0;
-  background: transparent;
-  border: none;
-}
-
-.welcome-section h2 {
-  font-size: 32px;
-  margin-bottom: 16px;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* User stats/info section */
-.user-stats {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 15px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.stat-label {
-  font-weight: 500;
-  margin-right: 6px;
-}
-
-.stat-value {
-  font-weight: 700;
-  color: #ffc107;
 }
 
 /* Tab navigation */
@@ -135,7 +89,6 @@
   position: relative;
   z-index: 2;
   background: transparent; /* Force transparency with !important */
-
   border-radius: 0;
   box-shadow: none;
   border: none;
@@ -206,12 +159,6 @@
 }
 
 @media (max-width: 768px) {
-  .user-stats {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-  
   .tab-navigation {
     flex-wrap: wrap;
     gap: 5px;
