@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
+// Enhanced page transition variants
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -23,8 +24,9 @@ const pageVariants = {
 };
 
 const pageTransition = {
-  type: 'tween',
-  ease: 'anticipate',
+  type: 'spring',
+  stiffness: 100,
+  damping: 15,
   duration: 0.4
 };
 

@@ -1,5 +1,4 @@
 // src/features/token/components/BalanceToggle.js
-
 import React from 'react';
 import './BalanceToggle.css';
 import { FaCoins, FaExchangeAlt, FaPlus } from 'react-icons/fa';
@@ -33,7 +32,7 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
     if (balance >= 1000) {
       return Number(balance).toLocaleString(undefined, {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
+        maximumFractionDigits: 0, // Changed to 0 to match the image
       });
     }
     return Number(balance).toFixed(2);
@@ -44,15 +43,23 @@ const BalanceToggle = ({ tokenBalance, sweepstakesBalance, onGetCoins }) => {
   const inactiveCurrency = currencies.find((c) => c.id !== selectedToken);
 
   return (
-    <div className="balance-toggle" onClick={handleToggle}>
-      <div className="balance-toggle__display">
+    <div className="balance-toggle">
+      <div className="balance-toggle__display" onClick={handleToggle}>
         <FaCoins className="balance-toggle__icon" />
         <span className="balance-toggle__amount">
           {formatBalance(activeCurrency.balance)}
         </span>
         <span className="balance-toggle__currency">
           <span className="balance-toggle__active-currency">{activeCurrency.label}</span>
-          <button className="balance-toggle__switch" onClick={handleToggle}>
+          <button 
+            className="balance-toggle__switch"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggle();
+            }}
+            type="button"
+            aria-label="Switch Currency"
+          >
             <FaExchangeAlt />
           </button>
           <span className="balance-toggle__inactive-currency">{inactiveCurrency.label}</span>

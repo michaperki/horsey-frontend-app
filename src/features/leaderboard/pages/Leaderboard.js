@@ -1,7 +1,7 @@
 // src/features/leaderboard/pages/Leaderboard.js
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaTrophy, FaMedal, FaStar, FaChess, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaCoins } from "react-icons/fa";
 import { useAuth } from '../../auth/contexts/AuthContext';
 import './Leaderboard.css';
@@ -159,7 +159,6 @@ const Leaderboard = () => {
           
           if (filter !== "all") {
             // Additional filters could be implemented here
-            // For example, filtering by country, win percentage threshold, etc.
           }
           
           // Sort the data
@@ -242,6 +241,10 @@ const Leaderboard = () => {
         staggerChildren: 0.1,
         duration: 0.3
       }
+    },
+    exit: {
+      opacity: 0,
+      transition: { duration: 0.2 }
     }
   };
 
@@ -254,15 +257,50 @@ const Leaderboard = () => {
     }
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (custom) => ({
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        delay: custom * 0.05,
+        type: "spring",
+        stiffness: 100,
+        damping: 10
+      }
+    }),
+    exit: {
+      opacity: 0,
+      y: -10,
+      transition: { duration: 0.2 }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="leaderboard-container">
-        <h1 className="leaderboard-title">Global Leaderboard</h1>
-        <div className="leaderboard-loading">
+      <motion.div 
+        className="leaderboard-container"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.h1 
+          className="leaderboard-title"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          Global Leaderboard
+        </motion.h1>
+        <motion.div 
+          className="leaderboard-loading"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 70 }}
+        >
           <div className="leaderboard-spinner"></div>
           <p>Loading leaderboard data...</p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -286,6 +324,7 @@ const Leaderboard = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      exit="exit"
     >
       <motion.h1 
         className="leaderboard-title"
@@ -299,19 +338,26 @@ const Leaderboard = () => {
         variants={childVariants}
       >
         <div className="search-container">
-          <input
+          <motion.input
             type="text"
             placeholder="Search players..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
+            initial={{ opacity: 0, width: "80%" }}
+            animate={{ opacity: 1, width: "100%" }}
+            transition={{ delay: 0.3, duration: 0.3 }}
           />
           <FaSearch className="search-icon" />
-
         </div>
 
         <div className="filter-container">
-          <div className="filter-dropdown">
+          <motion.div 
+            className="filter-dropdown"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             <FaFilter className="filter-icon" />
             <select 
               value={filter} 
@@ -322,9 +368,14 @@ const Leaderboard = () => {
               <option value="friends">Friends Only</option>
               <option value="country">My Country</option>
             </select>
-          </div>
+          </motion.div>
 
-          <div className="time-dropdown">
+          <motion.div 
+            className="time-dropdown"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <FaChess className="time-icon" />
             <select 
               value={timeFrame} 
@@ -336,7 +387,7 @@ const Leaderboard = () => {
               <option value="week">This Week</option>
               <option value="day">Today</option>
             </select>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -395,73 +446,97 @@ const Leaderboard = () => {
               </tr>
             </thead>
             <tbody>
-              {leaderboardData.map((player, index) => (
-                <motion.tr 
-                  key={player.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    delay: index * 0.05,
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 10
-                  }}
-                  whileHover={{ 
-                    backgroundColor: "rgba(33, 150, 243, 0.1)",
-                    transition: { duration: 0.2 }
-                  }}
-                >
-                  <td className="rank-cell">
-                    <div className={getRankClass(player.rank)}>
-                      {getRankIcon(player.rank)}
-                    </div>
-                  </td>
-                  <td className="player-cell">
-                    <div className="player-info">
-                      <div className="player-avatar">
-                        {player.avatar ? (
-                          <img src={player.avatar} alt={`${player.username}'s avatar`} />
-                        ) : (
-                          <div className="avatar-placeholder">{player.username.charAt(0)}</div>
+              <AnimatePresence>
+                {leaderboardData.map((player, index) => (
+                  <motion.tr 
+                    key={player.id}
+                    custom={index}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    whileHover={{ 
+                      backgroundColor: "rgba(33, 150, 243, 0.1)",
+                      transition: { duration: 0.2 }
+                    }}
+                    layoutId={`player-${player.id}`}
+                  >
+                    <td className="rank-cell">
+                      <motion.div 
+                        className={getRankClass(player.rank)}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                      >
+                        {getRankIcon(player.rank)}
+                      </motion.div>
+                    </td>
+                    <td className="player-cell">
+                      <div className="player-info">
+                        <motion.div 
+                          className="player-avatar"
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          {player.avatar ? (
+                            <img src={player.avatar} alt={`${player.username}'s avatar`} />
+                          ) : (
+                            <div className="avatar-placeholder">{player.username.charAt(0)}</div>
+                          )}
+                        </motion.div>
+                        <div className="player-details">
+                          <span className="player-name">{player.username}</span>
+                          {player.country && (
+                            <span className="player-country">{player.country}</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="rating-cell">
+                      <div className="rating-wrapper">
+                        <motion.span 
+                          className="rating-value"
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: index * 0.05 + 0.3 }}
+                        >
+                          {player.rating}
+                        </motion.span>
+                        {player.ratingChange > 0 && (
+                          <span className="rating-change positive">+{player.ratingChange}</span>
+                        )}
+                        {player.ratingChange < 0 && (
+                          <span className="rating-change negative">{player.ratingChange}</span>
                         )}
                       </div>
-                      <div className="player-details">
-                        <span className="player-name">{player.username}</span>
-                        {player.country && (
-                          <span className="player-country">{player.country}</span>
-                        )}
+                    </td>
+                    <td className="win-cell">
+                      <div className="progress-container">
+                        <motion.div 
+                          className="progress-bar" 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${player.winPercentage}%` }}
+                          transition={{ delay: index * 0.05 + 0.4, duration: 0.8, ease: "easeOut" }}
+                        ></motion.div>
+                        <span className="progress-text">{player.winPercentage.toFixed(1)}%</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="rating-cell">
-                    <div className="rating-wrapper">
-                      <span className="rating-value">{player.rating}</span>
-                      {player.ratingChange > 0 && (
-                        <span className="rating-change positive">+{player.ratingChange}</span>
-                      )}
-                      {player.ratingChange < 0 && (
-                        <span className="rating-change negative">{player.ratingChange}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="win-cell">
-                    <div className="progress-container">
-                      <div 
-                        className="progress-bar" 
-                        style={{ width: `${player.winPercentage}%` }}
-                      ></div>
-                      <span className="progress-text">{player.winPercentage.toFixed(1)}%</span>
-                    </div>
-                  </td>
-                  <td className="games-cell">{player.games}</td>
-                  <td className="tokens-cell">
-                    <div className="tokens-wrapper">
-                      <span className="tokens-value">{player.tokens.toLocaleString()}</span>
-                      <FaCoins className="tokens-icon" />
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
+                    </td>
+                    <td className="games-cell">{player.games}</td>
+                    <td className="tokens-cell">
+                      <motion.div 
+                        className="tokens-wrapper"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <span className="tokens-value">{player.tokens.toLocaleString()}</span>
+                        <motion.div
+                          animate={{ rotateY: [0, 360] }}
+                          transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                        >
+                          <FaCoins className="tokens-icon" />
+                        </motion.div>
+                      </motion.div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
             </tbody>
           </table>
         </motion.div>

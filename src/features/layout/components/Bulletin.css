@@ -1,30 +1,102 @@
-
-/* src/components/Bulletin.css */
+/* src/features/layout/components/Bulletin.css */
 
 .bulletin-container {
-  background-color: #f0f8ff; /* Light blue background */
-  padding: 10px; /* Reduced padding */
-  border-radius: 8px;
-  max-width: 100%; /* Ensure it doesn't exceed parent width */
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  box-sizing: border-box; /* Include padding in width calculations */
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.7) 0%, rgba(5, 29, 58, 0.7) 100%);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-sm);
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
 }
 
 .bulletin-container h3 {
-  font-size: 14px;
-  margin-bottom: 10px;
+  font-size: var(--font-size-small);
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-yellow-400);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-semibold);
 }
 
 .bulletin-container ul {
-  list-style-type: disc;
-  padding-left: 15px; /* Use padding instead of margin */
-  margin: 0; /* Remove default margin */
-  color: #333;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 180px;
 }
 
 .bulletin-container li {
-  margin-bottom: 8px;
-  font-size: 12px;
-  word-wrap: break-word; /* Ensure long words break to prevent overflow */
+  position: relative;
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-xs) var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-gray-300);
+  line-height: 1.3;
+  word-wrap: break-word;
+  border-radius: var(--border-radius-sm);
+  transition: background-color 0.2s ease;
 }
 
+.bulletin-container li:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.bulletin-container li.important {
+  color: var(--color-white);
+}
+
+.bulletin-container li::before {
+  content: "•";
+  position: absolute;
+  left: var(--spacing-xs);
+  color: var(--color-gray-300);
+}
+
+.bulletin-container li.important::before {
+  content: "★";
+  color: var(--color-accent);
+}
+
+/* Custom scrollbar for WebKit browsers */
+.bulletin-container ul::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bulletin-container ul::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.bulletin-container ul::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.bulletin-container ul::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .bulletin-container ul {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bulletin-container {
+    padding: var(--spacing-xs);
+  }
+  
+  .bulletin-container h3 {
+    font-size: var(--font-size-xs);
+  }
+  
+  .bulletin-container li {
+    font-size: 10px;
+    padding: 4px 4px 4px 12px;
+  }
+}

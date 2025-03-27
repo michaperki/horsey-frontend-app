@@ -1,4 +1,4 @@
-/* BalanceToggle Fixes for Navbar Integration */
+/* BalanceToggle.css - Updated for better navbar integration */
 .balance-toggle {
   display: flex;
   align-items: center;
@@ -10,12 +10,13 @@
   color: var(--color-white);
   transition: all var(--transition-medium) var(--transition-timing);
   box-shadow: var(--shadow-sm);
-  /* Adjusted size to fit navbar better */
-  min-width: 180px;
-  height: 36px;
+  /* Adjusted size to match the image */
+  min-width: 160px;
+  height: 40px;
   margin-right: var(--spacing-sm);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .balance-toggle::before {
@@ -31,7 +32,7 @@
 
 .balance-toggle:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px); /* Reduced to match other navbar elements */
+  transform: translateY(-1px);
 }
 
 .balance-toggle__display {
@@ -39,18 +40,19 @@
   align-items: center;
   gap: var(--spacing-xs);
   z-index: 2;
+  cursor: pointer;
 }
 
 .balance-toggle__icon {
   color: var(--color-yellow-400);
-  font-size: 1rem; /* Reduced size */
+  font-size: 1.1rem;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .balance-toggle__amount {
-  font-size: 0.95rem; /* Reduced size */
+  font-size: 1rem;
   font-weight: var(--font-weight-bold);
-  min-width: 40px; /* Reduced min-width */
+  min-width: 40px;
   text-align: right;
   color: var(--color-white);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -60,12 +62,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xxs);
+  margin-right: var(--spacing-sm); /* Add this line */
 }
 
 .balance-toggle__active-currency {
   color: var(--color-white);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-xs); /* Reduced size */
+  font-size: var(--font-size-xs);
 }
 
 .balance-toggle__inactive-currency {
@@ -85,7 +88,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem; /* Reduced size */
+  font-size: 0.75rem;
+  z-index: 3; /* Ensure it's above other elements */
 }
 
 .balance-toggle__switch:hover {
@@ -99,17 +103,18 @@
   color: var(--color-white);
   border: none;
   border-radius: var(--border-radius-sm);
-  padding: var(--spacing-xxs) var(--spacing-xs); /* Reduced padding */
-  font-size: var(--font-size-xs); /* Reduced font size */
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  font-size: var(--font-size-xs);
   cursor: pointer;
   transition: all var(--transition-fast) var(--transition-timing);
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs); /* Reduced gap */
+  gap: var(--spacing-xxs);
   font-weight: var(--font-weight-medium);
   box-shadow: var(--shadow-sm);
   z-index: 2;
-  height: 24px; /* Fixed height */
+  height: 24px;
+  white-space: nowrap;
 }
 
 .balance-toggle__get-coins:hover {
@@ -123,7 +128,7 @@
 }
 
 .get-coins-icon {
-  font-size: 0.75rem; /* Reduced size */
+  font-size: 0.75rem;
 }
 
 /* Navbar Integration - Positioning */
@@ -161,8 +166,9 @@
   
   .balance-toggle__get-coins {
     padding: var(--spacing-xxs);
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+    justify-content: center;
   }
   
   .get-coins-icon {
@@ -208,7 +214,9 @@
   }
   
   .balance-toggle__get-coins {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    justify-content: center;
   }
 }
