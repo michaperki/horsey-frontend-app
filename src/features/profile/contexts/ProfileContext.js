@@ -22,7 +22,7 @@ export const ProfileProvider = ({ children }) => {
     karma: 0,
     membership: 'Free',
     username: 'User',
-    ratingClass: 'Beginner',
+    ratingClass: 'Default',
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,8 +31,8 @@ export const ProfileProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await getUserProfile(selectedToken);
-      const { statistics, username, ratingBand } = response;
-      setProfile({ ...statistics, username, ratingClass: ratingBand });
+      const { statistics, username, ratingClass } = response;
+      setProfile({ ...statistics, username, ratingClass });
       setError(null);
     } catch (err) {
       console.error('Error fetching profile:', err);

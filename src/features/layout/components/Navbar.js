@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { useToken } from '../../token/contexts/TokenContext';
 import { useLichess } from '../../auth/contexts/LichessContext';
 import BalanceToggle from '../../token/components/BalanceToggle';
+import NavbarDropdown from './NavbarDropdown';
 import {
   FaBell,
   FaSpinner,
@@ -19,7 +20,6 @@ import {
   FaUserPlus,
   FaChess,
   FaCog,
-  FaSignOutAlt,
   FaUserCircle
 } from 'react-icons/fa';
 import { useNotifications } from '../../notifications/contexts/NotificationsContext';
@@ -36,7 +36,6 @@ const Navbar = () => {
   const [error, setError] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const userInfoRef = useRef(null);
-  const dropdownRef = useRef(null);
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
@@ -81,25 +80,6 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showDropdown &&
-        userInfoRef.current &&
-        !userInfoRef.current.contains(event.target) &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showDropdown]);
 
   return (
     <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
@@ -229,26 +209,15 @@ const Navbar = () => {
               <span className="navbar__username">{user.username || 'User'}</span>
               <span className="navbar__dropdown-arrow">▼</span>
             </div>
-            {showDropdown && (
-              <div className="navbar__dropdown" ref={dropdownRef} role="menu">
-                <Link to="/profile" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  <FaUserCircle className="dropdown-icon" />
-                  <span>Profile</span>
-                </Link>
-                <Link to="/settings" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  <FaCog className="dropdown-icon" />
-                  <span>Settings</span>
-                </Link>
-                <Link to="/notifications" className="navbar__dropdown-item" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }} role="menuitem">
-                  <FaBell className="dropdown-icon" />
-                  <span>Notifications {unreadCount > 0 && `(${unreadCount})`}</span>
-                </Link>
-                <button onClick={() => { handleLogout(); closeDropdown(); setIsMobileMenuOpen(false); }} className="navbar__dropdown-item logout" role="menuitem">
-                  <FaSignOutAlt className="dropdown-icon" />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
+            
+            {/* Use our new NavbarDropdown component */}
+            <NavbarDropdown 
+              user={user}
+              showDropdown={showDropdown}
+              closeDropdown={closeDropdown}
+              handleLogout={handleLogout}
+              unreadCount={unreadCount}
+            />
           </div>
         )}
       </div>
