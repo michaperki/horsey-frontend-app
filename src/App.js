@@ -39,6 +39,7 @@ import { NotificationsProvider } from './features/notifications/contexts/Notific
 
 // Layout feature
 import Layout from './features/layout/components/Layout';
+import InfoLayout from './features/info/layout/InfoLayout';
 
 // Common/Shared contexts
 import { SocketProvider } from './features/common/contexts/SocketContext';
@@ -80,11 +81,13 @@ function App() {
                     }
                   />
                   <Route path="/place-bet" element={<PlaceBet isOpen={true} onClose={() => {}} />} />
-                  <Route path="/rules" element={<RulesPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/careers" element={<CareersPage />} />
-                  <Route path="/blog" element={<BlogPage />} />
-                  <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route element={<InfoLayout />}>
+                    <Route path="/rules" element={<RulesPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/careers" element={<CareersPage />} />
+                    <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                  </Route>
                 </Routes>
               </NotificationsProvider>
             </ProfileProvider>

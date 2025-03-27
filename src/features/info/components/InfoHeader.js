@@ -28,7 +28,8 @@ const InfoHeader = ({ title, icon }) => {
           <FaChevronLeft /> Back
         </button>
         <div className="logo">
-          <FaChessKnight /> Horsey
+          <img src="/assets/logo.png" alt="App Logo" className="navbar__logo-image" />
+          <span className="navbar__logo-text">Horsey</span>
         </div>
       </div>
       
