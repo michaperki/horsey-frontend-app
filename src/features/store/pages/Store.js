@@ -1,12 +1,21 @@
-
-// src/pages/Store.js
+// src/features/store/pages/Store.js
 
 import React from 'react';
-import Store from '../components/Store';
+import StoreComponent from '../components/Store';
+import { AuthProvider } from 'features/auth/contexts/AuthContext';
+import { TokenProvider } from 'features/token/contexts/TokenContext';
+import { SelectedTokenProvider } from 'features/token/contexts/SelectedTokenContext';
 
 const StorePage = () => {
-  return <Store />;
+  return (
+    <AuthProvider>
+      <TokenProvider>
+        <SelectedTokenProvider>
+          <StoreComponent />
+        </SelectedTokenProvider>
+      </TokenProvider>
+    </AuthProvider>
+  );
 };
 
 export default StorePage;
-
