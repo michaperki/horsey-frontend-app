@@ -4,16 +4,16 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import YourBets from './YourBets';
-import { useAuth } from '../contexts/AuthContext';
-import { getUserBets } from '../services/api';
+import { useAuth } from 'features/auth/contexts/AuthContext';
+import { getUserBets } from 'features/betting/services/api';
 
 // Mock the useAuth hook
-jest.mock('../contexts/AuthContext', () => ({
+jest.mock('features/auth/contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
 // Mock the getUserBets API function
-jest.mock('../services/api', () => ({
+jest.mock('features/betting/services/api', () => ({
   getUserBets: jest.fn(),
 }));
 

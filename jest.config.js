@@ -16,6 +16,8 @@ module.exports = {
   },
   transformIgnorePatterns: [
     "/node_modules/(?!(react-scripts)/)", // Transform dependencies used by react-scripts
+    "node_modules/(?!(axios)/)",
+
   ],
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy", // Mock CSS imports

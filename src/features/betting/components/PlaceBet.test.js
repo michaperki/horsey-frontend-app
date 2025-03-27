@@ -2,14 +2,14 @@
 // src/components/PlaceBet.test.js
 
 import React from 'react';
-import { render, screen, fireEvent } from '../utils/test-utils'; // Use custom render from test-utils.js
+import { render, screen, fireEvent } from 'features/common/utils/test-utils'; // Use custom render from test-utils.js
 import PlaceBet from './PlaceBet';
 import PlaceBetModal from './PlaceBetModal';
-import { useLichess } from '../contexts/LichessContext';
+import { useLichess } from 'features/auth/contexts/LichessContext';
 
 // Partial mock of LichessContext
-jest.mock('../contexts/LichessContext', () => {
-  const actual = jest.requireActual('../contexts/LichessContext');
+jest.mock('features/auth/contexts/LichessContext', () => {
+  const actual = jest.requireActual('features/auth/contexts/LichessContext');
   return {
     ...actual,
     useLichess: jest.fn(),
