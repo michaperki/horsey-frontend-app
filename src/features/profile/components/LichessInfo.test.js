@@ -1,13 +1,14 @@
-
-// src/components/LichessInfo.test.js
+// src/features/profile/components/LichessInfo.test.js
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import LichessInfo from './LichessInfo';
-import { formatDate } from '../utils/formatDate'; // Import the utility for mocking
+import { formatDate } from 'features/common/utils/formatDate'; // Updated correct import path
 
-// Mock the formatDate utility
-jest.mock('../utils/formatDate');
+// Mock the formatDate utility with the correct path
+jest.mock('features/common/utils/formatDate', () => ({
+  formatDate: jest.fn()
+}));
 
 describe('LichessInfo Component', () => {
   const mockInfo = {
@@ -41,13 +42,10 @@ describe('LichessInfo Component', () => {
   it('renders the username and connected date', () => {
     render(<LichessInfo info={mockInfo} />);
 
-    // Debug the rendered DOM
-    // screen.debug(); // Uncomment if you need to inspect the DOM
-
     // Verify static elements
-    expect(screen.getByText('Username:')).toBeInTheDocument();
+    expect(screen.getByText(/Username:/i)).toBeInTheDocument();
     expect(screen.getByText('testuser')).toBeInTheDocument();
-    expect(screen.getByText('Connected Since:')).toBeInTheDocument();
+    expect(screen.getByText(/Connected Since:/i)).toBeInTheDocument();
 
     // Verify the connected date element
     const connectedDateElement = screen.getByTestId('connected-date');
@@ -68,7 +66,7 @@ describe('LichessInfo Component', () => {
     render(<LichessInfo info={noRatingsInfo} />);
 
     // Verify static elements
-    expect(screen.getByText('Username:')).toBeInTheDocument();
+    expect(screen.getByText(/Username:/i)).toBeInTheDocument();
     expect(screen.getByText('testuser')).toBeInTheDocument();
 
     // Verify the connected date element
@@ -100,7 +98,7 @@ describe('LichessInfo Component', () => {
     render(<LichessInfo info={incompleteInfo} />);
 
     // Verify static elements
-    expect(screen.getByText('Username:')).toBeInTheDocument();
+    expect(screen.getByText(/Username:/i)).toBeInTheDocument();
     expect(screen.getByText('testuser')).toBeInTheDocument();
 
     // Verify the connected date element
@@ -140,4 +138,3 @@ describe('LichessInfo Component', () => {
     expect(screen.getByText('1700')).toBeInTheDocument();
   });
 });
-

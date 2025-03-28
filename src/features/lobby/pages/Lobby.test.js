@@ -6,7 +6,7 @@ import Lobby from './Lobby';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock AvailableBets component
-jest.mock('../components/AvailableBets', () => () => <div data-testid="available-bets">Available Bets Component</div>);
+jest.mock('features/betting/components/AvailableBets', () => () => <div data-testid="available-bets">Available Bets Component</div>);
 
 describe('Lobby Component', () => {
   test('renders Lobby heading and AvailableBets component', () => {

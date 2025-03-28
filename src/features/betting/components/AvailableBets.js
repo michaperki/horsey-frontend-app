@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { acceptBet, getAvailableBets } from "../services/api";
-import { useAuth } from "../../auth/contexts/AuthContext";
-import { useToken } from "../../token/contexts/TokenContext";
-import { useSelectedToken } from '../../token/contexts/SelectedTokenContext';
+import { acceptBet, getAvailableBets } from "features/betting/services/api";
+import { useAuth } from "features/auth/contexts/AuthContext";
+import { useToken } from "features/token/contexts/TokenContext";
+import { useSelectedToken } from 'features/token/contexts/SelectedTokenContext';
 import { formatDistanceToNow } from "date-fns";
 
 // Import React Icons

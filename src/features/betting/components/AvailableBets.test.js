@@ -1,29 +1,27 @@
-// src/components/AvailableBets.test.js
-
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AvailableBets from './AvailableBets';
-import { useAuth } from '../contexts/AuthContext';
-import { useToken } from '../contexts/TokenContext';
-import { useSelectedToken } from '../contexts/SelectedTokenContext';
-import { acceptBet, getAvailableBets } from '../services/api';
+import { useAuth } from 'features/auth/contexts/AuthContext';
+import { useToken } from 'features/token/contexts/TokenContext';
+import { useSelectedToken } from 'features/token/contexts/SelectedTokenContext';
+import { acceptBet, getAvailableBets } from 'features/betting/services/api';
 
 // Mock context hooks
-jest.mock('../contexts/AuthContext', () => ({
+jest.mock('features/auth/contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
-jest.mock('../contexts/TokenContext', () => ({
+jest.mock('features/token/contexts/TokenContext', () => ({
   useToken: jest.fn(),
 }));
 
-jest.mock('../contexts/SelectedTokenContext', () => ({
+jest.mock('features/token/contexts/SelectedTokenContext', () => ({
   useSelectedToken: jest.fn(),
 }));
 
 // Mock API calls
-jest.mock('../services/api', () => ({
+jest.mock('features/betting/services/api', () => ({
   acceptBet: jest.fn(),
   getAvailableBets: jest.fn(),
 }));
@@ -122,7 +120,7 @@ describe('AvailableBets Component', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/No bets available right now./i)
+        screen.getByText(/No bets are available right now./i)
       ).toBeInTheDocument();
     });
   });
@@ -285,8 +283,8 @@ describe('AvailableBets Component', () => {
       expect(screen.getByText('User1')).toBeInTheDocument();
     });
 
-    // Click the "Join Bet" button
-    fireEvent.click(screen.getByRole('button', { name: /Join Bet/i }));
+    // Fix: The button text is just "Join", not "Join Bet"
+    fireEvent.click(screen.getByRole('button', { name: /Join/i }));
 
     await waitFor(() => {
       // Ensure acceptBet was called with correct arguments

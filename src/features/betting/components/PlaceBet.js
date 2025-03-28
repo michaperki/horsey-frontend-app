@@ -1,7 +1,7 @@
 // Enhanced PlaceBet.js with improved styling and animations
 import React, { useState } from "react";
 import { useLichess } from 'features/auth/contexts/LichessContext';
-import { createNotification } from '../../notifications/services/api';
+import { createNotification } from 'features/notifications/services/api';
 import './PlaceBet.css';
 import { FaDice, FaCoins, FaChessKnight, FaSpinner } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';

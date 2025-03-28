@@ -1,157 +1,111 @@
-
-// src/components/PlaceBet.test.js
+// src/features/betting/components/PlaceBet.test.js
 
 import React from 'react';
-import { render, screen, fireEvent } from 'features/common/utils/test-utils'; // Use custom render from test-utils.js
+import { render, screen, fireEvent } from '@testing-library/react';
 import PlaceBet from './PlaceBet';
-import PlaceBetModal from './PlaceBetModal';
 import { useLichess } from 'features/auth/contexts/LichessContext';
+import { createNotification } from 'features/notifications/services/api';
 
-// Partial mock of LichessContext
-jest.mock('features/auth/contexts/LichessContext', () => {
-  const actual = jest.requireActual('features/auth/contexts/LichessContext');
+// Mock dependencies
+jest.mock('features/auth/contexts/LichessContext', () => ({
+  useLichess: jest.fn(),
+}));
+
+jest.mock('../../notifications/services/api', () => ({
+  createNotification: jest.fn(),
+}));
+
+jest.mock('framer-motion', () => {
+  const actual = jest.requireActual('framer-motion');
   return {
     ...actual,
-    useLichess: jest.fn(),
+    motion: {
+      button: ({ children, onClick, ...props }) => (
+        <button onClick={onClick} {...props}>
+          {children}
+        </button>
+      ),
+      div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    },
+    AnimatePresence: ({ children }) => <>{children}</>,
   };
 });
 
-// Mock PlaceBetModal
-jest.mock('./PlaceBetModal', () => jest.fn(() => null));
-
 describe('PlaceBet Component', () => {
-  const mockedUseLichessHook = useLichess;
-
+  const mockOnOpenModal = jest.fn();
+  
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('renders "Place a Bet" button', () => {
-    mockedUseLichessHook.mockReturnValue({
+    
+    // Default mock implementation
+    useLichess.mockReturnValue({
       lichessConnected: true,
       triggerShake: jest.fn(),
+      loading: false,
     });
-
-    render(<PlaceBet />);
-    const button = screen.getByRole('button', { name: /Place a Bet/i });
-    expect(button).toBeInTheDocument();
   });
 
-  it('opens PlaceBetModal when "Place a Bet" button is clicked and Lichess is connected', () => {
-    const mockOnClose = jest.fn();
-    mockedUseLichessHook.mockReturnValue({
-      lichessConnected: true,
-      triggerShake: jest.fn(),
-    });
-
-    // Mock PlaceBetModal to render a div with role 'dialog' when isOpen is true
-    PlaceBetModal.mockImplementation(({ isOpen, onClose, preSelectedVariant }) => {
-      if (isOpen) {
-        return (
-          <div role="dialog" aria-modal="true">
-            <button onClick={onClose} aria-label="Close Modal">
-              Close
-            </button>
-            <p>PlaceBetModal Content</p>
-          </div>
-        );
-      }
-      return null;
-    });
-
-    render(<PlaceBet />);
-
-    const placeBetButton = screen.getByRole('button', { name: /Place a Bet/i });
-    fireEvent.click(placeBetButton);
-
-    expect(PlaceBetModal).toHaveBeenCalledWith(
-      expect.objectContaining({
-        isOpen: true,
-        onClose: expect.any(Function),
-        preSelectedVariant: null,
-      }),
-      {}
-    );
-
-    // Verify that the modal content is rendered
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/PlaceBetModal Content/i)).toBeInTheDocument();
-
-    // Close the modal
-    const closeButton = screen.getByRole('button', { name: /Close Modal/i });
-    fireEvent.click(closeButton);
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  test('renders the Place a Bet button', () => {
+    render(<PlaceBet onOpenModal={mockOnOpenModal} />);
+    
+    // Check for the main text
+    expect(screen.getByText(/Place a Bet/i)).toBeInTheDocument();
+    
+    // Check for the secondary text
+    expect(screen.getByText(/Challenge players for tokens/i)).toBeInTheDocument();
   });
 
-  it('does not open PlaceBetModal and triggers shake when Lichess is not connected', () => {
+  test('opens modal when clicked and Lichess is connected', () => {
+    render(<PlaceBet onOpenModal={mockOnOpenModal} />);
+    
+    // Click the button
+    const button = screen.getByText(/Place a Bet/i).closest('button');
+    fireEvent.click(button);
+    
+    // Verify the onOpenModal callback was called
+    expect(mockOnOpenModal).toHaveBeenCalled();
+  });
+
+  test('does not open modal and triggers shake when Lichess is not connected', async () => {
     const mockTriggerShake = jest.fn();
-    mockedUseLichessHook.mockReturnValue({
+    
+    // Mock Lichess as not connected
+    useLichess.mockReturnValue({
       lichessConnected: false,
       triggerShake: mockTriggerShake,
-      connectLichess: jest.fn(),
       loading: false,
-      shake: false,
     });
 
-    render(<PlaceBet />);
-
-    const placeBetButton = screen.getByRole('button', { name: /Place a Bet/i });
-    fireEvent.click(placeBetButton);
-
-    // PlaceBetModal should not be rendered
-    expect(PlaceBetModal).not.toHaveBeenCalled();
-
-    // Trigger shake should have been called
-    expect(mockTriggerShake).toHaveBeenCalledTimes(1);
+    // Mock successful notification creation
+    createNotification.mockResolvedValueOnce({ success: true });
+    
+    render(<PlaceBet onOpenModal={mockOnOpenModal} />);
+    
+    // Click the button
+    const button = screen.getByText(/Place a Bet/i).closest('button');
+    fireEvent.click(button);
+    
+    // Verify behavior
+    expect(mockTriggerShake).toHaveBeenCalled();
+    expect(createNotification).toHaveBeenCalledWith({
+      message: 'Please connect your Lichess account before placing a bet.',
+      type: 'warning',
+    });
+    expect(mockOnOpenModal).not.toHaveBeenCalled();
   });
 
-  it('closes PlaceBetModal when onClose is called', () => {
-    const mockOnClose = jest.fn();
-    mockedUseLichessHook.mockReturnValue({
+  test('shows loading spinner when in loading state', () => {
+    // Mock loading state
+    useLichess.mockReturnValue({
       lichessConnected: true,
       triggerShake: jest.fn(),
+      loading: true,
     });
-
-    // Mock PlaceBetModal to render a div with role 'dialog' when isOpen is true
-    PlaceBetModal.mockImplementation(({ isOpen, onClose, preSelectedVariant }) => {
-      if (isOpen) {
-        return (
-          <div role="dialog" aria-modal="true">
-            <button onClick={onClose} aria-label="Close Modal">
-              Close
-            </button>
-            <p>PlaceBetModal Content</p>
-          </div>
-        );
-      }
-      return null;
-    });
-
-    render(<PlaceBet />);
-
-    const placeBetButton = screen.getByRole('button', { name: /Place a Bet/i });
-    fireEvent.click(placeBetButton);
-
-    // Verify that the modal content is rendered
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    // Click on Close button
-    const closeButton = screen.getByRole('button', { name: /Close Modal/i });
-    fireEvent.click(closeButton);
-
-    // Remove the incorrect expectation
-    // expect(PlaceBetModal).toHaveBeenCalledWith(
-    //   expect.objectContaining({
-    //     isOpen: false,
-    //     onClose: expect.any(Function),
-    //     preSelectedVariant: null,
-    //   }),
-    //   {}
-    // );
-
-    // Verify that the modal is no longer in the document
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    
+    render(<PlaceBet onOpenModal={mockOnOpenModal} />);
+    
+    // The button should have disabled attribute
+    const button = screen.getByText(/Place a Bet/i).closest('button');
+    expect(button).toBeDisabled();
   });
 });
-

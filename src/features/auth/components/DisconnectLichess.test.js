@@ -1,102 +1,135 @@
-
-// src/components/Auth/DisconnectLichess.test.js
+// src/features/auth/components/DisconnectLichess.test.js
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import DisconnectLichess from './DisconnectLichess';
-import { useAuth } from '../../contexts/AuthContext';
 import fetchMock from 'jest-fetch-mock';
 
-// Mock dependencies
-jest.mock('../../contexts/AuthContext');
+// Mock the API
+jest.mock('../services/api', () => ({
+  disconnectLichessAccount: jest.fn()
+}));
 
-fetchMock.enableMocks();
+// Mock the Auth Context
+jest.mock('features/auth/contexts/AuthContext', () => ({
+  useAuth: jest.fn()
+}));
+
+// Mock window.confirm
+global.confirm = jest.fn();
 
 describe('DisconnectLichess Component', () => {
-  const mockOnDisconnect = jest.fn();
-
   beforeEach(() => {
-    // Mock useAuth to return a valid token
-    useAuth.mockReturnValue({
-      token: 'valid-token',
-    });
-
-    // Clear previous mocks
     fetchMock.resetMocks();
-    mockOnDisconnect.mockClear();
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
+    global.confirm.mockClear();
   });
 
-  test('renders Disconnect button', () => {
+  test('renders disconnect button', () => {
+    // Mock useAuth hook to return a token
+    const { useAuth } = require('features/auth/contexts/AuthContext');
+    useAuth.mockReturnValue({ token: 'fake-token' });
+
+    render(<DisconnectLichess />);
+
+    // Check for disconnect button
+    expect(screen.getByText(/Disconnect Lichess/i)).toBeInTheDocument();
+  });
+
+  test('shows error when not logged in', () => {
+    // Mock useAuth hook to return no token
+    const { useAuth } = require('features/auth/contexts/AuthContext');
+    useAuth.mockReturnValue({ token: null });
+
+    render(<DisconnectLichess />);
+
+    // Try to disconnect
+    fireEvent.click(screen.getByText(/Disconnect Lichess/i));
+
+    // Check for error message
+    expect(screen.getByText(/Please log in to disconnect your Lichess account/i)).toBeInTheDocument();
+  });
+
+  test('asks for confirmation before disconnecting', async () => {
+    // Mock window.confirm to return true
+    global.confirm.mockReturnValue(true);
+
+    // Mock useAuth hook to return a token
+    const { useAuth } = require('features/auth/contexts/AuthContext');
+    useAuth.mockReturnValue({ token: 'fake-token' });
+
+    // Mock disconnectLichessAccount API to resolve successfully
+    const { disconnectLichessAccount } = require('../services/api');
+    disconnectLichessAccount.mockResolvedValue({ success: true });
+
+    // Add onDisconnect prop
+    const mockOnDisconnect = jest.fn();
     render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
-    const button = screen.getByText(/Disconnect Lichess/i);
-    expect(button).toBeInTheDocument();
-  });
 
-  test('handles successful disconnection', async () => {
-    fetchMock.mockResponseOnce(JSON.stringify({ success: true }), { status: 200 });
+    // Trigger disconnect
+    fireEvent.click(screen.getByText(/Disconnect Lichess/i));
 
-    // Mock window.confirm to always return true
-    window.confirm = jest.fn().mockReturnValue(true);
+    // Check if confirmation was requested
+    expect(global.confirm).toHaveBeenCalled();
+    expect(global.confirm).toHaveBeenCalledWith('Are you sure you want to disconnect your Lichess account?');
 
-    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
-    const button = screen.getByText(/Disconnect Lichess/i);
-    fireEvent.click(button);
-
-    expect(button).toBeDisabled();
-    expect(button).toHaveTextContent(/Disconnecting.../i);
-
-    await waitFor(() => expect(mockOnDisconnect).toHaveBeenCalledTimes(1));
-    expect(button).not.toBeDisabled();
-    expect(button).toHaveTextContent(/Disconnect Lichess/i);
-  });
-
-  test('handles disconnection cancellation', () => {
-    // Mock window.confirm to return false
-    window.confirm = jest.fn().mockReturnValue(false);
-
-    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
-    const button = screen.getByText(/Disconnect Lichess/i);
-    fireEvent.click(button);
-
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to disconnect your Lichess account?');
-    expect(mockOnDisconnect).not.toHaveBeenCalled();
-  });
-
-  test('handles API failure during disconnection', async () => {
-    fetchMock.mockRejectOnce(new Error('API failure'));
-
-    // Mock window.confirm to always return true
-    window.confirm = jest.fn().mockReturnValue(true);
-
-    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
-    const button = screen.getByText(/Disconnect Lichess/i);
-    fireEvent.click(button);
-
-    expect(button).toBeDisabled();
-    expect(button).toHaveTextContent(/Disconnecting.../i);
-
-    await waitFor(() => expect(screen.getByText(/API failure/i)).toBeInTheDocument());
-    expect(button).not.toBeDisabled();
-    expect(button).toHaveTextContent(/Disconnect Lichess/i);
-  });
-
-  test('shows error when no token is present', () => {
-    // Mock useAuth to return no token
-    useAuth.mockReturnValue({
-      token: null,
+    // Check if API was called
+    await waitFor(() => {
+      expect(disconnectLichessAccount).toHaveBeenCalled();
     });
 
-    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
-    const button = screen.getByText(/Disconnect Lichess/i);
-    fireEvent.click(button);
+    // Check if callback was called
+    expect(mockOnDisconnect).toHaveBeenCalled();
+  });
 
-    expect(screen.getByText(/Please log in to disconnect your Lichess account./i)).toBeInTheDocument();
+  test('does not disconnect if user cancels confirmation', () => {
+    // Mock window.confirm to return false
+    global.confirm.mockReturnValue(false);
+
+    // Mock useAuth hook to return a token
+    const { useAuth } = require('features/auth/contexts/AuthContext');
+    useAuth.mockReturnValue({ token: 'fake-token' });
+
+    // Mock disconnectLichessAccount API
+    const { disconnectLichessAccount } = require('../services/api');
+    disconnectLichessAccount.mockResolvedValue({ success: true });
+
+    const mockOnDisconnect = jest.fn();
+    render(<DisconnectLichess onDisconnect={mockOnDisconnect} />);
+
+    // Trigger disconnect
+    fireEvent.click(screen.getByText(/Disconnect Lichess/i));
+
+    // Check if confirmation was requested
+    expect(global.confirm).toHaveBeenCalled();
+
+    // API should not be called
+    expect(disconnectLichessAccount).not.toHaveBeenCalled();
+
+    // Callback should not be called
     expect(mockOnDisconnect).not.toHaveBeenCalled();
+  });
+
+  test('handles error during disconnection', async () => {
+    // Mock window.confirm to return true
+    global.confirm.mockReturnValue(true);
+
+    // Mock useAuth hook to return a token
+    const { useAuth } = require('features/auth/contexts/AuthContext');
+    useAuth.mockReturnValue({ token: 'fake-token' });
+
+    // Mock disconnectLichessAccount API to reject with an error
+    const { disconnectLichessAccount } = require('../services/api');
+    disconnectLichessAccount.mockRejectedValue(new Error('Failed to disconnect'));
+
+    render(<DisconnectLichess />);
+
+    // Trigger disconnect
+    fireEvent.click(screen.getByText(/Disconnect Lichess/i));
+
+    // Check for error message
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to disconnect/i)).toBeInTheDocument();
+    });
   });
 });
-

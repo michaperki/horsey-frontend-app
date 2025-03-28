@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaNewspaper, FaSearch, FaTags, FaChessKnight, FaCoins, FaTrophy, FaChartLine } from 'react-icons/fa';
+import InfoHeader from '../components/InfoHeader';
 import './InfoPages.css';
 
 const BlogPage = () => {

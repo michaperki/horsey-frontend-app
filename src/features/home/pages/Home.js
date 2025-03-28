@@ -3,10 +3,10 @@
 import React, { useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useLichess } from '../../auth/contexts/LichessContext';
-import { useProfile } from '../../profile/contexts/ProfileContext';
-import StatCard from '../../layout/components/StatCard';
-import GameModes from '../components/GameModes';
+import { useLichess } from 'features/auth/contexts/LichessContext';
+import { useProfile } from 'features/profile/contexts/ProfileContext';
+import StatCard from 'features/layout/components/StatCard';
+import GameModes from 'features/home/components/GameModes';
 import './Home.css';
 
 const Home = () => {

@@ -1,27 +1,28 @@
+// jest.config.js
 module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     "src/**/*.{js,jsx}",
-    "!src/**/*.test.{js,jsx}", // Exclude test files
-    "!src/index.js", // Exclude entry point
-    "!src/setupTests.js", // Exclude setup file
-    "!src/reportWebVitals.js", // Exclude utility files
+    "!src/**/*.test.{js,jsx}",
+    "!src/index.js",
+    "!src/setupTests.js",
+    "!src/reportWebVitals.js",
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["html", "text", "lcov"],
-  testEnvironment: "jsdom", // Simulate a browser environment
-  setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"], // Test setup files
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
   transform: {
-    "^.+\\.(js|jsx)$": "babel-jest", // Transform JS/JSX files using Babel
+    "^.+\\.(js|jsx)$": "babel-jest",
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(react-scripts)/)", // Transform dependencies used by react-scripts
-    "node_modules/(?!(axios)/)",
-
+    "/node_modules/(?!(react-icons|@mui|framer-motion|socket.io-client))/"
   ],
   moduleNameMapper: {
-    "\\.(css|scss)$": "identity-obj-proxy", // Mock CSS imports
-    "\\.(svg|png|jpg|jpeg|gif)$": "<rootDir>/__mocks__/fileMock.js", // Mock file imports
+    "\\.(css|scss)$": "identity-obj-proxy",
+    "\\.(svg|png|jpg|jpeg|gif)$": "<rootDir>/__mocks__/fileMock.js",
+    "^axios$": "<rootDir>/__mocks__/axios.js",
   },
   testPathIgnorePatterns: ['/node_modules/', '/cypress/'],
+  moduleDirectories: ["node_modules", "src"],
 };

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
+import { useAuth } from 'features/auth/contexts/AuthContext'; // Import useAuth
 
 const Logout = () => {
   const navigate = useNavigate();

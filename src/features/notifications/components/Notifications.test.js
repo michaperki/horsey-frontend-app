@@ -3,15 +3,15 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Notifications from '../components/Notifications';
-import { useNotifications } from '../contexts/NotificationsContext';
-import { useAuth } from '../contexts/AuthContext';
+import Notifications from './Notifications';
+import { useNotifications } from 'features/notifications/contexts/NotificationsContext';
+import { useAuth } from 'features/auth/contexts/AuthContext';
 
-jest.mock('../contexts/NotificationsContext', () => ({
+jest.mock('features/notifications/contexts/NotificationsContext', () => ({
   useNotifications: jest.fn(),
 }));
 
-jest.mock('../contexts/AuthContext', () => ({
+jest.mock('features/auth/contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 

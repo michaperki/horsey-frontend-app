@@ -4,11 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { render as rtlRender } from '@testing-library/react';
-import { AuthProvider } from '../contexts/AuthContext';
-import { TokenProvider } from '../contexts/TokenContext';
-import { SelectedTokenProvider } from '../contexts/SelectedTokenContext';
-import { NotificationsProvider } from '../contexts/NotificationsContext';
-import { LichessProvider } from '../contexts/LichessContext';
+import { AuthProvider } from 'features/auth/contexts/AuthContext';
+import { TokenProvider } from 'features/token/contexts/TokenContext';
+import { SelectedTokenProvider } from 'features/token/contexts/SelectedTokenContext';
+import { NotificationsProvider } from 'features/notifications/contexts/NotificationsContext';
+import { LichessProvider } from 'features/auth/contexts/LichessContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 // This component wraps children with all necessary providers

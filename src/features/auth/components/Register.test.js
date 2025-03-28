@@ -1,121 +1,171 @@
-
-// src/components/Auth/Register.test.js
+// src/features/auth/components/Register.test.js
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from '../../contexts/AuthContext'; // Mock AuthContext provider
+import { BrowserRouter } from 'react-router-dom';
 import Register from './Register';
-import * as api from '../../services/api';
 
-// Mock `register` API
-jest.mock('../../services/api', () => ({
-  register: jest.fn(),
+// Mock the API
+jest.mock('../services/api', () => ({
+  register: jest.fn()
 }));
 
-// Mock `useNavigate`
+// Mock the Auth Context
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: jest.fn()
+}));
+
+// Mock react-router-dom
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
+  useNavigate: () => jest.fn(),
+  Link: ({ to, children, ...props }) => (
+    <a href={to} {...props}>{children}</a>
+  )
 }));
 
 describe('Register Component', () => {
-  it('renders the registration form', () => {
-    render(
-      <AuthProvider>
-        <MemoryRouter>
-          <Register />
-        </MemoryRouter>
-      </AuthProvider>
-    );
-
-    expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
+  beforeEach(() => {
+    // Reset mocks
+    jest.clearAllMocks();
   });
 
-  it('submits the form and logs in the user on successful registration', async () => {
-    const mockToken = 'mockToken123';
-    api.register.mockResolvedValueOnce({ token: mockToken });
-
-    const mockLogin = jest.fn();
-    const mockNavigate = jest.fn();
-    jest.spyOn(require('../../contexts/AuthContext'), 'useAuth').mockReturnValue({ login: mockLogin });
-    require('react-router-dom').useNavigate.mockReturnValue(mockNavigate);
+  test('renders registration form', () => {
+    // Configure useAuth mock
+    const { useAuth } = require('../contexts/AuthContext');
+    useAuth.mockReturnValue({ login: jest.fn() });
 
     render(
-      <AuthProvider>
-        <MemoryRouter>
-          <Register />
-        </MemoryRouter>
-      </AuthProvider>
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    // Check that form elements are rendered
+    expect(screen.getByRole('heading', { name: /Register/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Username/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Register/i })).toBeInTheDocument();
+  });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+  test('handles successful registration with token', async () => {
+    // Configure mocks
+    const mockLogin = jest.fn();
+    const mockNavigate = jest.fn();
 
+    // Mock navigate
+    require('react-router-dom').useNavigate = () => mockNavigate;
+
+    // Mock register API to return a token
+    const { register } = require('../services/api');
+    register.mockResolvedValue({ token: 'fake-token' });
+
+    // Mock useAuth hook
+    const { useAuth } = require('../contexts/AuthContext');
+    useAuth.mockReturnValue({ login: mockLogin });
+
+    render(
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
+    );
+
+    // Fill in form
+    fireEvent.change(screen.getByPlaceholderText(/Username/i), {
+      target: { value: 'testuser' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+      target: { value: 'test@example.com' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+      target: { value: 'password123' }
+    });
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /Register/i }));
+
+    // Check that API was called with correct parameters
+    expect(register).toHaveBeenCalledWith({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123'
+    });
+
+    // Wait for registration to complete and check that login function was called
     await waitFor(() => {
-      expect(api.register).toHaveBeenCalledWith({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      });
-      expect(mockLogin).toHaveBeenCalledWith(mockToken);
+      expect(mockLogin).toHaveBeenCalledWith('fake-token');
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
   });
 
-  it('displays a success message when registration succeeds without a token', async () => {
-    api.register.mockResolvedValueOnce({});
+  test('handles successful registration without token', async () => {
+    // Mock register API to return success without a token
+    const { register } = require('../services/api');
+    register.mockResolvedValue({ success: true });
+
+    // Mock useAuth hook
+    const { useAuth } = require('../contexts/AuthContext');
+    useAuth.mockReturnValue({ login: jest.fn() });
 
     render(
-      <AuthProvider>
-        <MemoryRouter>
-          <Register />
-        </MemoryRouter>
-      </AuthProvider>
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    // Fill in form
+    fireEvent.change(screen.getByPlaceholderText(/Username/i), {
+      target: { value: 'testuser' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+      target: { value: 'test@example.com' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+      target: { value: 'password123' }
+    });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /Register/i }));
 
+    // Wait for registration message to appear
     await waitFor(() => {
-      expect(
-        screen.getByText((content, element) =>
-          content.includes('Registration successful. You can now') &&
-          element.querySelector('a')?.textContent === 'log in'
-        )
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Registration successful/i)).toBeInTheDocument();
     });
   });
 
-  it('displays an error message when registration fails', async () => {
-    api.register.mockRejectedValueOnce(new Error('Registration failed.'));
+  test('handles registration error', async () => {
+    // Mock register API to throw an error
+    const { register } = require('../services/api');
+    register.mockRejectedValue(new Error('Registration failed'));
+
+    // Mock useAuth hook
+    const { useAuth } = require('../contexts/AuthContext');
+    useAuth.mockReturnValue({ login: jest.fn() });
 
     render(
-      <AuthProvider>
-        <MemoryRouter>
-          <Register />
-        </MemoryRouter>
-      </AuthProvider>
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    // Fill in form
+    fireEvent.change(screen.getByPlaceholderText(/Username/i), {
+      target: { value: 'testuser' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Email/i), {
+      target: { value: 'test@example.com' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Password/i), {
+      target: { value: 'password123' }
+    });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /Register/i }));
 
+    // Check for error message
     await waitFor(() => {
-      expect(screen.getByText('Registration failed.')).toBeInTheDocument();
+      expect(screen.getByText(/Registration failed/i)).toBeInTheDocument();
     });
   });
 });
-

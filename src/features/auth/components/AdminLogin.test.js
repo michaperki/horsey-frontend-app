@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../../contexts/AuthContext'; // Use AuthProvider directly
+import { AuthProvider } from 'features/auth/contexts/AuthContext'; // Use AuthProvider directly
 import AdminLogin from './AdminLogin';
 
 global.fetch = jest.fn();
