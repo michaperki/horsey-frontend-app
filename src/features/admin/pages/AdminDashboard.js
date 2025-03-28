@@ -1,9 +1,8 @@
 // AdminDashboard.js
 //
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { useAuth } from '../../auth/contexts/AuthContext'; // Add if needed
 
 const AdminDashboard = () => {
     const navigate = useNavigate();

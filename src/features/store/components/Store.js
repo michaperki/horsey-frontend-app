@@ -30,7 +30,6 @@ const Store = () => {
   const [checkoutStep, setCheckoutStep] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [checkoutError, setCheckoutError] = useState(null);
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [animation, setAnimation] = useState('fadeIn');
   
   const sections = useRef({});
@@ -67,7 +66,6 @@ const Store = () => {
       setCheckoutStep(null);
       setSelectedProduct(null);
       setCheckoutError(null);
-      setCheckoutSuccess(false);
     }, 300);
   };
 
@@ -86,7 +84,6 @@ const Store = () => {
       updateSweepstakesBalance(purchaseData.sweepstakesBalance || (sweepstakesBalance + selectedProduct.sweepstakesTokens));
       
       // Show success
-      setCheckoutSuccess(true);
       setCheckoutStep('success');
     } catch (error) {
       console.error('Error purchasing tokens:', error);

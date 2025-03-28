@@ -1,6 +1,6 @@
 // src/features/layout/components/Layout.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Bulletin from './Bulletin';
@@ -18,9 +18,6 @@ const Layout = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [currentPath, setCurrentPath] = useState(location.pathname);
-  const storeContentRef = useRef(null);
-
-
 
   // For handling scroll events
   useEffect(() => {

@@ -69,7 +69,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.14.0",
     "jest-clean-console-reporter": "^0.3.0",
     "jest-fetch-mock": "^3.0.3",

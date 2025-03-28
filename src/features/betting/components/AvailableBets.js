@@ -16,7 +16,6 @@ import {
   FaSortUp,
   FaSortDown,
   FaSort,
-  FaSpinner
 } from 'react-icons/fa';
 
 import "./AvailableBets.css";

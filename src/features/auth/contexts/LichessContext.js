@@ -4,14 +4,10 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import PropTypes from 'prop-types'; // Import prop-types
 import {
   initiateLichessOAuth,
-  lichessCallback,
-  connectLichess,
-  disconnectLichessAccount,
   getLichessStatus,
   getUserLichessInfo
-} from '../services/api';
+} from 'features/auth/services/api';
 import { useAuth } from './AuthContext';
-import { api } from '../services/api';
 
 const LichessContext = createContext();
 

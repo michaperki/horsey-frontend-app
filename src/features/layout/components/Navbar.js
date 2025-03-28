@@ -18,8 +18,6 @@ import {
   FaTimes,
   FaSignInAlt,
   FaUserPlus,
-  FaChess,
-  FaCog,
   FaUserCircle
 } from 'react-icons/fa';
 import { useNotifications } from '../../notifications/contexts/NotificationsContext';

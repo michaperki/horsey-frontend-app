@@ -1,7 +1,4 @@
-
-// src/contexts/ProfileContext.js
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getUserProfile } from '../services/api';
 import { useAuth } from 'features/auth/contexts/AuthContext';
 import { useSelectedToken } from 'features/token/contexts/SelectedTokenContext';
@@ -27,7 +24,8 @@ export const ProfileProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchProfile = async () => {
+  // Memoized fetchProfile to ensure stability in useEffect dependencies
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getUserProfile(selectedToken);
@@ -40,13 +38,13 @@ export const ProfileProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedToken]);
 
   useEffect(() => {
     if (token && selectedToken) {
       fetchProfile();
     }
-  }, [token, selectedToken]);
+  }, [token, selectedToken, fetchProfile]); // Added fetchProfile to dependency array
 
   return (
     <ProfileContext.Provider value={{ profile, loading, error, refreshProfile: fetchProfile }}>

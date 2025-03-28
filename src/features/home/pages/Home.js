@@ -1,6 +1,6 @@
 // Enhanced Home.js with proper integration
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLichess } from 'features/auth/contexts/LichessContext';

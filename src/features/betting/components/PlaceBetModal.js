@@ -9,7 +9,6 @@ import "./PlaceBetModal.css";
 
 // Import React Icons
 import { 
-  FaCoins, 
   FaChess, 
   FaChessKnight, 
   FaChessRook,

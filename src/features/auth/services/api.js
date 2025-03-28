@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { apiFetch } from '../../common/services/api'; 
 
 // User Authentication

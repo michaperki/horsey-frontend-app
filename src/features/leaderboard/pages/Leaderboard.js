@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTrophy, FaMedal, FaStar, FaChess, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaCoins } from "react-icons/fa";
+import { FaTrophy, FaMedal, FaChess, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaCoins } from "react-icons/fa";
 import { useAuth } from '../../auth/contexts/AuthContext';
 import './Leaderboard.css';
 
@@ -210,7 +210,7 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [token, timeFrame, searchTerm, sortField, sortDirection, filter]);
+  }, [token, timeFrame, searchTerm, sortField, sortDirection, filter, useMockData]);
 
   const handleSort = (field) => {
     if (sortField === field) {
