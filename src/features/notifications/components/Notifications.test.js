@@ -1,9 +1,9 @@
-// src/components/Notifications.test.js
-
+// src/features/notifications/components/Notifications.test.js
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Notifications from './Notifications';
+import { ApiErrorProvider } from 'features/common/contexts/ApiErrorContext';
 import { useNotifications } from 'features/notifications/contexts/NotificationsContext';
 import { useAuth } from 'features/auth/contexts/AuthContext';
 
@@ -15,28 +15,34 @@ jest.mock('features/auth/contexts/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
+// Ensure useNavigate returns our mock
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 describe('Notifications Component', () => {
-  const mockNavigate = jest.fn();
-
-  jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: () => mockNavigate,
-  }));
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  // Helper to wrap with providers
+  const renderWithProviders = (ui) => {
+    return render(
+      <ApiErrorProvider>
+        <MemoryRouter>
+          {ui}
+        </MemoryRouter>
+      </ApiErrorProvider>
+    );
+  };
 
   it('renders loading state', () => {
     useAuth.mockReturnValue({ user: { id: '123' } });
     useNotifications.mockReturnValue({ notifications: [], unreadCount: 0, loading: true });
 
-    render(
-      <MemoryRouter>
-        <Notifications />
-      </MemoryRouter>
-    );
+    renderWithProviders(<Notifications />);
 
     expect(screen.getByText('Loading notifications...')).toBeInTheDocument();
   });
@@ -45,11 +51,7 @@ describe('Notifications Component', () => {
     useAuth.mockReturnValue({ user: { id: '123' } });
     useNotifications.mockReturnValue({ notifications: [], unreadCount: 0, loading: false });
 
-    render(
-      <MemoryRouter>
-        <Notifications />
-      </MemoryRouter>
-    );
+    renderWithProviders(<Notifications />);
 
     expect(screen.getByText('No notifications to display.')).toBeInTheDocument();
   });
@@ -67,11 +69,7 @@ describe('Notifications Component', () => {
       loading: false,
     });
 
-    render(
-      <MemoryRouter>
-        <Notifications />
-      </MemoryRouter>
-    );
+    renderWithProviders(<Notifications />);
 
     expect(screen.getByText('Test Notification')).toBeInTheDocument();
     const markButton = screen.getByText('Mark as read');
@@ -94,11 +92,7 @@ describe('Notifications Component', () => {
       loading: false,
     });
 
-    render(
-      <MemoryRouter>
-        <Notifications />
-      </MemoryRouter>
-    );
+    renderWithProviders(<Notifications />);
 
     const markAllButton = screen.getByText('Mark all as read');
     fireEvent.click(markAllButton);

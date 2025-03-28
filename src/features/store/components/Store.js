@@ -1,22 +1,16 @@
+
 // src/features/store/components/Store.js
 
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaCoins, 
-  FaShoppingCart, 
-  FaCheckCircle, 
-  FaArrowLeft, 
-  FaSpinner,
-  FaTimes,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+import { FaCoins, FaShoppingCart, FaCheckCircle, FaArrowLeft, FaSpinner, FaTimes } from 'react-icons/fa';
 import { useAuth } from 'features/auth/contexts/AuthContext';
 import { useToken } from 'features/token/contexts/TokenContext';
 import { fetchProducts, purchaseTokens } from '../services/api';
 import StoreMenu from './StoreMenu';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import CategorySection from './CategorySection';
+import { ApiError } from '../../common/components/ApiError';
 import './Store.css';
 
 const Store = () => {
@@ -24,6 +18,7 @@ const Store = () => {
   const { tokenBalance, sweepstakesBalance, updateTokenBalance, updateSweepstakesBalance } = useToken();
   
   const [loading, setLoading] = useState(true);
+  const [storeError, setStoreError] = useState(null);
   const [products, setProducts] = useState([]);
   const [purchaseLoading, setPurchaseLoading] = useState({});
   const [paymentMethod, setPaymentMethod] = useState('stripe');
@@ -35,21 +30,25 @@ const Store = () => {
   const sections = useRef({});
   const storeContentRef = useRef(null);
 
-  // Fetch products from the API
+  // Fetch products with error handling
   useEffect(() => {
     const fetchProductsData = async () => {
+      setLoading(true);
+      setStoreError(null);
       try {
-        setLoading(true);
         const productsData = await fetchProducts();
         setProducts(productsData);
       } catch (error) {
         console.error('Error fetching products:', error);
+        setStoreError({ code: 'STORE_FETCH_ERROR', message: error.message || 'Failed to fetch products.' });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductsData();
+    if (token) {
+      fetchProductsData();
+    }
   }, [token]);
 
   // Handle initiating the purchase flow
@@ -57,6 +56,7 @@ const Store = () => {
     setSelectedProduct(product);
     setCheckoutStep('confirm');
     setAnimation('slideRight');
+    setCheckoutError(null);
   };
 
   // Handle cancelling the purchase flow
@@ -69,7 +69,7 @@ const Store = () => {
     }, 300);
   };
 
-  // Handle confirming purchase
+  // Handle confirming purchase with error handling
   const handleConfirmPurchase = async () => {
     if (!selectedProduct) return;
     
@@ -79,15 +79,24 @@ const Store = () => {
     try {
       const purchaseData = await purchaseTokens(paymentMethod, selectedProduct.priceInUSD);
       
-      // Update balances
-      updateTokenBalance(purchaseData.tokenBalance || (tokenBalance + selectedProduct.playerTokens));
-      updateSweepstakesBalance(purchaseData.sweepstakesBalance || (sweepstakesBalance + selectedProduct.sweepstakesTokens));
+      // Update balances if returned or update optimistically
+      if (purchaseData.tokenBalance != null) {
+        updateTokenBalance(purchaseData.tokenBalance);
+      } else {
+        updateTokenBalance(tokenBalance + selectedProduct.playerTokens);
+      }
+      
+      if (purchaseData.sweepstakesBalance != null) {
+        updateSweepstakesBalance(purchaseData.sweepstakesBalance);
+      } else {
+        updateSweepstakesBalance(sweepstakesBalance + selectedProduct.sweepstakesTokens);
+      }
       
       // Show success
       setCheckoutStep('success');
     } catch (error) {
       console.error('Error purchasing tokens:', error);
-      setCheckoutError(error.message || 'Failed to complete purchase. Please try again.');
+      setCheckoutError({ code: 'PURCHASE_ERROR', message: error.message || 'Failed to complete purchase. Please try again.' });
     } finally {
       setPurchaseLoading(prev => ({ ...prev, [selectedProduct._id]: false }));
     }
@@ -118,7 +127,7 @@ const Store = () => {
 
   const categoryList = Object.keys(categorizedProducts);
 
-  // Enhanced Animation variants
+  // Animation variants
   const containerVariants = {
     fadeIn: {
       opacity: 0,
@@ -143,11 +152,7 @@ const Store = () => {
     center: {
       x: 0,
       opacity: 1,
-      transition: { 
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
+      transition: { type: "spring", stiffness: 100, damping: 15 }
     }
   };
 
@@ -162,6 +167,14 @@ const Store = () => {
         <div className="store-loading-spinner"></div>
         <p>Loading Store...</p>
       </motion.div>
+    );
+  }
+
+  if (storeError) {
+    return (
+      <div className="store-error-container">
+        <ApiError error={storeError} onDismiss={() => setStoreError(null)} onRetry={() => window.location.reload()} />
+      </div>
     );
   }
 
@@ -255,8 +268,7 @@ const Store = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <FaExclamationTriangle />
-              <span>{checkoutError}</span>
+              <ApiError error={checkoutError} onDismiss={() => setCheckoutError(null)} compact />
             </motion.div>
           )}
           
@@ -443,7 +455,7 @@ const Store = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          {categoryList.map((category, index) => (
+          {categoryList.map((category) => (
             <CategorySection
               key={category}
               category={category}
@@ -516,3 +528,4 @@ const Store = () => {
 };
 
 export default Store;
+

@@ -1,3 +1,5 @@
+// src/features/betting/services/api.js - Updated for new error handling
+
 import { apiFetch } from '../../common/services/api';
 
 /**
@@ -13,25 +15,37 @@ import { apiFetch } from '../../common/services/api';
 export const placeBet = async (betData) => {
   const { colorPreference, amount, timeControl, variant, currencyType } = betData;
 
-  // Validate input
+  // Validate input - this could become client-side validation to prevent server calls
   const validColorPreferences = ['white', 'black', 'random'];
   const validVariants = ['standard', 'crazyhouse', 'chess960'];
   const validCurrencyTypes = ['token', 'sweepstakes'];
 
   if (!validColorPreferences.includes(colorPreference)) {
-    throw new Error('Invalid color preference.');
+    const error = new Error('Invalid color preference.');
+    error.code = 'VALIDATION_ERROR';
+    error.isApiError = true;
+    throw error;
   }
 
   if (!validVariants.includes(variant)) {
-    throw new Error('Invalid game variant.');
+    const error = new Error('Invalid game variant.');
+    error.code = 'VALIDATION_ERROR';
+    error.isApiError = true;
+    throw error;
   }
 
   if (!validCurrencyTypes.includes(currencyType)) {
-    throw new Error('Invalid currency type.');
+    const error = new Error('Invalid currency type.');
+    error.code = 'VALIDATION_ERROR';
+    error.isApiError = true;
+    throw error;
   }
 
   if (typeof amount !== 'number' || amount <= 0) {
-    throw new Error('Bet amount must be a positive number.');
+    const error = new Error('Bet amount must be a positive number.');
+    error.code = 'VALIDATION_ERROR';
+    error.isApiError = true;
+    throw error;
   }
 
   if (
@@ -39,25 +53,25 @@ export const placeBet = async (betData) => {
     typeof timeControl !== 'string' ||
     !/^\d+\|\d+$/.test(timeControl)
   ) {
-    throw new Error('Time Control must be a string in the format "minutes|increment".');
-  }
-
-  try {
-    const data = await apiFetch('/bets/place', {
-      method: 'POST',
-      body: JSON.stringify({
-        colorPreference: colorPreference.toLowerCase(),
-        amount,
-        timeControl,
-        variant,
-        currencyType,
-      }),
-    });
-    return data.bet;
-  } catch (error) {
-    console.error('Error placing bet:', error);
+    const error = new Error('Time Control must be a string in the format "minutes|increment".');
+    error.code = 'VALIDATION_ERROR'; 
+    error.isApiError = true;
     throw error;
   }
+
+  // Let apiFetch handle the error processing
+  const data = await apiFetch('/bets/place', {
+    method: 'POST',
+    body: JSON.stringify({
+      colorPreference: colorPreference.toLowerCase(),
+      amount,
+      timeControl,
+      variant,
+      currencyType,
+    }),
+  });
+  
+  return data.bet;
 };
 
 /**
@@ -111,3 +125,13 @@ export const getUserBets = async (params = {}) => {
   });
   return data;
 };
+
+export const bettingApi = {
+  placeBet,
+  acceptBet,
+  cancelBet,
+  getAvailableBets, 
+  getUserBets
+};
+
+export default bettingApi;

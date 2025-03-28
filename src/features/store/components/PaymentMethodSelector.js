@@ -1,20 +1,23 @@
+
 // src/features/store/components/PaymentMethodSelector.js
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { FaCreditCard, FaBitcoin, FaPaypal, FaApplePay, FaGooglePay } from 'react-icons/fa';
+import { FaCreditCard, FaBitcoin, FaPaypal, FaApplePay, FaGooglePay, FaExclamationTriangle } from 'react-icons/fa';
 import './PaymentMethodSelector.css';
 
+const paymentOptions = [
+  { id: 'credit', label: 'Credit Card', icon: <FaCreditCard /> },
+  { id: 'paypal', label: 'PayPal', icon: <FaPaypal /> },
+  { id: 'crypto', label: 'Cryptocurrency', icon: <FaBitcoin /> },
+  { id: 'apple_pay', label: 'Apple Pay', icon: <FaApplePay /> },
+  { id: 'google_pay', label: 'Google Pay', icon: <FaGooglePay /> }
+];
+
 const PaymentMethodSelector = ({ paymentMethod, onChange }) => {
-  // Payment method options with icons
-  const paymentOptions = [
-    { id: 'credit', label: 'Credit Card', icon: <FaCreditCard /> },
-    { id: 'paypal', label: 'PayPal', icon: <FaPaypal /> },
-    { id: 'crypto', label: 'Cryptocurrency', icon: <FaBitcoin /> },
-    { id: 'apple_pay', label: 'Apple Pay', icon: <FaApplePay /> },
-    { id: 'google_pay', label: 'Google Pay', icon: <FaGooglePay /> }
-  ];
+  // Check if the selected payment method is valid
+  const isValidPaymentMethod = paymentOptions.some(option => option.id === paymentMethod);
 
   return (
     <div className="payment-method-selector">
@@ -42,6 +45,12 @@ const PaymentMethodSelector = ({ paymentMethod, onChange }) => {
         ))}
       </div>
       
+      {!isValidPaymentMethod && (
+        <div className="payment-warning">
+          <FaExclamationTriangle className="warning-icon" /> Invalid payment method selected.
+        </div>
+      )}
+      
       <div className="payment-info">
         <p>All transactions are secure and encrypted</p>
         <div className="security-badges">
@@ -53,10 +62,10 @@ const PaymentMethodSelector = ({ paymentMethod, onChange }) => {
   );
 };
 
-// PropTypes validation
 PaymentMethodSelector.propTypes = {
   paymentMethod: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
 export default PaymentMethodSelector;
+

@@ -1,4 +1,4 @@
-// src/features/auth/components/UserLogin.js
+// src/features/auth/components/UserLogin.js - Updated with Error Handling
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -6,15 +6,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { login as loginUser } from '../services/api';
 import { FaSignInAlt, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FormError } from '../../common/components/FormError';
+import { ApiError } from '../../common/components/ApiError';
+import { useApiError } from '../../common/contexts/ApiErrorContext';
 import './Auth.css';
 
 const UserLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, token } = useAuth();
+  const { handleApiError } = useApiError();
 
   // Check if user is already logged in
   useEffect(() => {
@@ -25,31 +30,67 @@ const UserLogin = () => {
 
   const { email, password } = formData;
 
+  // Validate form inputs
+  const validateForm = () => {
+    const errors = {};
+    if (!email) errors.email = 'Email is required';
+    if (!password) errors.password = 'Password is required';
+    
+    // Simple email validation
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear any error messages when user types
-    if (error) setError('');
+    
+    // Clear field-specific errors when user types
+    if (formErrors[e.target.name]) {
+      const { [e.target.name]: _, ...rest } = formErrors;
+      setFormErrors(rest);
+    }
+    
+    // Clear any general error messages when user types
+    if (error) setError(null);
     if (message) setMessage('');
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Validate form first
+    if (!validateForm()) return;
+    
     setLoading(true);
     setMessage('');
-    setError('');
+    setError(null);
     
     try {
-      const token = await loginUser({ email, password });
+      // Use handleApiError to wrap the API call
+      const loginWithHandling = handleApiError(loginUser, {
+        showGlobalError: false, // We'll handle errors in the form
+        onError: (err) => setError(err)
+      });
+      
+      const token = await loginWithHandling({ email, password });
+      
       if (token) {
         login(token);
         setMessage('Login successful. Redirecting...');
         navigate('/home');
       } else {
-        setError('Login failed. Please try again.');
+        setError({
+          code: 'LOGIN_FAILED',
+          message: 'Login failed. Please try again.'
+        });
       }
     } catch (error) {
+      // Error is handled by handleApiError
       console.error('Login error:', error);
-      setError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -96,9 +137,19 @@ const UserLogin = () => {
           <h2 className="auth-subtitle">Welcome Back</h2>
         </div>
 
+        {/* Display API errors */}
+        {error && (
+          <div className="auth-error-container">
+            <ApiError 
+              error={error} 
+              onDismiss={() => setError(null)}
+            />
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="auth-form">
           <motion.div 
-            className="form-group"
+            className={`form-group ${formErrors.email ? 'has-error' : ''}`}
             variants={itemVariants}
           >
             <label htmlFor="email" className="form-label">
@@ -116,10 +167,11 @@ const UserLogin = () => {
               required
               autoFocus
             />
+            <FormError error={formErrors} field="email" />
           </motion.div>
 
           <motion.div 
-            className="form-group"
+            className={`form-group ${formErrors.password ? 'has-error' : ''}`}
             variants={itemVariants}
           >
             <label htmlFor="password" className="form-label">
@@ -136,9 +188,9 @@ const UserLogin = () => {
               className="form-input"
               required
             />
+            <FormError error={formErrors} field="password" />
           </motion.div>
 
-          {error && <div className="error-message">{error}</div>}
           {message && <div className="success-message">{message}</div>}
 
           <motion.div 

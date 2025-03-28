@@ -1,3 +1,4 @@
+
 // src/features/store/components/CategorySection.js
 
 import React from 'react';
@@ -23,7 +24,7 @@ const CategorySection = React.forwardRef(({ category, products, onPurchase, purc
   };
 
   const getCategoryIcon = () => {
-    // Return different decorative elements based on category
+    // Return different decorative icons based on category
     switch(category.toLowerCase()) {
       case 'beginner packs':
         return '🔰';
@@ -52,14 +53,20 @@ const CategorySection = React.forwardRef(({ category, products, onPurchase, purc
         {category}
       </h2>
       <div className="store-products">
-        {products.map((product) => (
-          <ProductCard
-            key={product._id}
-            product={product}
-            onPurchase={onPurchase}
-            purchaseLoading={purchaseLoading[product._id]}
-          />
-        ))}
+        {products && products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              onPurchase={onPurchase}
+              purchaseLoading={purchaseLoading[product._id]}
+            />
+          ))
+        ) : (
+          <p className="no-products-message">
+            No products available in this category.
+          </p>
+        )}
       </div>
     </motion.div>
   );
@@ -75,3 +82,4 @@ CategorySection.propTypes = {
 };
 
 export default CategorySection;
+

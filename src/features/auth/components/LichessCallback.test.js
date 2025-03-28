@@ -3,15 +3,12 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import LichessCallback from './LichessCallback';
+import { ApiErrorProvider } from 'features/common/contexts/ApiErrorContext';
 
-// Mock the api module
 jest.mock('../services/api', () => ({
-  api: {
-    lichessCallback: jest.fn().mockResolvedValue({ success: true }),
-  }
+  lichessCallback: jest.fn().mockResolvedValue({ success: true }),
 }));
 
-// Mock useNavigate
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => jest.fn(),
@@ -23,9 +20,11 @@ jest.mock('react-router-dom', () => ({
 describe('LichessCallback Component', () => {
   test('renders loading state', () => {
     render(
-      <MemoryRouter>
-        <LichessCallback />
-      </MemoryRouter>
+      <ApiErrorProvider>
+        <MemoryRouter>
+          <LichessCallback />
+        </MemoryRouter>
+      </ApiErrorProvider>
     );
     
     expect(screen.getByText(/Lichess Connection/i)).toBeInTheDocument();

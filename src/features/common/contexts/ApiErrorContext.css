@@ -1,0 +1,44 @@
+/* src/features/common/contexts/ApiErrorContext.css */
+
+.global-error-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  max-width: 400px;
+  width: calc(100% - 32px);
+  animation: slide-in 0.3s ease-out;
+}
+
+.global-error-container .api-error {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 0;
+}
+
+/* Ensure the ApiError component fits nicely in the global error container */
+.global-error-container .api-error {
+  width: 100%;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* For mobile devices */
+@media (max-width: 640px) {
+  .global-error-container {
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+  }
+}

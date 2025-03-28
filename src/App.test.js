@@ -1,5 +1,4 @@
 // src/App.test.js
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
@@ -9,6 +8,7 @@ import { SelectedTokenProvider } from 'features/token/contexts/SelectedTokenCont
 import { LichessProvider } from 'features/auth/contexts/LichessContext';
 import { ProfileProvider } from 'features/profile/contexts/ProfileContext';
 import { NotificationsProvider } from 'features/notifications/contexts/NotificationsContext';
+import { ApiErrorProvider } from 'features/common/contexts/ApiErrorContext';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock the socket context
@@ -33,19 +33,21 @@ jest.mock('features/landing/pages/Landing', () => {
 const renderWithProviders = (ui, options = {}) => {
   return render(
     <MemoryRouter {...options.routerProps}>
-      <AuthProvider>
-        <TokenProvider>
-          <SelectedTokenProvider>
-            <LichessProvider>
-              <ProfileProvider>
-                <NotificationsProvider>
-                  {ui}
-                </NotificationsProvider>
-              </ProfileProvider>
-            </LichessProvider>
-          </SelectedTokenProvider>
-        </TokenProvider>
-      </AuthProvider>
+      <ApiErrorProvider>
+        <AuthProvider>
+          <TokenProvider>
+            <SelectedTokenProvider>
+              <LichessProvider>
+                <ProfileProvider>
+                  <NotificationsProvider>
+                    {ui}
+                  </NotificationsProvider>
+                </ProfileProvider>
+              </LichessProvider>
+            </SelectedTokenProvider>
+          </TokenProvider>
+        </AuthProvider>
+      </ApiErrorProvider>
     </MemoryRouter>,
     options
   );
@@ -53,9 +55,7 @@ const renderWithProviders = (ui, options = {}) => {
 
 // Mock localStorage.getItem to return null for 'token'
 beforeEach(() => {
-  Storage.prototype.getItem = jest.fn((key) => {
-    return null; // Return null for any key (to simulate no token)
-  });
+  Storage.prototype.getItem = jest.fn(() => null);
 });
 
 test('renders landing page when not logged in', () => {
@@ -66,6 +66,4 @@ test('renders landing page when not logged in', () => {
   expect(welcomeElement).toBeInTheDocument();
 });
 
-// You can add more tests as needed
-// For example, to test authenticated routes, you could mock localStorage to return a token
-// and use different initialEntries in MemoryRouter
+// Additional tests can be added here

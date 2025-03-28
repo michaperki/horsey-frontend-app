@@ -1,9 +1,11 @@
-// src/features/leaderboard/pages/Leaderboard.js
+// src/features/leaderboard/pages/Leaderboard.js - Updated with Error Handling
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTrophy, FaMedal, FaChess, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaCoins } from "react-icons/fa";
 import { useAuth } from '../../auth/contexts/AuthContext';
+import { ApiError } from "../../common/components/ApiError";
+import { useApiError } from "../../common/contexts/ApiErrorContext";
 import './Leaderboard.css';
 
 // Enhanced mockData with more realistic fields and values
@@ -67,87 +69,32 @@ const mockData = [
     country: "IN",
     tokens: 6720,
     joinDate: "2023-11-18"
-  },
-  {
-    id: "user6",
-    username: "EndgameExpert",
-    avatar: null,
-    rating: 2315,
-    winPercentage: 64.2,
-    games: 329,
-    rank: 6,
-    country: "CN",
-    tokens: 6240,
-    joinDate: "2023-10-12"
-  },
-  {
-    id: "user7",
-    username: "CheckMateCreator",
-    avatar: null,
-    rating: 2285,
-    winPercentage: 62.8,
-    games: 275,
-    rank: 7,
-    country: "ES",
-    tokens: 5980,
-    joinDate: "2023-12-05"
-  },
-  {
-    id: "user8",
-    username: "BishopBaron",
-    avatar: null,
-    rating: 2264,
-    winPercentage: 61.1,
-    games: 318,
-    rank: 8,
-    country: "IT",
-    tokens: 5750,
-    joinDate: "2023-09-28"
-  },
-  {
-    id: "user9",
-    username: "RookRuler",
-    avatar: null,
-    rating: 2231,
-    winPercentage: 59.8,
-    games: 290,
-    rank: 9,
-    country: "BR",
-    tokens: 5430,
-    joinDate: "2023-11-02"
-  },
-  {
-    id: "user10",
-    username: "ChessChampion99",
-    avatar: null,
-    rating: 2210,
-    winPercentage: 58.4,
-    games: 305,
-    rank: 10,
-    country: "CA",
-    tokens: 5120,
-    joinDate: "2023-10-15"
   }
 ];
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [timeFrame, setTimeFrame] = useState("all");
   const [sortField, setSortField] = useState("rank");
   const [sortDirection, setSortDirection] = useState("asc");
   const [filter, setFilter] = useState("all");
   const { token } = useAuth();
+  const { handleApiError } = useApiError();
 
   // Flag to toggle between mock data and real data
   const useMockData = true; // Set to false for real API calls
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      if (useMockData) {
-        // Simulate network delay
-        setTimeout(() => {
+  const fetchLeaderboard = async () => {
+    setLoading(true);
+    setError(null);
+    
+    if (useMockData) {
+      // Simulate network delay
+      setTimeout(() => {
+        try {
           let filteredData = [...mockData];
           
           // Apply filters based on UI selections
@@ -180,37 +127,56 @@ const Leaderboard = () => {
           });
           
           setLeaderboardData(filteredData);
+        } catch (err) {
+          setError({
+            code: 'DATA_ERROR',
+            message: 'Error processing leaderboard data'
+          });
+        } finally {
           setLoading(false);
-        }, 800); // Simulate loading delay
-        return;
-      }
-
-      try {
-        // Real API call would go here
-        setLoading(true);
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/leaderboard?timeFrame=${timeFrame}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch leaderboard data");
         }
+      }, 800); // Simulate loading delay
+      return;
+    }
 
-        const data = await response.json();
-        setLeaderboardData(data);
-      } catch (error) {
-        console.error("Error fetching leaderboard data:", error);
-        // Fallback to mock data on error
-        setLeaderboardData(mockData);
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      // Real API call with error handling
+      const getLeaderboardWithHandling = handleApiError(
+        async () => {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/leaderboard?timeFrame=${timeFrame}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
+          if (!response.ok) {
+            throw new Error("Failed to fetch leaderboard data");
+          }
+
+          return await response.json();
+        },
+        {
+          showGlobalError: false,
+          onError: (err) => setError(err)
+        }
+      );
+      
+      const data = await getLeaderboardWithHandling();
+      setLeaderboardData(data);
+    } catch (error) {
+      // Error is handled by handleApiError
+      // Fallback to mock data on error
+      console.error("Error fetching leaderboard data:", error);
+      setLeaderboardData(mockData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchLeaderboard();
-  }, [token, timeFrame, searchTerm, sortField, sortDirection, filter, useMockData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, timeFrame, searchTerm, sortField, sortDirection, filter]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -231,7 +197,7 @@ const Leaderboard = () => {
       : <FaSortAmountDown className="sort-icon" />;
   };
 
-  // Animation variants for Framer Motion
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -332,6 +298,17 @@ const Leaderboard = () => {
       >
         Global Leaderboard
       </motion.h1>
+
+      {/* Display any errors */}
+      {error && (
+        <div className="leaderboard-error-container">
+          <ApiError 
+            error={error} 
+            onDismiss={() => setError(null)}
+            onRetry={fetchLeaderboard}
+          />
+        </div>
+      )}
 
       <motion.div 
         className="leaderboard-controls"

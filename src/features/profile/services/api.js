@@ -1,3 +1,5 @@
+// src/features/profile/services/api.js - Updated for new error handling
+
 import { apiFetch } from '../../common/services/api';
 
 /**
@@ -8,7 +10,6 @@ import { apiFetch } from '../../common/services/api';
 export const getUserProfile = async (currencyType = 'token') => {
   const data = await apiFetch(`/auth/profile?currencyType=${currencyType}`, {
     method: 'GET',
-    credentials: 'include',
   });
   return data;
 };
@@ -22,7 +23,6 @@ export const updateUserProfile = async (profileData) => {
   const data = await apiFetch('/auth/profile', {
     method: 'PATCH',
     body: JSON.stringify(profileData),
-    credentials: 'include',
   });
   return data;
 };

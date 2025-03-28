@@ -1,53 +1,42 @@
-// src/components/Profile/Overview.js
 
-import React, { useEffect, useState } from 'react';
+// src/features/profile/components/Overview.js
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../auth/contexts/AuthContext';
-import { getUserBalances } from '../services/api'; // Updated path
-import { useToken } from '../../token/contexts/TokenContext'; // Updated path
+import { getUserBalances } from '../services/api';
+import { useToken } from '../../token/contexts/TokenContext';
+import { ApiError } from '../../common/components/ApiError';
 
 const Overview = () => {
   const { token } = useAuth();
-  const {
-    tokenBalance,
-    sweepstakesBalance,
-    updateTokenBalance,
-    updateSweepstakesBalance,
-  } = useToken(); // Destructure balances and update functions from TokenContext
-
+  const { tokenBalance, sweepstakesBalance, updateTokenBalance, updateSweepstakesBalance } = useToken();
   const [loadingBalance, setLoadingBalance] = useState(false);
-  const [errorBalance, setErrorBalance] = useState('');
+  const [errorBalance, setErrorBalance] = useState(null);
 
-  const fetchBalances = async () => {
+  const fetchBalances = useCallback(async () => {
     setLoadingBalance(true);
-    setErrorBalance('');
+    setErrorBalance(null);
     try {
-      if (!token) {
-        throw new Error('Please log in to view your balances.');
-      }
-
-      const { tokenBalance, sweepstakesBalance } = await getUserBalances(); // Fetch both balances
-
-      // Update balances in TokenContext
+      if (!token) throw new Error('Please log in to view your balances.');
+      const { tokenBalance, sweepstakesBalance } = await getUserBalances();
       updateTokenBalance(tokenBalance);
       updateSweepstakesBalance(sweepstakesBalance);
     } catch (error) {
-      setErrorBalance(error.message || 'Failed to fetch balances.');
+      setErrorBalance({ code: 'BALANCE_ERROR', message: error.message || 'Failed to fetch balances.' });
     } finally {
       setLoadingBalance(false);
     }
-  };
+  }, [token, updateTokenBalance, updateSweepstakesBalance]);
 
   useEffect(() => {
     if (token) {
       fetchBalances();
     } else {
-      // If no token, reset balances
       updateTokenBalance(0);
       updateSweepstakesBalance(0);
-      setErrorBalance('');
+      setErrorBalance(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, fetchBalances, updateTokenBalance, updateSweepstakesBalance]);
 
   return (
     <div>
@@ -57,7 +46,7 @@ const Overview = () => {
         {loadingBalance ? (
           <p>Loading balance...</p>
         ) : errorBalance ? (
-          <p style={{ color: 'red' }}>{errorBalance}</p>
+          <ApiError error={errorBalance} onDismiss={() => setErrorBalance(null)} compact />
         ) : (
           <p style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#2c3e50' }}>
             {tokenBalance} PTK
@@ -70,7 +59,7 @@ const Overview = () => {
         {loadingBalance ? (
           <p>Loading balance...</p>
         ) : errorBalance ? (
-          <p style={{ color: 'red' }}>{errorBalance}</p>
+          <ApiError error={errorBalance} onDismiss={() => setErrorBalance(null)} compact />
         ) : (
           <p style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#2c3e50' }}>
             {sweepstakesBalance} SWP

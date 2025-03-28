@@ -1,3 +1,5 @@
+// src/features/notifications/services/api.js - Updated for new error handling
+
 import { apiFetch } from '../../common/services/api';
 
 /**

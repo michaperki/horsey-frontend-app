@@ -1,18 +1,17 @@
-// src/components/YourBets.js
 import React, { useEffect, useState } from "react";
-import {
-  getUserBets,
-  cancelBet,
-} from "../services/api";
+import { getUserBets, cancelBet } from "../services/api";
 import { useAuth } from 'features/auth/contexts/AuthContext';
-
-import "./YourBets.css"; // Import the updated CSS file
+import { ApiError } from "../../common/components/ApiError";
+import { useApiError } from "../../common/contexts/ApiErrorContext";
+import "./YourBets.css";
 
 const YourBets = () => {
   const { token, user } = useAuth();
+  const { handleApiError } = useApiError();
+  
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
   // Pagination & Sorting
   const [page, setPage] = useState(1);
@@ -35,20 +34,21 @@ const YourBets = () => {
 
   const fetchBets = async (overrideParams) => {
     if (!token) {
-      setError("Please log in to view your bets.");
+      setError({
+        code: 'AUTH_ERROR',
+        message: "Please log in to view your bets."
+      });
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError(null);
 
-    // Build query params
     const params = {
       page,
       limit,
       sortBy,
       order,
-      // Include existing filters
       status: overrideParams?.status ?? status,
       fromDate: overrideParams?.fromDate ?? fromDate,
       toDate: overrideParams?.toDate ?? toDate,
@@ -56,34 +56,56 @@ const YourBets = () => {
       maxWager: overrideParams?.maxWager ?? maxWager,
     };
 
-    // Remove empty filters
     Object.keys(params).forEach((k) => {
       if (!params[k]) delete params[k];
     });
 
     try {
-      const data = await getUserBets(token, params);
+      const getUserBetsWithHandling = handleApiError(getUserBets, {
+        showGlobalError: false,
+        onError: (err) => setError(err)
+      });
+      const data = await getUserBetsWithHandling(params);
 
       if (data && data.bets) {
         setBets(data.bets);
         setTotalPages(data.totalPages || 1);
       } else {
-        setError("Unexpected response from the server.");
+        setError({
+          code: 'DATA_ERROR',
+          message: "Unexpected response from the server."
+        });
       }
     } catch (err) {
-      setError(err.message || "An error occurred while fetching your bets.");
+      // Error handled by handleApiError
     } finally {
       setLoading(false);
     }
   };
 
   const handleApplyFilter = () => {
-    // Reset page to 1 on filter change
     setPage(1);
     fetchBets();
   };
 
-  // Sorting by clicking headers
+  const handleClearFilter = () => {
+    setStatus("");
+    setFromDate("");
+    setToDate("");
+    setMinWager("");
+    setMaxWager("");
+    setPage(1);
+    setSortBy("createdAt");
+    setOrder("desc");
+    fetchBets({
+      status: "",
+      fromDate: "",
+      toDate: "",
+      minWager: "",
+      maxWager: ""
+    });
+  };
+
   const handleSort = (field) => {
     if (sortBy === field) {
       setOrder(order === "asc" ? "desc" : "asc");
@@ -93,15 +115,16 @@ const YourBets = () => {
     }
   };
 
-  // Pagination
   const handlePreviousPage = () => setPage((prev) => Math.max(1, prev - 1));
   const handleNextPage = () => setPage((prev) => Math.min(prev + 1, totalPages));
 
-  // Cancel bet logic
   const handleCancelBet = async (betId) => {
-    setError("");
+    setError(null);
     if (!token || !user) {
-      setError("You must be logged in to cancel a bet.");
+      setError({
+        code: 'AUTH_ERROR',
+        message: "You must be logged in to cancel a bet."
+      });
       return;
     }
 
@@ -109,22 +132,24 @@ const YourBets = () => {
       const confirmCancel = window.confirm("Are you sure you want to cancel this bet?");
       if (!confirmCancel) return;
 
-      // Call the API
-      await cancelBet(token, betId);
-
-      // Remove the bet from local state
-      setBets((prev) => prev.filter((b) => b._id !== betId));
+      const cancelBetWithHandling = handleApiError(cancelBet, {
+        showGlobalError: true,
+        onSuccess: () => {
+          setBets((prev) =>
+            prev.map(b => b._id === betId ? { ...b, status: 'canceled' } : b)
+          );
+        }
+      });
+      await cancelBetWithHandling(betId);
     } catch (err) {
-      setError(err.message || "Failed to cancel the bet.");
+      // Error handled by handleApiError
     }
   };
 
-  // Render
   return (
     <div className="p-md">
       <h3 className="text-lg mb-md">Your Bets</h3>
 
-      {/* Filter Bar */}
       <div className="filter-bar">
         <div className="filter-item">
           <label htmlFor="status">Status:</label>
@@ -185,13 +210,28 @@ const YourBets = () => {
           />
         </div>
 
-        <button onClick={handleApplyFilter} className="apply-filters-button">
-          Apply Filters
-        </button>
+        <div className="filter-actions">
+          <button onClick={handleApplyFilter} className="apply-filters-button">
+            Apply Filters
+          </button>
+          <button onClick={handleClearFilter} className="clear-filters-button">
+            Clear Filters
+          </button>
+        </div>
       </div>
 
       {loading && <p>Loading your bets...</p>}
-      {error && <p className="text-danger mb-md">{error}</p>}
+      
+      {error && (
+        <div className="error-container mb-md">
+          <ApiError 
+            error={error} 
+            onDismiss={() => setError(null)}
+            onRetry={fetchBets}
+          />
+        </div>
+      )}
+      
       {!loading && !error && bets.length === 0 && (
         <p>You have not placed any bets yet.</p>
       )}
@@ -201,34 +241,19 @@ const YourBets = () => {
           <table className="w-full border-collapse mb-md">
             <thead>
               <tr>
-                <th
-                  onClick={() => handleSort("gameId")}
-                  className="text-center cursor-pointer"
-                >
+                <th onClick={() => handleSort("gameId")} className="text-center cursor-pointer">
                   Game ID {sortBy === "gameId" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th
-                  onClick={() => handleSort("amount")}
-                  className="text-center cursor-pointer"
-                >
+                <th onClick={() => handleSort("amount")} className="text-center cursor-pointer">
                   Amount {sortBy === "amount" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th
-                  onClick={() => handleSort("currencyType")}
-                  className="text-center cursor-pointer"
-                >
+                <th onClick={() => handleSort("currencyType")} className="text-center cursor-pointer">
                   Currency {sortBy === "currencyType" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th
-                  onClick={() => handleSort("status")}
-                  className="text-center cursor-pointer"
-                >
+                <th onClick={() => handleSort("status")} className="text-center cursor-pointer">
                   Status {sortBy === "status" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th
-                  onClick={() => handleSort("createdAt")}
-                  className="text-center cursor-pointer"
-                >
+                <th onClick={() => handleSort("createdAt")} className="text-center cursor-pointer">
                   Created {sortBy === "createdAt" ? (order === "asc" ? "▲" : "▼") : ""}
                 </th>
                 <th className="text-center">Actions</th>
@@ -245,27 +270,19 @@ const YourBets = () => {
                   <td className={`py-2 ${bet.status === "canceled" || bet.status === "expired" ? "text-danger" : ""}`}>
                     {bet.status.charAt(0).toUpperCase() + bet.status.slice(1)}
                   </td>
+                  <td className="py-2">{new Date(bet.createdAt).toLocaleString()}</td>
                   <td className="py-2">
-                    {new Date(bet.createdAt).toLocaleString()}
-                  </td>
-                  <td className="py-2">
-                    {/* Show "Cancel" if pending & user is creator */}
-                    {bet.status === "pending" &&
-                      bet.creatorId._id === user?.id && (
-                        <button
-                          className="cancel-button"
-                          onClick={() => handleCancelBet(bet._id)}
-                        >
-                          Cancel
-                        </button>
-                      )}
+                    {bet.status === "pending" && bet.creatorId._id === user?.id && (
+                      <button className="cancel-button" onClick={() => handleCancelBet(bet._id)}>
+                        Cancel
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* Pagination */}
           <div className="flex justify-center gap-5 items-center">
             <button onClick={handlePreviousPage} disabled={page === 1} className="btn btn-secondary">
               Prev

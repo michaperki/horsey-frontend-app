@@ -1,18 +1,19 @@
-// Updated src/features/betting/components/AvailableBets.js
+// src/features/betting/components/AvailableBets.js - Updated with Error Handling
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { acceptBet, getAvailableBets } from "features/betting/services/api";
+import { acceptBet, getAvailableBets } from "../services/api";
 import { useAuth } from "features/auth/contexts/AuthContext";
 import { useToken } from "features/token/contexts/TokenContext";
 import { useSelectedToken } from 'features/token/contexts/SelectedTokenContext';
 import { formatDistanceToNow } from "date-fns";
+import { ApiError } from "../../common/components/ApiError";
+import { useApiError } from "../../common/contexts/ApiErrorContext";
 
 // Import React Icons
 import { 
   FaSignInAlt, 
   FaInfoCircle,
-  FaExclamationCircle,
   FaSortUp,
   FaSortDown,
   FaSort,
@@ -24,17 +25,21 @@ const AvailableBets = ({ format = "1v1" }) => {
   const { token } = useAuth();
   const { tokenBalance, sweepstakesBalance, loading: tokenLoading, error: tokenError } = useToken();
   const { selectedToken } = useSelectedToken();
+  const { handleApiError } = useApiError();
   
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
 
-  // Fetch available bets
+  // Fetch available bets with error handling
   const fetchAvailableBets = useCallback(async () => {
     if (!token) {
-      setError("Please log in to view available bets.");
+      setError({
+        code: 'AUTH_ERROR',
+        message: "Please log in to view available bets."
+      });
       setLoading(false);
       return;
     }
@@ -44,16 +49,25 @@ const AvailableBets = ({ format = "1v1" }) => {
     }
     
     if (tokenError) {
-      setError("Failed to load your balances. Please try again.");
+      setError({
+        code: 'DATA_ERROR',
+        message: "Failed to load your balances. Please try again."
+      });
       setLoading(false);
       return;
     }
     
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
-      const fetchedBets = await getAvailableBets(selectedToken);
+      // Use the handleApiError wrapper for error handling
+      const fetchBets = handleApiError(getAvailableBets, {
+        showGlobalError: false,
+        onError: (err) => setError(err)
+      });
+      
+      const fetchedBets = await fetchBets(selectedToken);
 
       // Filter bets based on user's balance
       const filteredBets = fetchedBets.filter((bet) => {
@@ -78,11 +92,11 @@ const AvailableBets = ({ format = "1v1" }) => {
 
       setBets(sortedBets);
     } catch (err) {
-      setError(err.message || "An error occurred while fetching available bets.");
+      // Error is handled by handleApiError
     } finally {
       setLoading(false);
     }
-  }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken, sortConfig]);
+  }, [token, tokenBalance, sweepstakesBalance, tokenLoading, tokenError, selectedToken, sortConfig, handleApiError]);
 
   // Setup polling for bets
   useEffect(() => {
@@ -155,20 +169,34 @@ const AvailableBets = ({ format = "1v1" }) => {
   };
 
   /**
-   * Handle accepting a bet
+   * Handle accepting a bet with error handling
    */
   const handleAcceptBet = async (betId, colorPreference) => {
     if (!token) {
-      setError("Please log in to accept bets.");
+      setError({
+        code: 'AUTH_ERROR',
+        message: "Please log in to accept bets."
+      });
       return;
     }
+    
     setActionLoading((prev) => ({ ...prev, [betId]: true }));
+    
     try {
       const opponentColor = determineOpponentColor(colorPreference);
-      await acceptBet(betId, opponentColor);
-      setBets((prev) => prev.filter((bet) => bet.id !== betId));
+      
+      // Use handleApiError to wrap the API call
+      const acceptBetWithHandling = handleApiError(acceptBet, {
+        showGlobalError: true,
+        onSuccess: () => {
+          // Remove the accepted bet from the list
+          setBets((prev) => prev.filter((bet) => bet.id !== betId));
+        }
+      });
+      
+      await acceptBetWithHandling(betId, opponentColor);
     } catch (err) {
-      setError(err.message || "Failed to accept the bet.");
+      // Errors are handled by handleApiError
     } finally {
       setActionLoading((prev) => ({ ...prev, [betId]: false }));
     }
@@ -186,9 +214,12 @@ const AvailableBets = ({ format = "1v1" }) => {
 
   if (error) {
     return (
-      <div className="bets-error">
-        <FaExclamationCircle />
-        <p>{error}</p>
+      <div className="bets-error-container">
+        <ApiError 
+          error={error} 
+          onDismiss={() => setError(null)}
+          onRetry={fetchAvailableBets}
+        />
       </div>
     );
   }

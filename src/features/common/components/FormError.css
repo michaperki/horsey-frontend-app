@@ -1,0 +1,68 @@
+/* src/features/common/components/FormError.css */
+
+.form-error, 
+.form-error-list {
+  display: flex;
+  align-items: center;
+  color: #ef4444; /* Red */
+  font-size: 0.875rem;
+  margin-top: 4px;
+  line-height: 1.25;
+  animation: form-error-appear 0.2s ease;
+}
+
+.form-error-icon {
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.form-error-list {
+  align-items: flex-start;
+}
+
+.form-error-list ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.form-error-list li {
+  margin-bottom: 4px;
+}
+
+.form-error-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* For individual field form errors */
+.form-field .form-error {
+  margin-top: 2px;
+  font-size: 0.8rem;
+}
+
+/* Animation for error appearance */
+@keyframes form-error-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* For fields that have an error */
+.form-field.has-error input,
+.form-field.has-error select,
+.form-field.has-error textarea {
+  border-color: #ef4444; /* Red */
+  background-color: rgba(254, 226, 226, 0.2); /* Very light red */
+}
+
+.form-field.has-error input:focus,
+.form-field.has-error select:focus,
+.form-field.has-error textarea:focus {
+  border-color: #ef4444; /* Red */
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); /* Red with transparency */
+}

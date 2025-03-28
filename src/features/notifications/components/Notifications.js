@@ -1,16 +1,29 @@
-// src/features/notifications/components/Notifications.js
+// src/features/notifications/components/Notifications.js - Updated with Error Handling
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications } from '../contexts/NotificationsContext';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FaBell, FaCheckCircle, FaExclamationCircle, FaSpinner } from 'react-icons/fa';
+import { FaBell, FaCheckCircle, FaSpinner, FaBellSlash } from 'react-icons/fa';
+import { ApiError } from '../../common/components/ApiError';
+import { useApiError } from '../../common/contexts/ApiErrorContext';
 import './Notifications.css';
 
 const Notifications = () => {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    loading,
+    error,
+    setError,
+    refetchNotifications 
+  } = useNotifications();
+  
   const { user } = useAuth();
+  const { handleApiError } = useApiError();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +33,23 @@ const Notifications = () => {
   }, [user, navigate]);
 
   const handleMarkAsRead = async (id) => {
-    await markAsRead(id);
+    // Use handleApiError to wrap the API call
+    const markAsReadWithHandling = handleApiError(markAsRead, {
+      showGlobalError: false,
+      onError: (err) => setError(err)
+    });
+    
+    await markAsReadWithHandling(id);
   };
 
   const handleMarkAllAsRead = async () => {
-    await markAllAsRead();
+    // Use handleApiError to wrap the API call
+    const markAllAsReadWithHandling = handleApiError(markAllAsRead, {
+      showGlobalError: false,
+      onError: (err) => setError(err)
+    });
+    
+    await markAllAsReadWithHandling();
   };
 
   // Animation variants
@@ -126,6 +151,17 @@ const Notifications = () => {
         )}
       </motion.h2>
       
+      {/* Display any errors */}
+      {error && (
+        <div className="notifications-error-container mb-md">
+          <ApiError 
+            error={error} 
+            onDismiss={() => setError(null)}
+            onRetry={refetchNotifications}
+          />
+        </div>
+      )}
+      
       {notifications.length === 0 ? (
         <motion.div
           className="empty-state p-lg text-center"
@@ -133,7 +169,7 @@ const Notifications = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <FaExclamationCircle className="text-3xl text-gray-400 mb-md" />
+          <FaBellSlash className="text-3xl text-gray-400 mb-md" />
           <p className="text-gray-400">No notifications to display.</p>
         </motion.div>
       ) : (

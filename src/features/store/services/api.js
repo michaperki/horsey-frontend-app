@@ -1,3 +1,5 @@
+// src/features/store/services/api.js - Updated for new error handling
+
 import { apiFetch } from '../../common/services/api';
 
 /**
@@ -25,9 +27,23 @@ export const purchaseTokens = async (paymentMethod, amount) => {
   return data;
 };
 
+/**
+ * Fetches the user's purchase history.
+ * @param {object} params - Query parameters for filtering and pagination.
+ * @returns {Promise<object>} - The purchase history data.
+ */
+export const getPurchaseHistory = async (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const data = await apiFetch(`/store/history?${queryString}`, {
+    method: 'GET',
+  });
+  return data;
+};
+
 export const storeApi = {
   fetchProducts,
   purchaseTokens,
+  getPurchaseHistory,
 };
 
 export default storeApi;

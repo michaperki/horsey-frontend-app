@@ -1,9 +1,11 @@
-// Enhanced PlaceBetModal.js
+// src/features/betting/components/PlaceBetModal.js - Updated with Error Handling
 
 import React, { useState, useEffect } from "react";
 import { placeBet } from "../services/api";
 import { useToken } from "../../token/contexts/TokenContext";
 import { useSelectedToken } from "../../token/contexts/SelectedTokenContext";
+import { ApiError } from "../../common/components/ApiError";
+import { FormError } from "../../common/components/FormError";
 import PropTypes from "prop-types";
 import "./PlaceBetModal.css";
 
@@ -25,10 +27,11 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
   const [timeControl, setTimeControl] = useState("5|3");
   const [variant, setVariant] = useState(preSelectedVariant || "standard");
   const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   // Context hooks
   const {
@@ -53,19 +56,28 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     }
   }, [isOpen, preSelectedVariant]);
 
-  // Handle bet placement
-  const handlePlaceBet = async () => {
-    setMessage("");
+  // Validate the form inputs
+  const validateForm = () => {
+    const newFormErrors = {};
     
-    // Validate amount
     if (!amount || Number(amount) <= 0) {
-      setMessage("Please enter a valid bet amount.");
-      return;
+      newFormErrors.amount = "Please enter a valid bet amount.";
+    } else if (Number(amount) > currentBalance) {
+      newFormErrors.amount = `You don't have enough ${selectedToken === "sweepstakes" ? "sweepstakes tokens" : "tokens"} for this bet.`;
     }
     
-    // Validate balance
-    if (Number(amount) > currentBalance) {
-      setMessage("You don't have enough " + (selectedToken === "sweepstakes" ? "sweepstakes tokens" : "tokens") + " for this bet.");
+    setFormErrors(newFormErrors);
+    return Object.keys(newFormErrors).length === 0;
+  };
+
+  // Handle bet placement
+  const handlePlaceBet = async () => {
+    // Clear previous errors
+    setError(null);
+    setFormErrors({});
+    
+    // Validate form
+    if (!validateForm()) {
       return;
     }
 
@@ -94,10 +106,14 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
 
     } catch (err) {
       console.error("Error placing bet:", err);
-      if (err.response?.data?.error) {
-        setMessage(`Error: ${err.response.data.error}`);
+      
+      // Handle different error types
+      if (err.code === 'VALIDATION_ERROR' && err.validationErrors) {
+        // Set field-specific form errors if available
+        setFormErrors(err.validationErrors);
       } else {
-        setMessage(err.message || "Failed to place bet. Please try again.");
+        // Set general error
+        setError(err);
       }
     } finally {
       setLoading(false);
@@ -107,7 +123,8 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
   // Close modal and reset state
   const handleCloseModal = () => {
     setSuccess(false);
-    setMessage("");
+    setError(null);
+    setFormErrors({});
     onClose();
   };
 
@@ -117,6 +134,11 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     // Allow only numbers
     if (/^\d*$/.test(value)) {
       setAmount(value);
+      // Clear form error for amount when user types
+      if (formErrors.amount) {
+        const { amount, ...rest } = formErrors;
+        setFormErrors(rest);
+      }
     }
   };
 
@@ -144,6 +166,12 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
       setAmount(currentBalance.toString());
     } else {
       setAmount(preset.toString());
+    }
+    
+    // Clear form error for amount when preset is applied
+    if (formErrors.amount) {
+      const { amount, ...rest } = formErrors;
+      setFormErrors(rest);
     }
   };
 
@@ -212,6 +240,17 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         <div className="place-bet-balance">
           Your Balance: <span>{currentBalance}</span> {selectedToken === "sweepstakes" ? "Sweepstakes Tokens" : "Tokens"}
         </div>
+
+        {/* Display any API errors */}
+        {error && (
+          <div className="place-bet-error-container">
+            <ApiError 
+              error={error} 
+              onDismiss={() => setError(null)}
+              compact={true}
+            />
+          </div>
+        )}
 
         {/* Color Preference */}
         <div className="place-bet-section">
@@ -322,7 +361,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
           </div>
           
           {/* Amount input field */}
-          <div className="place-bet-input-wrapper">
+          <div className={`place-bet-input-wrapper ${formErrors.amount ? 'has-error' : ''}`}>
             <input
               type="text"
               id="amount"
@@ -338,10 +377,10 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
               {selectedToken === "token" ? "PTK" : "SWP"}
             </span>
           </div>
+          
+          {/* Form error for amount field */}
+          <FormError error={formErrors} field="amount" />
         </div>
-
-        {/* Error Message */}
-        {message && <div className="place-bet-error">{message}</div>}
 
         {/* Submit Button */}
         <button

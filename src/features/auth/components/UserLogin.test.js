@@ -1,9 +1,9 @@
 // src/features/auth/components/UserLogin.test.js
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import UserLogin from './UserLogin';
+import { ApiErrorProvider } from 'features/common/contexts/ApiErrorContext';
 
 // Mock react-router-dom
 jest.mock('react-router-dom', () => ({
@@ -23,20 +23,24 @@ jest.mock('../contexts/AuthContext', () => ({
 
 describe('UserLogin Component', () => {
   beforeEach(() => {
-    // Reset mocks
     jest.clearAllMocks();
   });
 
+  const renderWithProviders = (ui) => {
+    return render(
+      <ApiErrorProvider>
+        <BrowserRouter>
+          {ui}
+        </BrowserRouter>
+      </ApiErrorProvider>
+    );
+  };
+
   test('renders login form', () => {
-    // Configure useAuth mock
     const { useAuth } = require('../contexts/AuthContext');
     useAuth.mockReturnValue({ login: jest.fn() });
 
-    render(
-      <BrowserRouter>
-        <UserLogin />
-      </BrowserRouter>
-    );
+    renderWithProviders(<UserLogin />);
 
     // Check that form elements are rendered
     expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument();
@@ -46,15 +50,13 @@ describe('UserLogin Component', () => {
   });
 
   test('handles form submission', async () => {
-    // Configure mocks
-    const mockLogin = jest.fn();
-    const mockNavigate = jest.fn();
     const mockAuthLogin = jest.fn();
+    const mockNavigate = jest.fn();
 
     // Mock useNavigate
     require('react-router-dom').useNavigate = () => mockNavigate;
 
-    // Mock loginUser API function
+    // Mock login API function
     const { login } = require('../services/api');
     login.mockResolvedValue('fake-token');
 
@@ -62,11 +64,7 @@ describe('UserLogin Component', () => {
     const { useAuth } = require('../contexts/AuthContext');
     useAuth.mockReturnValue({ login: mockAuthLogin });
 
-    render(
-      <BrowserRouter>
-        <UserLogin />
-      </BrowserRouter>
-    );
+    renderWithProviders(<UserLogin />);
 
     // Fill in form
     fireEvent.change(screen.getByPlaceholderText(/Email/i), {
@@ -88,20 +86,18 @@ describe('UserLogin Component', () => {
     // Wait for login to complete and check that context login function was called
     await waitFor(() => {
       expect(mockAuthLogin).toHaveBeenCalledWith('fake-token');
-      // expect(mockNavigate).toHaveBeenCalledWith('/home');
+      // Optionally: expect(mockNavigate).toHaveBeenCalledWith('/home');
     });
   });
 
   test('handles login error', async () => {
-    // Configure mocks
-    const mockLogin = jest.fn();
-    const mockNavigate = jest.fn();
     const mockAuthLogin = jest.fn();
+    const mockNavigate = jest.fn();
 
     // Mock useNavigate
     require('react-router-dom').useNavigate = () => mockNavigate;
 
-    // Mock loginUser API function to throw an error
+    // Mock login API function to throw an error
     const { login } = require('../services/api');
     login.mockRejectedValue(new Error('Invalid credentials'));
 
@@ -109,11 +105,7 @@ describe('UserLogin Component', () => {
     const { useAuth } = require('../contexts/AuthContext');
     useAuth.mockReturnValue({ login: mockAuthLogin });
 
-    render(
-      <BrowserRouter>
-        <UserLogin />
-      </BrowserRouter>
-    );
+    renderWithProviders(<UserLogin />);
 
     // Fill in form
     fireEvent.change(screen.getByPlaceholderText(/Email/i), {
