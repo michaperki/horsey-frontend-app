@@ -25,4 +25,10 @@ module.exports = {
   },
   testPathIgnorePatterns: ['/node_modules/', '/cypress/'],
   moduleDirectories: ["node_modules", "src"],
+  reporters: process.env.CI 
+    ? ["default"] 
+    : ["jest-clean-console-reporter"],
+  // Silence specific console messages
+  silent: false,
+  verbose: false
 };
