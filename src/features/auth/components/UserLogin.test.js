@@ -39,7 +39,7 @@ describe('UserLogin Component', () => {
     );
 
     // Check that form elements are rendered
-    expect(screen.getByText(/User Login/i)).toBeInTheDocument();
+    expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();

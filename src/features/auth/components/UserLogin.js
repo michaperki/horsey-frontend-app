@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { login as loginUser } from '../services/api';
-import { FaSignInAlt, FaEnvelope, FaLock, FaChessKnight } from 'react-icons/fa';
+import { FaSignInAlt, FaEnvelope, FaLock } from 'react-icons/fa';
 import './Auth.css';
 
 const UserLogin = () => {

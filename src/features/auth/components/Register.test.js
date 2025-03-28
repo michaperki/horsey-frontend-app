@@ -42,7 +42,7 @@ describe('Register Component', () => {
     );
 
     // Check that form elements are rendered
-    expect(screen.getByRole('heading', { name: /Register/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Create Account/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Username/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();

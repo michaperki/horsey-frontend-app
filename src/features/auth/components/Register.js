@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { register } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaUserPlus, FaEnvelope, FaLock, FaUser, FaChessKnight } from 'react-icons/fa';
+import { FaUserPlus, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
 import './Auth.css';
 
 const Register = () => {
