@@ -56,6 +56,11 @@
       "last 1 safari version"
     ]
   },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-proposal-private-property-in-object"
+    ]
+  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.9",
     "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
@@ -77,3 +82,4 @@
     "prettier": "^3.4.2"
   }
 }
+
