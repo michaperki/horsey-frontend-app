@@ -1,6 +1,4 @@
-
 // src/components/Footer.js
-
 import React from 'react';
 import './Footer.css'; // Styles specific to Footer
 
@@ -13,7 +11,6 @@ const Footer = () => {
           <span className="version">v236</span>
           <span className="language-selector">English</span>
         </div>
-
         {/* Middle Section */}
         <div className="footer-middle">
           <a href="/rules">Rules</a>
@@ -23,8 +20,9 @@ const Footer = () => {
           <a href="/blog">Blog</a>
           <a href="/faq">FAQ</a>
           <a href="/privacy">Privacy</a>
+          <a href="/terms-and-conditions.pdf" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>
+          <a href="/playing-rules.pdf" target="_blank" rel="noopener noreferrer">Playing Rules</a>
         </div>
-
         {/* Right Section */}
         <div className="footer-right">
           <a href="https://discord.gg/9eRCXz39" target="_blank" rel="noopener noreferrer" className="social-icon">
@@ -39,4 +37,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
