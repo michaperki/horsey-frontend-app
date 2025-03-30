@@ -1,68 +1,271 @@
-/* src/components/Notifications.css */
+/* src/features/notifications/components/Notifications.css - Updated for proper centering */
 
-/* Remove all custom styles and rely on global utility classes */
+/* Notification container wrapper for centering */
+.notifications-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+}
 
-/* If any specific styles are still needed, they are included below */
+/* Notification container */
+.notifications-container {
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.8) 0%, rgba(5, 29, 58, 0.8) 100%);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--color-white);
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+  position: relative;
+}
 
-/* Example: Custom scrollbar for notification list */
+.notifications-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Notification header */
+.notifications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.notifications-title {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-yellow-400);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.notifications-title svg {
+  color: var(--color-accent);
+  margin-right: var(--spacing-sm);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.notification-badge {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+  margin-left: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Notification list */
 .notification-list {
-  /* Use global utility classes for overflow and padding */
-  overflow: auto;
-  max-height: 30vh;
+  overflow-y: auto;
+  max-height: 350px;
   list-style: none;
   padding: 0;
   margin: 0;
+  position: relative;
+  z-index: 2;
 }
 
-/* Optional: Custom styles for read and unread notifications */
-.notification-read,
-.notification-unread {
-  /* Utilize global spacing and border utilities */
-  padding: var(--spacing-sm);
-  border-bottom: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--color-gray-300);
+  position: relative;
+  z-index: 2;
 }
 
-/* Background colors using global color variables */
+.empty-state svg {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.5;
+}
+
+/* Notification items */
+.notification-item {
+  position: relative;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-medium);
+  cursor: default;
+  position: relative;
+  z-index: 2;
+}
+
 .notification-read {
-  background-color: var(--color-white);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .notification-unread {
-  background-color: var(--color-info-bg); /* Assuming var(--color-info-bg) is suitable */
+  background: linear-gradient(135deg, rgba(61, 90, 128, 0.3) 0%, rgba(41, 70, 108, 0.3) 100%);
 }
 
-/* Notification message styling */
+.notification-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  z-index: 3;
+}
+
+/* Notification content */
 .notification-message {
-  font-size: var(--font-size-medium);
-  color: var(--color-dark);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-sm);
+  word-wrap: break-word;
+  color: var(--color-white);
 }
 
-/* Metadata styling */
 .notification-meta {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-small);
+  align-items: center;
+  font-size: var(--font-size-xs);
   color: var(--color-gray-300);
-  margin-top: var(--spacing-xs);
 }
 
-/* Hover effects using global transition and shadow utilities */
-.notification-read:hover,
-.notification-unread:hover {
+/* Buttons */
+.mark-all-btn {
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-medium);
+  margin: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
+  position: relative;
+  z-index: 2;
 }
 
-/* Responsive adjustments */
+.mark-all-btn:hover {
+  background: linear-gradient(135deg, var(--color-success) 10%, var(--color-success-dark) 90%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.mark-all-btn:active {
+  transform: translateY(0);
+}
+
+.mark-all-btn svg {
+  margin-right: var(--spacing-sm);
+}
+
+.mark-read-btn {
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.mark-read-btn:hover {
+  background: linear-gradient(135deg, var(--color-secondary) 10%, var(--color-secondary-dark) 90%);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.mark-read-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Loading spinner */
+.loading-container {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-white);
+  position: relative;
+  z-index: 2;
+}
+
+.loading-spinner {
+  font-size: var(--font-size-xl);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-sm);
+  animation: spin 1s linear infinite;
+}
+
+/* API Error display */
+.notifications-error-container {
+  margin: var(--spacing-md);
+  position: relative;
+  z-index: 2;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
+  .notifications-container {
+    max-width: 100%;
+    border-radius: var(--border-radius-md);
+  }
+  
   .notification-list {
-    max-height: 50vh;
+    max-height: 400px;
   }
 }
 
 @media (max-width: 480px) {
+  .notifications-header {
+    padding: var(--spacing-sm);
+  }
+  
   .notification-list {
-    max-height: 80vh;
+    max-height: 300px;
+  }
+  
+  .notification-item {
+    padding: var(--spacing-sm);
+  }
+  
+  .mark-all-btn {
+    margin: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 }
