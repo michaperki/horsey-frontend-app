@@ -1,0 +1,211 @@
+/* src/features/profile/components/UserSeasonStats.css */
+
+.user-season-stats-container {
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.6) 0%, rgba(5, 29, 58, 0.7) 100%);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--spacing-sm); /* Reduced padding */
+  margin-bottom: var(--spacing-lg); /* Reduced margin */
+  color: var(--color-white);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Season Header - Preserve layout but make more compact */
+.season-stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-xs); /* Reduced padding */
+  margin-bottom: var(--spacing-sm); /* Reduced margin */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.season-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* Reduced gap */
+}
+
+.season-icon {
+  font-size: 1.5rem; /* Smaller icon */
+  color: var(--color-yellow-400);
+}
+
+.season-info h3 {
+  margin: 0;
+  font-size: var(--font-size-medium); /* Keep original size */
+}
+
+.season-dates {
+  margin: 2px 0 0; /* Smaller margin */
+  font-size: var(--font-size-xs);
+}
+
+.days-remaining {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-xs) var(--spacing-sm); /* Reduced padding */
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.clock-icon {
+  font-size: 1rem; /* Smaller icon */
+}
+
+.days-count {
+  font-size: var(--font-size-large); /* Keep original size */
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* Stats Sections - Keep horizontal layout but more compact */
+.stats-section {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm); /* Reduced padding */
+  margin-bottom: var(--spacing-sm); /* Reduced margin */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs); /* Reduced margin */
+  padding-bottom: var(--spacing-xs); /* Reduced padding */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-icon {
+  font-size: 1rem; /* Smaller icon */
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: var(--font-size-small); /* Smaller font */
+}
+
+/* Keep the original stats-grid layout but reduce spacing */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Keep 4 columns */
+  gap: var(--spacing-xs); /* Reduced gap */
+  margin-bottom: var(--spacing-sm); /* Reduced margin */
+}
+
+.stat-card {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-xs); /* Reduced padding */
+  border-radius: var(--border-radius-md);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-value {
+  font-size: var(--font-size-medium); /* Original size */
+  font-weight: var(--font-weight-bold);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs); /* Smaller font */
+  margin-top: 2px; /* Smaller margin */
+}
+
+/* Record Section - Keep 4 columns */
+.record-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-xs); /* Reduced gap */
+}
+
+.record-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: var(--spacing-xs); /* Reduced padding */
+  border-radius: var(--border-radius-md);
+  text-align: center;
+}
+
+.record-value {
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+}
+
+.record-label {
+  font-size: var(--font-size-xs);
+  margin-top: 2px; /* Smaller margin */
+}
+
+/* Keep colors for record cards */
+.record-card.wins {
+  background-color: rgba(40, 167, 69, 0.15);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.record-card.losses {
+  background-color: rgba(220, 53, 69, 0.15);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.record-card.games {
+  background-color: rgba(33, 150, 243, 0.15);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.record-card.winrate {
+  background-color: rgba(255, 152, 0, 0.15);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+/* Modify token and sweepstakes leaderboard sections */
+.token-leaderboard, .sweepstakes-leaderboard {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Responsive adjustments - preserve the layout at smaller screens */
+@media (max-width: 900px) {
+  /* Keep horizontal layout even on smaller screens */
+  .season-stats-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr); /* Keep 4 columns */
+  }
+  
+  .record-section {
+    grid-template-columns: repeat(4, 1fr); /* Keep 4 columns */
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr); /* Still keep 4 columns */
+    gap: 4px; /* Minimal gap */
+  }
+  
+  .record-section {
+    grid-template-columns: repeat(4, 1fr); /* Still keep 4 columns */
+    gap: 4px; /* Minimal gap */
+  }
+  
+  .stat-value, .record-value {
+    font-size: var(--font-size-small); /* Even smaller on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid, .record-section {
+    grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on very small screens */
+  }
+}

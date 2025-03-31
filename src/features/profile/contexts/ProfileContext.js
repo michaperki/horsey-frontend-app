@@ -21,6 +21,7 @@ export const ProfileProvider = ({ children }) => {
     username: 'User',
     ratingClass: 'Default',
   });
+  const [seasonData, setSeasonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -40,14 +41,26 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [selectedToken]);
 
+  // Function to update season data from UserSeasonStats component
+  const updateSeasonData = useCallback((data) => {
+    setSeasonData(data);
+  }, []);
+
   useEffect(() => {
     if (token && selectedToken) {
       fetchProfile();
     }
-  }, [token, selectedToken, fetchProfile]); // Added fetchProfile to dependency array
+  }, [token, selectedToken, fetchProfile]);
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, error, refreshProfile: fetchProfile }}>
+    <ProfileContext.Provider value={{ 
+      profile, 
+      loading, 
+      error, 
+      refreshProfile: fetchProfile,
+      seasonData,
+      updateSeasonData
+    }}>
       {children}
     </ProfileContext.Provider>
   );

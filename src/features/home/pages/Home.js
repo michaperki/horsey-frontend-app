@@ -1,4 +1,4 @@
-// Enhanced Home.js with proper integration
+// src/features/home/pages/Home.js
 
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
@@ -46,8 +46,18 @@ const Home = () => {
     );
   }
 
+  // Define stats data to ensure consistent rendering
+  const statsData = [
+    { title: "Total Games Played", value: profile.totalGames || 0, icon: "game" },
+    { title: "Average Wager", value: `${profile.averageWager || 0} PTK`, icon: "coin" },
+    { title: "Total Wagered", value: `${profile.totalWagered || 0} PTK`, icon: "money" },
+    { title: "Average ROI", value: `${profile.averageROI || '0.00'}%`, icon: "percentage" },
+    { title: "Total Winnings", value: `${profile.totalWinnings || 0} PTK`, icon: "win" },
+    { title: "Total Losses", value: `${profile.totalLosses || 0} PTK`, icon: "loss" }
+  ];
+
   return (
-    <div className="home-container p-4">
+    <div className="home-container">
       <motion.div 
         className="welcome-section"
         variants={containerVariants}
@@ -56,10 +66,10 @@ const Home = () => {
       >
         {lichessConnected ? (
           <>
-            <motion.h2 variants={containerVariants} className="text-xl font-bold">
+            <motion.h2 variants={containerVariants}>
               Welcome back, <span className="text-yellow-400">{lichessUsername || profile.username}!</span>
             </motion.h2>
-            <motion.div variants={containerVariants} className="welcome-info mt-3">
+            <motion.div variants={containerVariants} className="welcome-info">
               <div className="welcome-info-item">
                 <div className="welcome-info-icon">Karma:</div>
                 <span>{profile.karma || 0}</span>
@@ -75,7 +85,7 @@ const Home = () => {
             </motion.div>
           </>
         ) : (
-          <motion.h2 variants={containerVariants} className="text-xl font-bold">
+          <motion.h2 variants={containerVariants}>
             Welcome! Please connect your Lichess account.
           </motion.h2>
         )}
@@ -88,48 +98,15 @@ const Home = () => {
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Total Games Played" 
-              value={profile.totalGames || 0} 
-              icon="game"
-            />
-          </motion.div>
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Average Wager" 
-              value={`${profile.averageWager || 0} PTK`} 
-              icon="coin"
-            />
-          </motion.div>
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Total Wagered" 
-              value={`${profile.totalWagered || 0} PTK`} 
-              icon="money"
-            />
-          </motion.div>
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Average ROI" 
-              value={`${profile.averageROI || '0.00'}%`} 
-              icon="percentage"
-            />
-          </motion.div>
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Total Winnings" 
-              value={`${profile.totalWinnings || 0} PTK`} 
-              icon="win"
-            />
-          </motion.div>
-          <motion.div variants={statVariants}>
-            <StatCard 
-              title="Total Losses" 
-              value={`${profile.totalLosses || 0} PTK`} 
-              icon="loss"
-            />
-          </motion.div>
+          {statsData.map((stat, index) => (
+            <motion.div key={index} variants={statVariants}>
+              <StatCard 
+                title={stat.title} 
+                value={stat.value} 
+                icon={stat.icon}
+              />
+            </motion.div>
+          ))}
         </motion.div>
       )}
 

@@ -1,182 +1,44 @@
-// src/features/leaderboard/pages/Leaderboard.js - Updated with Error Handling
-
-import React, { useEffect, useState } from "react";
+// src/features/leaderboard/pages/Leaderboard.js - Updated to use SeasonContext
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTrophy, FaMedal, FaChess, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaCoins } from "react-icons/fa";
+import { 
+  FaTrophy, 
+  FaMedal, 
+  FaChess, 
+  FaSearch, 
+  FaFilter, 
+  FaSortAmountDown, 
+  FaSortAmountUp, 
+  FaCoins,
+  FaClock,
+  FaCalendarAlt
+} from "react-icons/fa";
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { ApiError } from "../../common/components/ApiError";
-import { useApiError } from "../../common/contexts/ApiErrorContext";
+import { useSeason } from '../../seasons/contexts/SeasonContext';
+import SeasonBanner from '../components/SeasonBanner';
 import './Leaderboard.css';
 
-// Enhanced mockData with more realistic fields and values
-const mockData = [
-  {
-    id: "user1",
-    username: "GrandMaster42",
-    avatar: null, // Using avatar placeholders instead of image files
-    rating: 2543,
-    winPercentage: 76.2,
-    games: 345,
-    rank: 1,
-    country: "US",
-    tokens: 12500,
-    joinDate: "2023-08-15"
-  },
-  {
-    id: "user2",
-    username: "ChessWizard",
-    avatar: null,
-    rating: 2491,
-    winPercentage: 72.8,
-    games: 287,
-    rank: 2,
-    country: "RU",
-    tokens: 9800,
-    joinDate: "2023-09-12"
-  },
-  {
-    id: "user3",
-    username: "QueenMaster",
-    avatar: null,
-    rating: 2467,
-    winPercentage: 71.5,
-    games: 412,
-    rank: 3,
-    country: "DE",
-    tokens: 8900,
-    joinDate: "2023-07-25"
-  },
-  {
-    id: "user4",
-    username: "TacticalKnight",
-    avatar: null,
-    rating: 2390,
-    winPercentage: 68.7,
-    games: 298,
-    rank: 4,
-    country: "FR",
-    tokens: 7650,
-    joinDate: "2023-10-05"
-  },
-  {
-    id: "user5",
-    username: "PawnProdigy",
-    avatar: null,
-    rating: 2340,
-    winPercentage: 65.4,
-    games: 256,
-    rank: 5,
-    country: "IN",
-    tokens: 6720,
-    joinDate: "2023-11-18"
-  }
-];
-
 const Leaderboard = () => {
-  const [leaderboardData, setLeaderboardData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { token } = useAuth();
+  const { 
+    activeSeason, 
+    seasonLeaderboard,
+    loading: seasonLoading,
+    error: seasonError,
+    fetchActiveSeason,
+    fetchSeasonLeaderboard
+  } = useSeason();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [timeFrame, setTimeFrame] = useState("all");
   const [sortField, setSortField] = useState("rank");
   const [sortDirection, setSortDirection] = useState("asc");
   const [filter, setFilter] = useState("all");
-  const { token } = useAuth();
-  const { handleApiError } = useApiError();
+  const [currencyType, setCurrencyType] = useState("token");
 
-  // Flag to toggle between mock data and real data
-  const useMockData = true; // Set to false for real API calls
-
-  const fetchLeaderboard = async () => {
-    setLoading(true);
-    setError(null);
-    
-    if (useMockData) {
-      // Simulate network delay
-      setTimeout(() => {
-        try {
-          let filteredData = [...mockData];
-          
-          // Apply filters based on UI selections
-          if (searchTerm) {
-            filteredData = filteredData.filter(user => 
-              user.username.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-          }
-          
-          if (filter !== "all") {
-            // Additional filters could be implemented here
-          }
-          
-          // Sort the data
-          filteredData.sort((a, b) => {
-            let valA = a[sortField];
-            let valB = b[sortField];
-            
-            // String comparison for text fields
-            if (typeof valA === 'string') {
-              valA = valA.toLowerCase();
-              valB = valB.toLowerCase();
-            }
-            
-            if (sortDirection === "asc") {
-              return valA > valB ? 1 : -1;
-            } else {
-              return valA < valB ? 1 : -1;
-            }
-          });
-          
-          setLeaderboardData(filteredData);
-        } catch (err) {
-          setError({
-            code: 'DATA_ERROR',
-            message: 'Error processing leaderboard data'
-          });
-        } finally {
-          setLoading(false);
-        }
-      }, 800); // Simulate loading delay
-      return;
-    }
-
-    try {
-      // Real API call with error handling
-      const getLeaderboardWithHandling = handleApiError(
-        async () => {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/leaderboard?timeFrame=${timeFrame}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch leaderboard data");
-          }
-
-          return await response.json();
-        },
-        {
-          showGlobalError: false,
-          onError: (err) => setError(err)
-        }
-      );
-      
-      const data = await getLeaderboardWithHandling();
-      setLeaderboardData(data);
-    } catch (error) {
-      // Error is handled by handleApiError
-      // Fallback to mock data on error
-      console.error("Error fetching leaderboard data:", error);
-      setLeaderboardData(mockData);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLeaderboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, timeFrame, searchTerm, sortField, sortDirection, filter]);
+  // Get leaderboard data based on currencyType
+  const leaderboardData = seasonLeaderboard[currencyType] || [];
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -242,7 +104,7 @@ const Leaderboard = () => {
     }
   };
 
-  if (loading) {
+  if (seasonLoading) {
     return (
       <motion.div 
         className="leaderboard-container"
@@ -255,7 +117,7 @@ const Leaderboard = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          Global Leaderboard
+          {timeFrame === 'season' ? 'Season Leaderboard' : 'Global Leaderboard'}
         </motion.h1>
         <motion.div 
           className="leaderboard-loading"
@@ -284,6 +146,19 @@ const Leaderboard = () => {
     return <span className="rank-number">{rank}</span>;
   };
 
+  const getLeaderboardTitle = () => {
+    if (timeFrame === 'season') {
+      return activeSeason ? `Season ${activeSeason.season.seasonNumber} Leaderboard` : 'Season Leaderboard';
+    } else {
+      return 'Global Leaderboard';
+    }
+  };
+
+  // Function to format balance value based on currency type
+  const formatBalance = (balance) => {
+    return balance?.toLocaleString() || '0';
+  };
+
   return (
     <motion.div 
       className="leaderboard-container"
@@ -296,16 +171,26 @@ const Leaderboard = () => {
         className="leaderboard-title"
         variants={childVariants}
       >
-        Global Leaderboard
+        {getLeaderboardTitle()}
       </motion.h1>
 
+      {/* Season Banner */}
+      {activeSeason && (
+        <SeasonBanner 
+          season={activeSeason.season} 
+          rewards={activeSeason.rewards} 
+          metadata={activeSeason.metadata}
+          isActive={timeFrame === 'season'}
+        />
+      )}
+
       {/* Display any errors */}
-      {error && (
+      {seasonError && (
         <div className="leaderboard-error-container">
           <ApiError 
-            error={error} 
-            onDismiss={() => setError(null)}
-            onRetry={fetchLeaderboard}
+            error={seasonError} 
+            onDismiss={() => fetchActiveSeason()} // This will reset the error state
+            onRetry={() => fetchSeasonLeaderboard(currencyType)}
           />
         </div>
       )}
@@ -335,15 +220,14 @@ const Leaderboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <FaFilter className="filter-icon" />
+            <FaCoins className="filter-icon" />
             <select 
-              value={filter} 
-              onChange={(e) => setFilter(e.target.value)}
+              value={currencyType} 
+              onChange={(e) => setCurrencyType(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All Players</option>
-              <option value="friends">Friends Only</option>
-              <option value="country">My Country</option>
+              <option value="token">Tokens</option>
+              <option value="sweepstakes">Sweepstakes</option>
             </select>
           </motion.div>
 
@@ -353,16 +237,35 @@ const Leaderboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <FaChess className="time-icon" />
+            <FaCalendarAlt className="time-icon" />
             <select 
               value={timeFrame} 
               onChange={(e) => setTimeFrame(e.target.value)}
               className="time-select"
             >
               <option value="all">All Time</option>
+              <option value="season">Current Season</option>
               <option value="month">This Month</option>
               <option value="week">This Week</option>
               <option value="day">Today</option>
+            </select>
+          </motion.div>
+
+          <motion.div 
+            className="filter-dropdown"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <FaFilter className="filter-icon" />
+            <select 
+              value={filter} 
+              onChange={(e) => setFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Players</option>
+              <option value="friends">Friends Only</option>
+              <option value="country">My Country</option>
             </select>
           </motion.div>
         </div>
@@ -416,9 +319,9 @@ const Leaderboard = () => {
                 </th>
                 <th 
                   className="tokens-column clickable"
-                  onClick={() => handleSort("tokens")}
+                  onClick={() => handleSort("balance")}
                 >
-                  Tokens {renderSortIcon("tokens")}
+                  {currencyType === 'token' ? 'Tokens' : 'Sweepstakes'} {renderSortIcon("balance")}
                 </th>
               </tr>
             </thead>
@@ -426,7 +329,7 @@ const Leaderboard = () => {
               <AnimatePresence>
                 {leaderboardData.map((player, index) => (
                   <motion.tr 
-                    key={player.id}
+                    key={player.id || index}
                     custom={index}
                     variants={itemVariants}
                     initial="hidden"
@@ -436,15 +339,15 @@ const Leaderboard = () => {
                       backgroundColor: "rgba(33, 150, 243, 0.1)",
                       transition: { duration: 0.2 }
                     }}
-                    layoutId={`player-${player.id}`}
+                    layoutId={`player-${player.id || index}`}
                   >
                     <td className="rank-cell">
                       <motion.div 
-                        className={getRankClass(player.rank)}
+                        className={getRankClass(index + 1)}
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300, damping: 10 }}
                       >
-                        {getRankIcon(player.rank)}
+                        {getRankIcon(index + 1)}
                       </motion.div>
                     </td>
                     <td className="player-cell">
@@ -475,7 +378,7 @@ const Leaderboard = () => {
                           animate={{ scale: 1 }}
                           transition={{ delay: index * 0.05 + 0.3 }}
                         >
-                          {player.rating}
+                          {player.rating || 'N/A'}
                         </motion.span>
                         {player.ratingChange > 0 && (
                           <span className="rating-change positive">+{player.ratingChange}</span>
@@ -490,19 +393,19 @@ const Leaderboard = () => {
                         <motion.div 
                           className="progress-bar" 
                           initial={{ width: 0 }}
-                          animate={{ width: `${player.winPercentage}%` }}
+                          animate={{ width: `${player.winPercentage || 0}%` }}
                           transition={{ delay: index * 0.05 + 0.4, duration: 0.8, ease: "easeOut" }}
                         ></motion.div>
-                        <span className="progress-text">{player.winPercentage.toFixed(1)}%</span>
+                        <span className="progress-text">{(player.winPercentage || 0).toFixed(1)}%</span>
                       </div>
                     </td>
-                    <td className="games-cell">{player.games}</td>
+                    <td className="games-cell">{player.games || 0}</td>
                     <td className="tokens-cell">
                       <motion.div 
                         className="tokens-wrapper"
                         whileHover={{ scale: 1.05 }}
                       >
-                        <span className="tokens-value">{player.tokens.toLocaleString()}</span>
+                        <span className="tokens-value">{formatBalance(player.balance)}</span>
                         <motion.div
                           animate={{ rotateY: [0, 360] }}
                           transition={{ repeat: Infinity, duration: 4, ease: "linear" }}

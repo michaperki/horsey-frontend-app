@@ -5,6 +5,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* Full viewport height */
+  width: 100%;
+  max-width: 100%; /* Ensure no horizontal overflow */
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* App Wrapper */
@@ -17,6 +20,7 @@
   flex-direction: column;
   gap: 20px; /* Add spacing between major sections */
   flex: 1; /* Allow app-wrapper to grow and fill space */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Reusable Container */
@@ -28,33 +32,76 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
-/* Layout Content */
+/* Layout Content - FIXED to ensure proper spacing */
 .layout-content {
   display: flex;
   flex: 1; /* Expands to fill available space */
   padding: 10px; /* Reduced padding */
   gap: 20px;
   align-items: stretch; /* Ensure children stretch to fill the container vertically */
-  overflow: hidden; /* Prevent overflow from child elements */
+  overflow: visible; /* Allow overflow to be visible */
+  width: 100%;
+  max-width: 100%; /* Prevent overflow */
+  position: relative;
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
 }
 
 /* Left Sidebar (Bulletin) */
 .bulletin {
-  flex: 0 0 150px; /* Reduced width from 200px to 150px */
+  flex: 0 0 150px; /* Fixed width */
   padding: 15px;
   border-radius: 8px;
   overflow-y: auto; /* Allow scrolling if content overflows */
+  max-width: 150px; /* Ensure it doesn't grow beyond intended size */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Right Sidebar - FIXED to ensure proper positioning */
+.sidebar {
+  flex: 0 0 250px; /* Fixed width */
+  display: flex;
+  flex-direction: column; /* Arrange children vertically */
+  padding: 15px;
+  border-radius: 8px;
+  overflow: visible; /* Changed from 'hidden' to prevent content cutoff */
+  align-self: flex-start; /* Prevent sidebar from stretching */
+  position: relative;
+  max-width: 250px; /* Ensure it doesn't grow beyond intended size */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* PlaceBet Button Container - FIXED positioning */
+.placebet-button-container {
+  margin-top: auto; /* Pushes the button to the bottom */
+  text-align: center; /* Center horizontally */
+  width: 100%; /* Ensure full width of sidebar */
+  position: relative;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1 1 auto; /* Allow to grow but also shrink if needed */
+  min-width: 0; /* Important to allow proper flexbox shrinking */
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: visible; /* Allow content to be visible */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 @media (max-width: 1024px) {
   .bulletin {
     flex: 0 0 120px;
+    max-width: 120px;
   }
   
   .sidebar {
     flex: 0 0 200px;
+    max-width: 200px;
   }
 }
 
@@ -65,18 +112,8 @@
   
   .sidebar {
     flex: 0 0 150px; /* Further reduce sidebar width */
+    max-width: 150px;
   }
-}
-
-/* Right Sidebar */
-.sidebar {
-  flex: 0 0 250px; /* Reduced width from 300px to 250px */
-  display: flex;
-  flex-direction: column; /* Arrange children vertically */
-  padding: 15px;
-  border-radius: 8px;
-  overflow: hidden; /* Maintain layout integrity */
-  align-self: flex-start; /* Prevent sidebar from stretching */
 }
 
 /* PlaceBet Button Container */
@@ -84,15 +121,6 @@
   margin-top: auto; /* Pushes the button to the bottom */
   text-align: center; /* Center horizontally */
   /* Remove any conflicting margin-top properties */
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  background: transparent;
-  /* Removed overflow: hidden to allow content to expand */
-  display: flex;
-  flex-direction: column;
 }
 
 /* Footer */
@@ -112,6 +140,7 @@
   max-width: 1200px;
   width: 100%; /* Ensure it fills the footer */
   margin: 0 auto;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Footer Sections */
@@ -186,4 +215,3 @@
     margin-top: 10px;
   }
 }
-

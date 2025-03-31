@@ -1,21 +1,25 @@
-
 /* src/pages/Profile/Profile.css */
-
 
 .profile-page {
   padding: 20px;
   max-width: 1200px;
+  margin: 0 auto;
 }
 
 .profile-page h2 {
   color: black;
 }
 
+/* Season stats wrapper styling */
+.season-stats-wrapper {
+  margin: 20px 0;
+  width: 100%;
+  min-height: 200px; /* Ensures space is reserved even during loading */
+}
 
 .profile-content {
   display: flex;
   margin-top: 20px;
-
   max-height: 60vh;
 }
 
@@ -26,4 +30,27 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+}
+
+/* Media query for responsive design */
+@media (max-width: 768px) {
+  .profile-content {
+    flex-direction: column;
+  }
+  
+  .vertical-tabs {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .tab-button {
+    margin-right: 10px;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
 }

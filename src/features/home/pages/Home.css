@@ -4,6 +4,8 @@
   padding: var(--spacing-md);
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Welcome Section */
@@ -15,6 +17,8 @@
   background-color: var(--color-info-bg);
   border: 1px solid var(--color-info-border);
   box-shadow: var(--shadow-md);
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .welcome-section h2 {
@@ -50,12 +54,34 @@
   color: var(--color-yellow-400);
 }
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-md);
+/* Stats Grid - CRITICAL FIX for layout issues - Make selectors more specific */
+.home-container .stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important; /* Force 3 columns */
+  gap: var(--spacing-md) !important;
   margin-bottom: var(--spacing-xl);
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Make sure each stat card wrapper expands properly */
+.home-container .stats-grid > div {
+  width: 100%;
+  min-width: 0; /* Allow proper shrinking in grid */
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix for the stat card component itself inside the home container */
+.home-container .stats-grid .stat-card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 /* Loading Spinner */
@@ -80,10 +106,18 @@
   to { transform: rotate(360deg); }
 }
 
-/* Media Queries for Responsive Design */
+/* Media Queries for Responsive Design - With specific selectors */
+@media (max-width: 1200px) {
+  .home-container .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important; /* Maintain 3 columns */
+    gap: var(--spacing-sm) !important; /* Reduce gap slightly on smaller screens */
+  }
+}
+
 @media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .home-container .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important; /* Still maintain 3 columns */
+    gap: var(--spacing-sm) !important;
   }
 }
 
@@ -94,15 +128,15 @@
     align-items: center;
   }
   
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
+  .home-container .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* Switch to 2 columns */
+    gap: var(--spacing-sm) !important;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .home-container .stats-grid {
+    grid-template-columns: 1fr !important; /* Single column on very small screens */
   }
   
   .welcome-section h2 {

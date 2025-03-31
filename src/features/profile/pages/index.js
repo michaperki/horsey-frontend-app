@@ -10,6 +10,7 @@ import History from '../components/History';
 // import Items from '../../components/Profile/Items';
 // import Friends from '../../components/Profile/Friends';
 import Account from '../components/Account';
+import UserSeasonStats from '../components/UserSeasonStats';
 import './Profile.css';
 
 const tabVariants = {
@@ -124,6 +125,16 @@ const ProfilePage = () => {
         transition={{ delay: 0.2 }}
       >
         <ProfileHeader />
+      </motion.div>
+      
+      {/* Season Stats Section - Added here */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="season-stats-wrapper"
+      >
+        <UserSeasonStats />
       </motion.div>
       
       <div className="profile-content">
