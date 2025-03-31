@@ -1,6 +1,6 @@
 // src/App.js - Fixed version with LichessProvider added
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/contexts/AuthContext';
 import { TokenProvider } from './features/token/contexts/TokenContext';
 import { SelectedTokenProvider } from './features/token/contexts/SelectedTokenContext';
@@ -40,8 +40,6 @@ import Careers from './features/info/pages/Careers';
 import InfoLayout from './features/info/layout/InfoLayout';
 
 function App() {
-  const location = useLocation();
-
   return (
     <ApiErrorProvider>
       <AuthProvider>

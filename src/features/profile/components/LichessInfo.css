@@ -1,0 +1,169 @@
+/* src/features/profile/components/LichessInfo.css */
+
+.lichess-info-container {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  color: var(--color-white);
+}
+
+.lichess-info-header {
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.6) 0%, rgba(5, 29, 58, 0.7) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lichess-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.lichess-icon {
+  font-size: 2rem;
+  color: var(--color-secondary-light);
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: var(--spacing-sm);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.lichess-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.lichess-username {
+  margin: 0;
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.connected-date {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  color: var(--color-gray-300);
+}
+
+.date-icon {
+  color: var(--color-gray-400);
+  font-size: 0.9rem;
+}
+
+/* Ratings Container */
+.ratings-container {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.ratings-section {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ratings-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ratings-icon {
+  color: var(--color-secondary-light);
+  font-size: 1.2rem;
+}
+
+.ratings-header h4 {
+  margin: 0;
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+
+.ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.rating-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-fast);
+}
+
+.rating-card:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.rating-card.highlight {
+  background-color: rgba(40, 167, 69, 0.15);
+  border-color: rgba(40, 167, 69, 0.2);
+}
+
+.rating-card.variant {
+  background-color: rgba(0, 116, 204, 0.15);
+  border-color: rgba(0, 116, 204, 0.2);
+}
+
+.rating-type {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-300);
+  text-align: center;
+}
+
+.rating-value {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.no-ratings {
+  padding: var(--spacing-md);
+  color: var(--color-gray-400);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .lichess-user-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .lichess-details {
+    align-items: center;
+  }
+  
+  .ratings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ratings-grid {
+    grid-template-columns: 1fr;
+  }
+}

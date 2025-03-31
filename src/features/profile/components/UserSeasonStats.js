@@ -21,7 +21,6 @@ const UserSeasonStats = () => {
     loading,
     error,
     fetchActiveSeason,
-    fetchUserSeasonStats
   } = useSeason();
 
   if (loading) {
@@ -83,7 +82,7 @@ const UserSeasonStats = () => {
 
   // Get season data
   const season = activeSeason.season;
-  const rewards = activeSeason.rewards;
+  // const rewards = activeSeason.rewards;
   
   // Get user stats (or set defaults)
   const stats = userSeasonStats?.stats || {

@@ -1,0 +1,374 @@
+/* src/features/profile/components/Ratings.css */
+
+.ratings-container {
+  width: 100%;
+  color: var(--color-white);
+}
+
+.ratings-title {
+  font-size: var(--font-size-xl);
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-white);
+  text-align: center;
+  position: relative;
+  padding-bottom: var(--spacing-sm);
+}
+
+.ratings-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+  border-radius: 3px;
+}
+
+/* Time Control Selector */
+.time-control-selector {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.time-control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  color: var(--color-gray-300);
+  font-size: var(--font-size-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.time-control-btn:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--color-white);
+}
+
+.time-control-btn.active {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  border-color: var(--color-secondary-light);
+  box-shadow: 0 0 15px rgba(0, 116, 204, 0.3);
+}
+
+.time-icon {
+  font-size: 1.5rem;
+}
+
+/* Main Rating Display */
+.main-rating-display {
+  margin-bottom: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.7) 0%, rgba(5, 29, 58, 0.8) 100%);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-md);
+}
+
+.rating-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rating-header-icon {
+  font-size: 1.5rem;
+  color: var(--color-yellow-400);
+}
+
+.rating-header h3 {
+  margin: 0;
+  font-size: var(--font-size-large);
+  color: var(--color-white);
+}
+
+.rating-values {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+}
+
+.rating-value-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-width: 120px;
+  transition: all var(--transition-medium);
+}
+
+.rating-value-card.current {
+  background: linear-gradient(135deg, rgba(0, 116, 204, 0.1) 0%, rgba(0, 95, 173, 0.2) 100%);
+  border-color: rgba(0, 116, 204, 0.2);
+}
+
+.rating-value-card.peak {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(230, 138, 0, 0.2) 100%);
+  border-color: rgba(255, 152, 0, 0.2);
+}
+
+.rating-number {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.rating-label {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-300);
+}
+
+/* Rating Chart Section */
+.rating-chart-section,
+.performance-stats-section {
+  margin-bottom: var(--spacing-lg);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-icon {
+  font-size: 1.2rem;
+  color: var(--color-secondary-light);
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+
+/* Chart Placeholder */
+.chart-container {
+  padding: var(--spacing-md);
+}
+
+.chart-placeholder {
+  height: 200px;
+  position: relative;
+  padding-bottom: 30px; /* Space for labels */
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.chart-bar {
+  width: 10%;
+  background: linear-gradient(to top, var(--color-secondary-dark), var(--color-secondary-light));
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+  position: relative;
+  transition: height 0.5s ease;
+}
+
+.chart-bar:hover {
+  background: linear-gradient(to top, var(--color-accent-dark), var(--color-accent));
+}
+
+.bar-tooltip {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.chart-bar:hover .bar-tooltip {
+  opacity: 1;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.chart-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  text-align: center;
+  width: 10%;
+}
+
+/* Performance Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.stat-card {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.stat-card:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value.win {
+  color: var(--color-success);
+}
+
+.stat-value.loss {
+  color: var(--color-danger);
+}
+
+.stat-value.draw {
+  color: var(--color-warning);
+}
+
+.stat-label {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-400);
+}
+
+/* Win Rate Progress */
+.win-rate-container {
+  padding: 0 var(--spacing-md) var(--spacing-md);
+}
+
+.win-rate-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+  color: var(--color-gray-300);
+}
+
+.win-rate-percent {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+
+.win-rate-progress {
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+}
+
+.win-rate-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-secondary-dark) 0%, var(--color-secondary) 100%);
+  border-radius: var(--border-radius-full);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .time-control-selector {
+    gap: var(--spacing-sm);
+  }
+  
+  .time-control-btn {
+    font-size: var(--font-size-small);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .time-icon {
+    font-size: 1.2rem;
+  }
+  
+  .rating-values {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+  
+  .rating-value-card {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-bar {
+    width: 8%;
+  }
+  
+  .chart-label {
+    width: 8%;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ratings-title {
+    font-size: var(--font-size-large);
+  }
+  
+  .time-control-selector {
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+    justify-content: flex-start;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .rating-number {
+    font-size: var(--font-size-xl);
+  }
+  
+  .chart-placeholder {
+    height: 150px;
+  }
+}

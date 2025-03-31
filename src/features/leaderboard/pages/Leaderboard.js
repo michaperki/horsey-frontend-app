@@ -10,7 +10,6 @@ import {
   FaSortAmountDown, 
   FaSortAmountUp, 
   FaCoins,
-  FaClock,
   FaCalendarAlt
 } from "react-icons/fa";
 import { useAuth } from '../../auth/contexts/AuthContext';
@@ -35,7 +34,7 @@ const Leaderboard = () => {
   const [sortField, setSortField] = useState("rank");
   const [sortDirection, setSortDirection] = useState("asc");
   const [filter, setFilter] = useState("all");
-  const [currencyType, setCurrencyType] = useState("token");
+  const [currencyType, setCurrencyType] = useState(token);
 
   // Get leaderboard data based on currencyType
   const leaderboardData = seasonLeaderboard[currencyType] || [];

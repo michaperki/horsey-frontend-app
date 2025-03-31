@@ -1,7 +1,8 @@
-
 // src/features/profile/components/Account.js
 
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { FaChessKnight, FaLink, FaPlus, FaUnlink, FaExclamationTriangle } from 'react-icons/fa';
 import { useAuth } from 'features/auth/contexts/AuthContext';
 import { getUserLichessInfo } from 'features/auth/services/api';
 import LichessInfo from './LichessInfo';
@@ -14,6 +15,32 @@ const Account = () => {
   const [lichessInfo, setLichessInfo] = useState(null);
   const [loadingLichess, setLoadingLichess] = useState(false);
   const [errorLichess, setErrorLichess] = useState(null);
+  
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+        duration: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10
+      }
+    }
+  };
 
   const fetchLichessInfo = async () => {
     setLoadingLichess(true);
@@ -52,34 +79,134 @@ const Account = () => {
   };
 
   return (
-    <div className="p-md bg-light rounded-md max-w-600px mx-auto">
-      <h2 className="text-2xl mb-md text-center">Account</h2>
-      <section className="mb-5">
-        <h3 className="text-xl mb-2 flex items-center justify-between">
-          Lichess Account
-        </h3>
-        {loadingLichess ? (
-          <p className="text-primary text-sm my-1">Loading Lichess information...</p>
-        ) : errorLichess && !lichessInfo ? (
-          <ApiError 
-            error={errorLichess} 
-            onDismiss={() => setErrorLichess(null)}
-            compact 
-          />
-        ) : lichessInfo ? (
-          <div className="flex flex-col gap-2">
-            <LichessInfo info={lichessInfo} />
-            <DisconnectLichess onDisconnect={handleLichessChange} />
+    <motion.div 
+      className="account-container"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.h2 
+        className="account-title"
+        variants={itemVariants}
+      >
+        Account Settings
+      </motion.h2>
+      
+      <motion.div 
+        className="account-section lichess-section"
+        variants={itemVariants}
+      >
+        <div className="section-header">
+          <div className="section-title">
+            <FaChessKnight className="section-icon" />
+            <h3>Lichess Integration</h3>
           </div>
-        ) : (
-          <p className="text-gray-300 text-sm my-1">
-            Your Lichess account is not connected.
-          </p>
-        )}
-      </section>
-    </div>
+          {lichessInfo && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="connection-badge"
+            >
+              <span className="dot"></span>
+              Connected
+            </motion.div>
+          )}
+        </div>
+        
+        <div className="section-content">
+          {loadingLichess ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Loading Lichess information...</p>
+            </div>
+          ) : errorLichess && !lichessInfo ? (
+            <motion.div 
+              className="error-container"
+              variants={itemVariants}
+            >
+              <ApiError 
+                error={errorLichess} 
+                onDismiss={() => setErrorLichess(null)}
+                compact 
+              />
+            </motion.div>
+          ) : lichessInfo ? (
+            <motion.div 
+              className="lichess-info-container"
+              variants={itemVariants}
+            >
+              <LichessInfo info={lichessInfo} />
+              <motion.div 
+                className="disconnect-container"
+                variants={itemVariants}
+              >
+                <DisconnectLichess onDisconnect={handleLichessChange} />
+              </motion.div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="connect-lichess-container"
+              variants={itemVariants}
+            >
+              <div className="empty-state">
+                <FaUnlink className="empty-icon" />
+                <p className="empty-text">
+                  Your Lichess account is not connected. Connect your account to access exclusive features.
+                </p>
+                <motion.button 
+                  className="connect-button"
+                  whileHover={{ scale: 1.05, backgroundColor: "var(--color-secondary-light)" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/connect/lichess'}
+                >
+                  <FaLink className="button-icon" />
+                  Connect Lichess Account
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
+      
+      {/* Additional Account Settings - For future implementation */}
+      <motion.div 
+        className="account-section additional-settings"
+        variants={itemVariants}
+      >
+        <div className="section-header">
+          <div className="section-title">
+            <FaPlus className="section-icon" />
+            <h3>Additional Settings</h3>
+          </div>
+        </div>
+        
+        <div className="section-content">
+          <div className="coming-soon">
+            <p>Additional account settings will be available soon!</p>
+          </div>
+        </div>
+      </motion.div>
+      
+      {/* Account Security Section - For future implementation */}
+      <motion.div 
+        className="account-section security-section"
+        variants={itemVariants}
+      >
+        <div className="section-header">
+          <div className="section-title">
+            <FaExclamationTriangle className="section-icon" />
+            <h3>Account Security</h3>
+          </div>
+        </div>
+        
+        <div className="section-content">
+          <div className="coming-soon">
+            <p>Security settings will be available soon!</p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 export default Account;
-
