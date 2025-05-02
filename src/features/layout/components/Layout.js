@@ -51,6 +51,9 @@ const Layout = () => {
     ? 'layout-content scrolled' 
     : 'layout-content';
 
+  // Check if current path is profile page
+  const isProfilePage = currentPath.startsWith('/profile');
+
   return (
     <div className="layout-container">
       {/* Navbar at the top */}
@@ -65,18 +68,20 @@ const Layout = () => {
           {/*PageTransition location={currentPath}>
               < Main Content */}
           <PageTransition location={currentPath}>
-            <main className="main-content">
+            <main className={isProfilePage ? "main-content full-width" : "main-content"}>
               <Outlet context={{ openPlaceBetModal }} />
             </main>
           </PageTransition>
 
-          {/* Right Sidebar */}
-          <aside className="sidebar">
-            <Sidebar />
-            <div className="placebet-button-container">
-              <PlaceBet onOpenModal={() => openPlaceBetModal()} />
-            </div>
-          </aside>
+          {/* Right Sidebar - hidden on profile page */}
+          {!isProfilePage && (
+            <aside className="sidebar">
+              <Sidebar />
+              <div className="placebet-button-container">
+                <PlaceBet onOpenModal={() => openPlaceBetModal()} />
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 

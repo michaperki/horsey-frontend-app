@@ -11,6 +11,7 @@ import { SocketProvider } from './features/common/contexts/SocketContext';
 import { SeasonProvider } from './features/seasons/contexts/SeasonContext';
 import { ProfileProvider } from './features/profile/contexts/ProfileContext';
 
+import GamePage from './features/game/pages/GamePage.jsx';
 // Layout components
 import Layout from './features/layout/components/Layout';
 
@@ -79,6 +80,7 @@ function App() {
                           <Route path="/store" element={<Store />} />
                           <Route path="/profile" element={<Profile />} />
                           <Route path="/notifications" element={<Notifications />} />
+                          <Route path="/game/:gameId" element={<GamePage />} />
                         </Route>
                         
                         {/* Protected routes - Admin user */}

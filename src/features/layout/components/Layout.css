@@ -93,6 +93,12 @@
   box-sizing: border-box; /* Include padding in width calculation */
 }
 
+/* Full width main content when sidebar is hidden */
+.main-content.full-width {
+  max-width: 100%; /* Use full available width */
+  margin: 0 auto; /* Center the content */
+}
+
 @media (max-width: 1024px) {
   .bulletin {
     flex: 0 0 120px;
