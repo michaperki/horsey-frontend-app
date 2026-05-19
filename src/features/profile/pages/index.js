@@ -2,26 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaUser, 
-  FaChartLine, 
-  FaHistory, 
-  FaGift, 
-  FaUserFriends, 
+import {
+  FaUser,
+  FaGift,
+  FaUserFriends,
   FaCog,
   FaCoins,
-  FaTrophy,
   FaChessKnight
 } from 'react-icons/fa';
 import { useAuth } from 'features/auth/contexts/AuthContext';
 import { useProfile } from '../contexts/ProfileContext';
 import ProfileHeader from '../components/ProfileHeader';
 import VerticalTabs from '../components/VerticalTabs';
-import Overview from '../components/Overview';
-import Ratings from '../components/Ratings';
-import History from '../components/History';
 import Account from '../components/Account';
-import UserSeasonStats from '../components/UserSeasonStats';
 import UserGreetingInfo from '../components/UserGreetingInfo';
 import './Profile.css';
 
@@ -35,7 +28,7 @@ const tabVariants = {
 // Page animation variants
 const pageVariants = {
   hidden: { opacity: 0 },
-  visible: { 
+  visible: {
     opacity: 1,
     transition: {
       when: "beforeChildren",
@@ -49,8 +42,8 @@ const pageVariants = {
 // Container animation variants
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       type: "spring",
@@ -62,16 +55,13 @@ const containerVariants = {
 
 // Icons for each tab
 const tabIcons = {
-  'Overview': <FaChartLine />,
-  'Ratings': <FaChartLine />,
-  'History': <FaHistory />,
+  'Account': <FaCog />,
   'Items': <FaGift />,
-  'Friends': <FaUserFriends />,
-  'Account': <FaCog />
+  'Friends': <FaUserFriends />
 };
 
 const ProfilePage = () => {
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState('Account');
   const { user } = useAuth();
   const { profile, loading } = useProfile();
   const [lichessConnected, setLichessConnected] = useState(false);
@@ -82,10 +72,10 @@ const ProfilePage = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     handleResize(); // Initial check
     window.addEventListener('resize', handleResize);
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -98,43 +88,17 @@ const ProfilePage = () => {
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      case 'Overview':
+      case 'Account':
         return (
           <motion.div
-            key="overview"
+            key="account"
             variants={tabVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             className="tab-content-container"
           >
-            <Overview />
-          </motion.div>
-        );
-      case 'Ratings':
-        return (
-          <motion.div
-            key="ratings"
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="tab-content-container"
-          >
-            <Ratings />
-          </motion.div>
-        );
-      case 'History':
-        return (
-          <motion.div
-            key="history"
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="tab-content-container"
-          >
-            <History />
+            <Account />
           </motion.div>
         );
       case 'Items':
@@ -171,7 +135,7 @@ const ProfilePage = () => {
             </div>
           </motion.div>
         );
-      case 'Account':
+      default:
         return (
           <motion.div
             key="account"
@@ -184,24 +148,11 @@ const ProfilePage = () => {
             <Account />
           </motion.div>
         );
-      default:
-        return (
-          <motion.div
-            key="overview"
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="tab-content-container"
-          >
-            <Overview />
-          </motion.div>
-        );
     }
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="profile-page"
       variants={pageVariants}
       initial="hidden"
@@ -215,9 +166,9 @@ const ProfilePage = () => {
       >
         <ProfileHeader />
       </motion.div>
-      
+
       {/* User Info Panel */}
-      <motion.div 
+      <motion.div
         className="user-info-panel"
         variants={containerVariants}
       >
@@ -232,9 +183,9 @@ const ProfilePage = () => {
             )}
           </div>
         </div>
-        
+
         <div className="user-stats">
-          <UserGreetingInfo 
+          <UserGreetingInfo
             lichessConnected={lichessConnected}
             lichessUsername={profile?.lichessUsername}
             statistics={{
@@ -244,9 +195,9 @@ const ProfilePage = () => {
               ratingClass: profile?.ratingClass || 'Class B'
             }}
           />
-          
+
           <div className="balance-cards">
-            <motion.div 
+            <motion.div
               className="balance-card token-card"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -259,8 +210,8 @@ const ProfilePage = () => {
                 <p className="card-label">Token Balance</p>
               </div>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="balance-card sweepstakes-card"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -276,17 +227,9 @@ const ProfilePage = () => {
           </div>
         </div>
       </motion.div>
-      
-      {/* Season Stats Section */}
-      <motion.div
-        className="season-stats-wrapper"
-        variants={containerVariants}
-      >
-        <UserSeasonStats />
-      </motion.div>
-      
+
       {/* Main Content */}
-      <motion.div 
+      <motion.div
         className="profile-content"
         variants={containerVariants}
       >
@@ -294,55 +237,18 @@ const ProfilePage = () => {
           className="tabs-container"
           variants={containerVariants}
         >
-          <VerticalTabs 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+          <VerticalTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
             tabIcons={tabIcons}
             isMobile={isMobile}
           />
         </motion.div>
-        
+
         <div className="profile-tab-content">
           <AnimatePresence mode="wait">
             {renderActiveTab()}
           </AnimatePresence>
-        </div>
-      </motion.div>
-      
-      {/* Profile Badges - Optional Section */}
-      <motion.div
-        className="profile-badges-section"
-        variants={containerVariants}
-      >
-        <h3 className="section-title">
-          <FaTrophy className="section-icon" />
-          <span>Achievements & Badges</span>
-        </h3>
-        <div className="badges-container">
-          {loading ? (
-            <p className="loading-text">Loading achievements...</p>
-          ) : (profile?.achievements && profile.achievements.length > 0) ? (
-            profile.achievements.map((badge, index) => (
-              <motion.div 
-                key={index}
-                className="badge-item"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ 
-                  scale: 1.1,
-                  boxShadow: "0 10px 20px rgba(0,0,0,0.2)"
-                }}
-              >
-                {badge.icon}
-                <span className="badge-name">{badge.name}</span>
-              </motion.div>
-            ))
-          ) : (
-            <div className="empty-badges">
-              <p>No achievements yet. Keep playing to earn badges!</p>
-            </div>
-          )}
         </div>
       </motion.div>
     </motion.div>

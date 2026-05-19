@@ -4,13 +4,14 @@ import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import { useSocket } from '../common/contexts/SocketContext';
 import { useAuth } from '../auth/contexts/AuthContext';
-import { 
-  Box, 
-  Button, 
-  Typography, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
+import devConfig from './mocks/config';
+import {
+  Box,
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   Grid,
   Paper,
@@ -28,7 +29,8 @@ const formatTime = (seconds) => {
 const ChessBoard = ({ gameId }) => {
   const socket = useSocket();
   const { user } = useAuth();
-  
+  const isDevMode = devConfig.enableDevMode;
+
   const [game, setGame] = useState(new Chess());
   const [fen, setFen] = useState('');
   const [gameState, setGameState] = useState({
@@ -40,18 +42,18 @@ const ChessBoard = ({ gameId }) => {
     blackTime: 600,
     activeColor: 'w'
   });
-  
+
   const [orientation, setOrientation] = useState('white');
   const [moveFrom, setMoveFrom] = useState('');
   const [rightClickedSquares, setRightClickedSquares] = useState({});
   const [optionSquares, setOptionSquares] = useState({});
   const [drawDialogOpen, setDrawDialogOpen] = useState(false);
   const [drawOfferedBy, setDrawOfferedBy] = useState(null);
-  
+
   // Load initial game state
   useEffect(() => {
     if (socket && gameId) {
-      
+
       // Listen for game state updates
       socket.on('gameState', handleGameState);
       socket.on('chessMoved', handleMove);
@@ -60,7 +62,7 @@ const ChessBoard = ({ gameId }) => {
       socket.on('drawOffered', handleDrawOffer);
       socket.on('drawDeclined', handleDrawDeclined);
       socket.on('gameError', handleGameError);
-      
+
       return () => {
         socket.off('gameState');
         socket.off('chessMoved');
@@ -72,7 +74,7 @@ const ChessBoard = ({ gameId }) => {
       };
     }
   }, [socket, gameId]);
-  
+
   // Set orientation based on player color
   useEffect(() => {
     if (gameState.whitePlayer && gameState.blackPlayer && user) {
@@ -83,14 +85,22 @@ const ChessBoard = ({ gameId }) => {
       }
     }
   }, [gameState.whitePlayer, gameState.blackPlayer, user]);
-  
+
+  // Auto-join game when in dev mode
+  useEffect(() => {
+    if (socket && gameId && devConfig.enableDevMode) {
+      console.log('Auto-joining dev mode game:', gameId);
+      socket.emit('joinChessGame', { gameId });
+    }
+  }, [socket, gameId]);
+
   // Handle game state update
   const handleGameState = (state) => {
     // Update chess instance with current FEN
     const newGame = new Chess(state.fen);
     setGame(newGame);
     setFen(state.fen);
-    
+
     // Update game state
     setGameState({
       status: state.status,
@@ -102,14 +112,14 @@ const ChessBoard = ({ gameId }) => {
       activeColor: state.activeColor || newGame.turn()
     });
   };
-  
+
   // Handle move updates
   const handleMove = (move) => {
     // Update chess instance
     const newGame = new Chess(move.fen);
     setGame(newGame);
     setFen(move.fen);
-    
+
     // Update game state
     setGameState(prevState => ({
       ...prevState,
@@ -120,7 +130,7 @@ const ChessBoard = ({ gameId }) => {
       activeColor: newGame.turn()
     }));
   };
-  
+
   // Handle clock updates
   const handleClockUpdate = (clock) => {
     setGameState(prevState => ({
@@ -130,7 +140,7 @@ const ChessBoard = ({ gameId }) => {
       activeColor: clock.activeColor
     }));
   };
-  
+
   // Handle game over
   const handleGameOver = (data) => {
     setGameState(prevState => ({
@@ -138,38 +148,46 @@ const ChessBoard = ({ gameId }) => {
       status: 'finished',
       outcome: data.outcome
     }));
-    
+
     // Display a message or update UI
     console.log('Game over:', data);
   };
-  
+
   // Handle draw declined
   const handleDrawDeclined = () => {
     console.log('Draw offer declined');
     // You could display a message here
   };
-  
+
   // Handle game errors
   const handleGameError = (error) => {
     console.error('Game error:', error);
-    // You could display an error message here
+
+    // If the game is not found, try to restart after a short delay
+    if (error.message === 'Game not found' && devConfig.enableDevMode) {
+      console.log('Attempting to recover from game not found error...');
+      setTimeout(() => {
+        console.log('Retrying game join with ID:', gameId);
+        socket.emit('joinChessGame', { gameId });
+      }, 500);
+    }
   };
-  
+
   // Get possible moves for a square
   const getMoveOptions = (square) => {
     const moves = game.moves({
       square,
       verbose: true
     });
-    
+
     const newSquares = {};
-    
+
     // Add highlighted square for the piece being moved
     if (moves.length > 0) {
       newSquares[square] = {
         background: 'rgba(255, 255, 0, 0.4)'
       };
-      
+
       // Add highlighted squares for possible move destinations
       moves.forEach((move) => {
         newSquares[move.to] = {
@@ -180,19 +198,19 @@ const ChessBoard = ({ gameId }) => {
         };
       });
     }
-    
+
     return newSquares;
   };
-  
+
   // Handle piece movement
   const onSquareClick = (square) => {
     // Don't allow moves if the game is over or not your turn
-    if (gameState.status !== 'ongoing' || 
-        (gameState.activeColor === 'w' && gameState.whitePlayer?.id !== user?.id) || 
+    if (gameState.status !== 'ongoing' ||
+        (gameState.activeColor === 'w' && gameState.whitePlayer?.id !== user?.id) ||
         (gameState.activeColor === 'b' && gameState.blackPlayer?.id !== user?.id)) {
       return;
     }
-    
+
     // Check if we already have a piece selected
     if (moveFrom === '') {
       // No piece selected yet - select the piece if it belongs to the player
@@ -207,25 +225,25 @@ const ChessBoard = ({ gameId }) => {
         square: moveFrom,
         verbose: true
       });
-      
+
       // Check if the destination square is a valid move
       const move = moves.find(
         (m) => m.from === moveFrom && m.to === square
       );
-      
+
       if (move) {
         // If it's a valid move, make it
         try {
           // Emit move to server
-          socket.emit('chessMove', { 
-            gameId, 
+          socket.emit('chessMove', {
+            gameId,
             move: {
               from: moveFrom,
               to: square,
               promotion: move.promotion || undefined
             }
           });
-          
+
           // Clear selection
           setMoveFrom('');
           setOptionSquares({});
@@ -248,7 +266,7 @@ const ChessBoard = ({ gameId }) => {
       }
     }
   };
-  
+
   // Handle right-click to mark squares
   const onSquareRightClick = (square) => {
     const color = rightClickedSquares[square]
@@ -258,13 +276,13 @@ const ChessBoard = ({ gameId }) => {
           ? undefined
           : 'rgba(0, 0, 255, 0.4)'
       : 'rgba(0, 0, 255, 0.4)';
-      
+
     setRightClickedSquares({
       ...rightClickedSquares,
       [square]: color ? { backgroundColor: color } : undefined
     });
   };
-  
+
   // Resign the game
   const handleResign = () => {
     if (socket && gameId) {
@@ -272,7 +290,7 @@ const ChessBoard = ({ gameId }) => {
       socket.emit('resignGame', { gameId, color });
     }
   };
-  
+
   // Offer a draw
   const handleDrawOffer = () => {
     if (socket && gameId) {
@@ -280,7 +298,7 @@ const ChessBoard = ({ gameId }) => {
       socket.emit('offerDraw', { gameId, color });
     }
   };
-  
+
   // Accept a draw
   const handleAcceptDraw = () => {
     if (socket && gameId) {
@@ -288,7 +306,7 @@ const ChessBoard = ({ gameId }) => {
       setDrawDialogOpen(false);
     }
   };
-  
+
   // Decline a draw
   const handleDeclineDraw = () => {
     if (socket && gameId) {
@@ -296,13 +314,13 @@ const ChessBoard = ({ gameId }) => {
       setDrawDialogOpen(false);
     }
   };
-  
+
   // Display the game result
   const gameResult = () => {
     if (gameState.status !== 'finished') return null;
-    
+
     let result = '';
-    
+
     switch (gameState.outcome) {
       case 'white':
         result = 'White wins';
@@ -316,14 +334,14 @@ const ChessBoard = ({ gameId }) => {
       default:
         result = 'Game over';
     }
-    
+
     return (
       <Typography variant="h6" color="error" align="center" sx={{ mt: 2 }}>
         {result}
       </Typography>
     );
   };
-  
+
   // Render loading state if game is not loaded yet
   if (gameState.status === 'loading') {
     return (
@@ -332,7 +350,7 @@ const ChessBoard = ({ gameId }) => {
       </Box>
     );
   }
-  
+
   return (
     <Grid container spacing={2}>
       <Grid xs={12} md={8}>
@@ -346,7 +364,7 @@ const ChessBoard = ({ gameId }) => {
                 {formatTime(gameState.blackTime)}
               </Typography>
             </Box>
-            
+
             {/* Game status or result */}
             <Box>
               {gameResult()}
@@ -356,7 +374,7 @@ const ChessBoard = ({ gameId }) => {
                 </Typography>
               )}
             </Box>
-            
+
             <Box>
               <Typography variant="subtitle1" align="right">
                 {gameState.whitePlayer?.name || 'White'}
@@ -366,7 +384,7 @@ const ChessBoard = ({ gameId }) => {
               </Typography>
             </Box>
           </Box>
-          
+
           <Chessboard
             id="chess-board"
             position={fen || 'start'}
@@ -378,27 +396,27 @@ const ChessBoard = ({ gameId }) => {
             }}
             boardOrientation={orientation}
           />
-          
+
           <Box display="flex" justifyContent="center" mt={2} gap={2}>
             {gameState.status === 'ongoing' && (
               <>
-                <Button 
-                  variant="contained" 
+                <Button
+                  variant="contained"
                   color="primary"
                   onClick={handleDrawOffer}
                   disabled={
-                    (gameState.activeColor === 'w' && gameState.whitePlayer?.id !== user?.id) || 
+                    (gameState.activeColor === 'w' && gameState.whitePlayer?.id !== user?.id) ||
                     (gameState.activeColor === 'b' && gameState.blackPlayer?.id !== user?.id)
                   }
                 >
                   Offer Draw
                 </Button>
-                <Button 
-                  variant="contained" 
+                <Button
+                  variant="contained"
                   color="error"
                   onClick={handleResign}
                   disabled={
-                    (gameState.whitePlayer?.id !== user?.id) && 
+                    (gameState.whitePlayer?.id !== user?.id) &&
                     (gameState.blackPlayer?.id !== user?.id)
                   }
                 >
@@ -409,30 +427,30 @@ const ChessBoard = ({ gameId }) => {
           </Box>
         </Paper>
       </Grid>
-      
+
       <Grid xs={12} md={4}>
         <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
           <Typography variant="h6" gutterBottom>
             Game Info
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          
+
           <Typography variant="body1" gutterBottom>
             <strong>White:</strong> {gameState.whitePlayer?.name || 'White'}
           </Typography>
-          
+
           <Typography variant="body1" gutterBottom>
             <strong>Black:</strong> {gameState.blackPlayer?.name || 'Black'}
           </Typography>
-          
+
           <Typography variant="body1" gutterBottom>
             <strong>Time Control:</strong> {Math.floor(gameState.whiteTime / 60)}+{gameState.increment}
           </Typography>
-          
+
           <Typography variant="body1" gutterBottom>
             <strong>Status:</strong> {gameState.status}
           </Typography>
-          
+
           {gameState.status === 'finished' && (
             <Typography variant="body1" gutterBottom>
               <strong>Result:</strong> {gameState.outcome}
@@ -440,7 +458,7 @@ const ChessBoard = ({ gameId }) => {
           )}
         </Paper>
       </Grid>
-      
+
       {/* Draw offer dialog */}
       <Dialog
         open={drawDialogOpen}

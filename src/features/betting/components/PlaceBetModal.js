@@ -4,17 +4,18 @@ import React, { useState, useEffect } from "react";
 import { placeBet } from "../services/api";
 import { useToken } from "../../token/contexts/TokenContext";
 import { useSelectedToken } from "../../token/contexts/SelectedTokenContext";
+import { useSocket } from "../../common/contexts/SocketContext";
 import { ApiError } from "../../common/components/ApiError";
 import { FormError } from "../../common/components/FormError";
 import PropTypes from "prop-types";
 import "./PlaceBetModal.css";
 
 // Import React Icons
-import { 
-  FaChess, 
-  FaChessKnight, 
+import {
+  FaChess,
+  FaChessKnight,
   FaChessRook,
-  FaRandom, 
+  FaRandom,
   FaTimes,
   FaCheckCircle,
   FaChessPawn
@@ -33,6 +34,9 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
   const [successMessage, setSuccessMessage] = useState("");
   const [formErrors, setFormErrors] = useState({});
 
+  // Socket context
+  const socket = useSocket();
+
   // Context hooks
   const {
     tokenBalance,
@@ -40,12 +44,12 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     updateTokenBalance,
     updateSweepstakesBalance,
   } = useToken();
-  
+
   const { selectedToken } = useSelectedToken();
 
   // Current balance based on selected token from context
   const currentBalance = selectedToken === "sweepstakes" ? sweepstakesBalance : tokenBalance;
-  
+
   // Maximum bet amount based on balance
   const maxBet = currentBalance || 1000;
 
@@ -59,13 +63,13 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
   // Validate the form inputs
   const validateForm = () => {
     const newFormErrors = {};
-    
+
     if (!amount || Number(amount) <= 0) {
       newFormErrors.amount = "Please enter a valid bet amount.";
     } else if (Number(amount) > currentBalance) {
       newFormErrors.amount = `You don't have enough ${selectedToken === "sweepstakes" ? "sweepstakes tokens" : "tokens"} for this bet.`;
     }
-    
+
     setFormErrors(newFormErrors);
     return Object.keys(newFormErrors).length === 0;
   };
@@ -75,7 +79,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     // Clear previous errors
     setError(null);
     setFormErrors({});
-    
+
     // Validate form
     if (!validateForm()) {
       return;
@@ -90,9 +94,9 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         timeControl,
         variant,
       };
-      
-      await placeBet(betData);
-      
+
+      const response = await placeBet(betData);
+
       // Update balances
       if (selectedToken === "sweepstakes") {
         updateSweepstakesBalance(sweepstakesBalance - Number(amount));
@@ -104,9 +108,20 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
       setSuccessMessage(`Your bet of ${amount} ${selectedToken === "token" ? "Tokens" : "Sweepstakes Tokens"} has been placed successfully! An opponent will be matched soon.`);
       setSuccess(true);
 
+      // Create chess game for this bet if we're using in-house chess
+      if (response && response._id && socket) {
+        // Use Socket.io to create a chess game for this bet
+        socket.emit('createChessGame', {
+          timeControl: parseInt(timeControl.split('|')[0], 10),
+          increment: parseInt(timeControl.split('|')[1], 10),
+          color: colorPreference,
+          betId: response._id
+        });
+      }
+
     } catch (err) {
       console.error("Error placing bet:", err);
-      
+
       // Handle different error types
       if (err.code === 'VALIDATION_ERROR' && err.validationErrors) {
         // Set field-specific form errors if available
@@ -151,12 +166,12 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     if (currentBalance >= 100) presets.push(100);
     if (currentBalance >= 250) presets.push(250);
     if (currentBalance >= 500) presets.push(500);
-    
+
     // Always include All-in option
     if (currentBalance > 0) {
       presets.push("All-in");
     }
-    
+
     return presets;
   };
 
@@ -167,7 +182,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
     } else {
       setAmount(preset.toString());
     }
-    
+
     // Clear form error for amount when preset is applied
     if (formErrors.amount) {
       const { amount, ...rest } = formErrors;
@@ -197,15 +212,15 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
           >
             <FaTimes />
           </button>
-          
+
           <div className="place-bet-success">
             <div className="place-bet-success-icon">
               <FaCheckCircle />
             </div>
             <h2>Bet Placed!</h2>
             <p>{successMessage}</p>
-            <button 
-              onClick={handleCloseModal} 
+            <button
+              onClick={handleCloseModal}
               className="place-bet-success-button"
             >
               Return to Game
@@ -236,7 +251,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         </button>
 
         <h2 id="place-bet-title" className="place-bet-title">Place a Bet</h2>
-        
+
         <div className="place-bet-balance">
           Your Balance: <span>{currentBalance}</span> {selectedToken === "sweepstakes" ? "Sweepstakes Tokens" : "Tokens"}
         </div>
@@ -244,8 +259,8 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         {/* Display any API errors */}
         {error && (
           <div className="place-bet-error-container">
-            <ApiError 
-              error={error} 
+            <ApiError
+              error={error}
               onDismiss={() => setError(null)}
               compact={true}
             />
@@ -256,21 +271,21 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         <div className="place-bet-section">
           <label className="place-bet-section-label">Color Preference:</label>
           <div className="place-bet-options">
-            <div 
+            <div
               className={`place-bet-option color-option white-option ${colorPreference === "white" ? "selected" : ""}`}
               onClick={() => setColorPreference("white")}
             >
               <FaChessPawn className="place-bet-option-icon" />
               <span className="place-bet-option-text">White</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option color-option black-option ${colorPreference === "black" ? "selected" : ""}`}
               onClick={() => setColorPreference("black")}
             >
               <FaChessPawn className="place-bet-option-icon" />
               <span className="place-bet-option-text">Black</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option color-option random-option ${colorPreference === "random" ? "selected" : ""}`}
               onClick={() => setColorPreference("random")}
             >
@@ -284,28 +299,28 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         <div className="place-bet-section">
           <label className="place-bet-section-label">Time Control:</label>
           <div className="place-bet-options">
-            <div 
+            <div
               className={`place-bet-option time-control-option fast ${timeControl === "3|2" ? "selected" : ""}`}
               onClick={() => setTimeControl("3|2")}
             >
               <GiRabbit className="place-bet-option-icon" />
               <span className="place-bet-option-text">3|2</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option time-control-option fast ${timeControl === "5|3" ? "selected" : ""}`}
               onClick={() => setTimeControl("5|3")}
             >
               <GiRabbit className="place-bet-option-icon" />
               <span className="place-bet-option-text">5|3</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option time-control-option slow ${timeControl === "10|0" ? "selected" : ""}`}
               onClick={() => setTimeControl("10|0")}
             >
               <GiTurtle className="place-bet-option-icon" />
               <span className="place-bet-option-text">10|0</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option time-control-option slow ${timeControl === "15|10" ? "selected" : ""}`}
               onClick={() => setTimeControl("15|10")}
             >
@@ -319,21 +334,21 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         <div className="place-bet-section">
           <label className="place-bet-section-label">Game Variant:</label>
           <div className="place-bet-options">
-            <div 
+            <div
               className={`place-bet-option variant-option ${variant === "standard" ? "selected" : ""}`}
               onClick={() => setVariant("standard")}
             >
               <FaChess className="place-bet-option-icon" />
               <span className="place-bet-option-text">Standard</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option variant-option ${variant === "crazyhouse" ? "selected" : ""}`}
               onClick={() => setVariant("crazyhouse")}
             >
               <FaChessKnight className="place-bet-option-icon" />
               <span className="place-bet-option-text">Crazyhouse</span>
             </div>
-            <div 
+            <div
               className={`place-bet-option variant-option ${variant === "chess960" ? "selected" : ""}`}
               onClick={() => setVariant("chess960")}
             >
@@ -346,12 +361,12 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
         {/* Bet Amount */}
         <div className="place-bet-amount-section">
           <label className="place-bet-section-label">Bet Amount:</label>
-          
+
           {/* Quick bet presets */}
           <div className="bet-presets">
             {getBetPresets().map((preset) => (
-              <div 
-                key={preset} 
+              <div
+                key={preset}
                 className="bet-preset-button"
                 onClick={() => applyPreset(preset)}
               >
@@ -359,7 +374,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
               </div>
             ))}
           </div>
-          
+
           {/* Amount input field */}
           <div className={`place-bet-input-wrapper ${formErrors.amount ? 'has-error' : ''}`}>
             <input
@@ -377,7 +392,7 @@ const PlaceBetModal = ({ isOpen, onClose, preSelectedVariant = "standard" }) => 
               {selectedToken === "token" ? "PTK" : "SWP"}
             </span>
           </div>
-          
+
           {/* Form error for amount field */}
           <FormError error={formErrors} field="amount" />
         </div>

@@ -54,7 +54,7 @@ export const placeBet = async (betData) => {
     !/^\d+\|\d+$/.test(timeControl)
   ) {
     const error = new Error('Time Control must be a string in the format "minutes|increment".');
-    error.code = 'VALIDATION_ERROR'; 
+    error.code = 'VALIDATION_ERROR';
     error.isApiError = true;
     throw error;
   }
@@ -70,7 +70,7 @@ export const placeBet = async (betData) => {
       currencyType,
     }),
   });
-  
+
   return data.bet;
 };
 
@@ -126,12 +126,25 @@ export const getUserBets = async (params = {}) => {
   return data;
 };
 
+/**
+ * Fetches details for a specific bet.
+ * @param {string} betId - ID of the bet to retrieve.
+ * @returns {Promise<object>} - The bet details.
+ */
+export const getBetDetails = async (betId) => {
+  const data = await apiFetch(`/bets/${betId}`, {
+    method: 'GET',
+  });
+  return data.bet;
+};
+
 export const bettingApi = {
   placeBet,
   acceptBet,
   cancelBet,
-  getAvailableBets, 
-  getUserBets
+  getAvailableBets,
+  getUserBets,
+  getBetDetails
 };
 
 export default bettingApi;

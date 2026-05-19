@@ -1,17 +1,20 @@
-// src/App.js - Fixed version with LichessProvider added
+// src/App.js
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './features/auth/contexts/AuthContext';
 import { TokenProvider } from './features/token/contexts/TokenContext';
 import { SelectedTokenProvider } from './features/token/contexts/SelectedTokenContext';
-import { LichessProvider } from './features/auth/contexts/LichessContext';
 import { ApiErrorProvider } from './features/common/contexts/ApiErrorContext';
 import { NotificationsProvider } from './features/notifications/contexts/NotificationsContext';
 import { SocketProvider } from './features/common/contexts/SocketContext';
 import { SeasonProvider } from './features/seasons/contexts/SeasonContext';
 import { ProfileProvider } from './features/profile/contexts/ProfileContext';
+import { LichessProvider } from './features/auth/contexts/LichessContext';
+import { BetProvider } from './features/betting/contexts/BetContext';
 
 import GamePage from './features/game/pages/GamePage.jsx';
+import ChessGamePage from './features/game/pages/ChessGamePage.jsx';
+import BetChessGame from './features/chess/components/BetChessGame.jsx';
 // Layout components
 import Layout from './features/layout/components/Layout';
 
@@ -22,14 +25,21 @@ import Lobby from './features/lobby/pages/Lobby';
 import Leaderboard from './features/leaderboard/pages/Leaderboard';
 import Store from './features/store/pages/Store';
 import Profile from './features/profile/pages/index';
+import Stats from './features/stats/pages/index';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import Notifications from './features/notifications/components/Notifications';
+// Chess pages
+import ChessTestPage from './features/chess/pages/ChessTestPage';
+import PlayChessPage from './features/chess/pages/PlayChessPage';
+import IsolatedChessPage from './features/chess/pages/IsolatedChessPage';
+import SimpleChessPage from './features/chess/pages/SimpleChessPage';
+import StandaloneChessPage from './features/chess/pages/StandaloneChessPage';
 
 // Auth components
 import UserLogin from './features/auth/components/UserLogin';
 import AdminLogin from './features/auth/components/AdminLogin';
 import Register from './features/auth/components/Register';
-import LichessCallback from './features/auth/components/LichessCallback';
+// Remove LichessCallback import as we no longer need it
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
 
 // Info pages
@@ -47,18 +57,19 @@ function App() {
         <SocketProvider>
           <TokenProvider>
             <SelectedTokenProvider>
-              <LichessProvider>
-                <NotificationsProvider>
-                  <SeasonProvider>
-                    <ProfileProvider>
-                      <Routes>
+              <NotificationsProvider>
+                <SeasonProvider>
+                  <ProfileProvider>
+                    <LichessProvider>
+                      <BetProvider>
+                        <Routes>
                         {/* Public routes */}
                         <Route path="/" element={<Landing />} />
                         <Route path="/login" element={<UserLogin />} />
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/register" element={<Register />} />
-                        <Route path="/lichess/callback" element={<LichessCallback />} />
-                        
+                        {/* Removed Lichess callback route */}
+
                         {/* Info pages */}
                         <Route path="/" element={<InfoLayout />}>
                           <Route path="/about" element={<About />} />
@@ -67,7 +78,13 @@ function App() {
                           <Route path="/blog" element={<Blog />} />
                           <Route path="/careers" element={<Careers />} />
                         </Route>
-                        
+
+                        {/* Chess pages - Accessible without login */}
+                        <Route path="/chess/test" element={<ChessTestPage />} />
+                        <Route path="/chess/play" element={<PlayChessPage />} />
+                        <Route path="/chess/standalone" element={<StandaloneChessPage />} />
+                        <Route path="/chess" element={<StandaloneChessPage />} />
+
                         {/* Protected routes - Standard user */}
                         <Route path="/" element={
                           <ProtectedRoute>
@@ -79,10 +96,13 @@ function App() {
                           <Route path="/leaderboards" element={<Leaderboard />} />
                           <Route path="/store" element={<Store />} />
                           <Route path="/profile" element={<Profile />} />
+                          <Route path="/stats" element={<Stats />} />
                           <Route path="/notifications" element={<Notifications />} />
                           <Route path="/game/:gameId" element={<GamePage />} />
+                          <Route path="/chess/game/:gameId" element={<ChessGamePage />} />
+                          <Route path="/chess/bet/:gameId" element={<BetChessGame />} />
                         </Route>
-                        
+
                         {/* Protected routes - Admin user */}
                         <Route path="/admin/dashboard" element={
                           <ProtectedRoute requiredRole="admin">
@@ -90,10 +110,11 @@ function App() {
                           </ProtectedRoute>
                         } />
                       </Routes>
-                    </ProfileProvider>
-                  </SeasonProvider>
-                </NotificationsProvider>
-              </LichessProvider>
+                      </BetProvider>
+                    </LichessProvider>
+                  </ProfileProvider>
+                </SeasonProvider>
+              </NotificationsProvider>
             </SelectedTokenProvider>
           </TokenProvider>
         </SocketProvider>

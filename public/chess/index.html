@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Game</title>
+  <!-- Load Chessboard Element web component correctly -->
+  <script type="module" src="https://unpkg.com/chessboard-element?module"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chess Game</h1>
+      <div>
+        <a href="/" style="color: #4caf50; text-decoration: none;">Back to Main Site</a>
+      </div>
+    </header>
+    
+    <div class="controls">
+      <div class="control-row">
+        <div>
+          <label for="time-control">Time Control:</label>
+          <select id="time-control">
+            <option value="1">1 min</option>
+            <option value="3">3 min</option>
+            <option value="5">5 min</option>
+            <option value="10" selected>10 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="increment">Increment:</label>
+          <select id="increment">
+            <option value="0">0 sec</option>
+            <option value="1">1 sec</option>
+            <option value="2">2 sec</option>
+            <option value="5" selected>5 sec</option>
+            <option value="10">10 sec</option>
+          </select>
+        </div>
+        
+        <button id="apply-time">Apply Time Control</button>
+      </div>
+      
+      <div class="control-row">
+        <button id="reset-btn">Reset Game</button>
+        <button id="flip-btn">Flip Board</button>
+        <button id="undo-btn">Undo Move</button>
+      </div>
+    </div>
+    
+    <div class="board-container">
+      <div class="player-info">
+        <span class="player-name">Black</span>
+        <span id="black-clock" class="player-clock">10:00</span>
+      </div>
+      
+      <chess-board id="board" position="start" draggable-pieces></chess-board>
+      
+      <div class="player-info">
+        <span class="player-name">White</span>
+        <span id="white-clock" class="player-clock active">10:00</span>
+      </div>
+      
+      <div class="game-status" id="status">White to move</div>
+      
+      <div class="game-buttons">
+        <button id="draw-btn" class="draw-btn">Agree to Draw</button>
+        <button id="resign-btn" class="resign-btn">Resign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load chess.js correctly -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Initialize the game
+    const board = document.getElementById('board');
+    const game = new Chess();
+    const whiteClockElem = document.getElementById('white-clock');
+    const blackClockElem = document.getElementById('black-clock');
+    const statusElem = document.getElementById('status');
+    
+    // Time control variables
+    let whiteTime = 10 * 60; // 10 minutes in seconds
+    let blackTime = 10 * 60;
+    let increment = 5; // 5 seconds increment
+    let clockInterval = null;
+    let lastMoveTime = Date.now();
+    let activeColor = 'w';
+    let gameStatus = 'ongoing';
+    
+    // Update the clock display
+    function updateClockDisplay() {
+      whiteClockElem.textContent = formatTime(whiteTime);
+      blackClockElem.textContent = formatTime(blackTime);
+      
+      // Update the active indicator
+      if (activeColor === 'w') {
+        whiteClockElem.classList.add('active');
+        blackClockElem.classList.remove('active');
+      } else {
+        blackClockElem.classList.add('active');
+        whiteClockElem.classList.remove('active');
+      }
+    }
+    
+    // Format seconds to mm:ss
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // Start the clock
+    function startClock() {
+      if (clockInterval) return;
+      
+      lastMoveTime = Date.now();
+      clockInterval = setInterval(() => {
+        if (gameStatus !== 'ongoing') {
+          stopClock();
+          return;
+        }
+        
+        if (activeColor === 'w') {
+          whiteTime--;
+          if (whiteTime <= 0) {
+            whiteTime = 0;
+            handleTimeout('w');
+          }
+        } else {
+          blackTime--;
+          if (blackTime <= 0) {
+            blackTime = 0;
+            handleTimeout('b');
+          }
+        }
+        
+        updateClockDisplay();
+      }, 1000);
+    }
+    
+    // Stop the clock
+    function stopClock() {
+      if (clockInterval) {
+        clearInterval(clockInterval);
+        clockInterval = null;
+      }
+    }
+    
+    // Handle timeout (player's clock reached zero)
+    function handleTimeout(color) {
+      stopClock();
+      gameStatus = 'finished';
+      const winner = color === 'w' ? 'Black' : 'White';
+      statusElem.textContent = `${winner} wins by timeout`;
+    }
+    
+    // Update the game status display
+    function updateStatus() {
+      if (gameStatus === 'finished') return;
+      
+      activeColor = game.turn();
+      
+      if (game.in_checkmate()) {
+        gameStatus = 'finished';
+        const winner = activeColor === 'w' ? 'Black' : 'White';
+        statusElem.textContent = `Checkmate! ${winner} wins`;
+        stopClock();
+      } else if (game.in_draw()) {
+        gameStatus = 'finished';
+        statusElem.textContent = 'Game ends in a draw';
+        stopClock();
+      } else {
+        const currentPlayer = activeColor === 'w' ? 'White' : 'Black';
+        statusElem.textContent = `${currentPlayer} to move`;
+        
+        if (game.in_check()) {
+          statusElem.textContent += ' (Check!)';
+        }
+      }
+    }
+    
+    // Handle board move events
+    board.addEventListener('drop', handleMove);
+    
+    function handleMove(e) {
+      // Prevent move if game is over
+      if (gameStatus !== 'ongoing') {
+        e.preventDefault();
+        return;
+      }
+      
+      const move = {
+        from: e.detail.source,
+        to: e.detail.target,
+        promotion: 'q' // Always promote to queen for simplicity
+      };
+      
+      try {
+        // Make the move on the chess.js board
+        const result = game.move(move);
+        
+        // If invalid move, cancel it
+        if (!result) {
+          e.preventDefault();
+          return;
+        }
+        
+        // Update board position
+        board.setPosition(game.fen());
+        
+        // Add increment after a successful move
+        const now = Date.now();
+        const moveTime = (now - lastMoveTime) / 1000;
+        lastMoveTime = now;
+        
+        if (activeColor === 'w') {
+          whiteTime += increment;
+        } else {
+          blackTime += increment;
+        }
+        
+        // Start the clock if not already running
+        startClock();
+        
+        // Update game status
+        updateStatus();
+        updateClockDisplay();
+      } catch (error) {
+        console.error('Error making move:', error);
+        e.preventDefault();
+      }
+    }
+    
+    // Reset the game
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      stopClock();
+      game.reset();
+      board.position = 'start';
+      
+      const timeControlSelect = document.getElementById('time-control');
+      const incrementSelect = document.getElementById('increment');
+      
+      whiteTime = parseInt(timeControlSelect.value) * 60;
+      blackTime = parseInt(timeControlSelect.value) * 60;
+      increment = parseInt(incrementSelect.value);
+      
+      activeColor = 'w';
+      gameStatus = 'ongoing';
+      updateStatus();
+      updateClockDisplay();
+    });
+    
+    // Apply time control changes
+    document.getElementById('apply-time').addEventListener('click', () => {
+      stopClock();
+      
+      const timeControlSelect = document.getElementById('time-control');
+      const incrementSelect = document.getElementById('increment');
+      
+      whiteTime = parseInt(timeControlSelect.value) * 60;
+      blackTime = parseInt(timeControlSelect.value) * 60;
+      increment = parseInt(incrementSelect.value);
+      
+      updateClockDisplay();
+    });
+    
+    // Flip the board
+    document.getElementById('flip-btn').addEventListener('click', () => {
+      board.flip();
+    });
+    
+    // Undo the last move
+    document.getElementById('undo-btn').addEventListener('click', () => {
+      if (gameStatus === 'finished') return;
+      
+      game.undo();
+      board.position = game.fen();
+      activeColor = game.turn();
+      updateStatus();
+      updateClockDisplay();
+    });
+    
+    // Handle resign
+    document.getElementById('resign-btn').addEventListener('click', () => {
+      if (gameStatus !== 'ongoing') return;
+      
+      stopClock();
+      gameStatus = 'finished';
+      const winner = activeColor === 'w' ? 'Black' : 'White';
+      statusElem.textContent = `${winner} wins by resignation`;
+    });
+    
+    // Handle draw agreement
+    document.getElementById('draw-btn').addEventListener('click', () => {
+      if (gameStatus !== 'ongoing') return;
+      
+      stopClock();
+      gameStatus = 'finished';
+      statusElem.textContent = 'Game drawn by agreement';
+    });
+    
+    // Initialize displays
+    updateStatus();
+    updateClockDisplay();
+  </script>
+</body>
+</html>

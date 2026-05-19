@@ -1,0 +1,112 @@
+/* src/features/chess/styles/BetChessGame.css */
+
+.bet-chess-game {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: white;
+}
+
+.bet-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bet-details {
+  flex: 1;
+  min-width: 250px;
+}
+
+.bet-details h2 {
+  color: #ffd700;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.bet-amount, .bet-status {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.bet-amount span, .bet-status span {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.game-result {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-result h3 {
+  color: #ffd700;
+  margin-top: 0;
+}
+
+.winnings {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+.winnings span {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.bet-chess-game button {
+  background-color: #ffd700;
+  color: #222;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.bet-chess-game button:hover {
+  background-color: #ffcc00;
+}
+
+.bet-chess-error {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 2rem auto;
+  color: white;
+}
+
+.bet-chess-error h2 {
+  color: #ff4444;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .bet-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .bet-details, .game-result {
+    width: 100%;
+  }
+}

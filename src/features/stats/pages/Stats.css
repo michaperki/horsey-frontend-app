@@ -1,0 +1,79 @@
+/* src/features/stats/pages/Stats.css */
+
+.stats-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  color: var(--color-white);
+}
+
+.stats-page-title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-primary-light);
+  text-align: center;
+}
+
+/* Season Stats Wrapper */
+.season-stats-wrapper {
+  margin-bottom: var(--spacing-lg);
+  min-height: 200px;
+}
+
+/* Main Content */
+.stats-content {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.tabs-container {
+  flex-shrink: 0;
+}
+
+.stats-tab-content {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(10, 42, 77, 0.7) 0%, rgba(5, 29, 58, 0.8) 100%);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-height: 300px;
+  overflow: hidden;
+}
+
+.tab-content-container {
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .stats-content {
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 767px) {
+  .stats-content {
+    flex-direction: column;
+  }
+
+  .tabs-container {
+    width: 100%;
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-page {
+    padding: var(--spacing-xs);
+  }
+  
+  .stats-page-title {
+    font-size: var(--font-size-large);
+  }
+  
+  .stats-tab-content {
+    padding: var(--spacing-md);
+  }
+}

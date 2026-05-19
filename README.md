@@ -42,6 +42,8 @@ frontend/
 │   │   ├── lobby/       # Lobby page
 │   │   ├── notifications/ # Notifications
 │   │   ├── profile/     # User profile
+│   │   ├── seasons/     # Season context and season stats
+│   │   ├── stats/       # Player stats, ratings, history
 │   │   ├── store/       # Store for token purchases
 │   │   └── token/       # Token management
 │   ├── services/        # Global services
@@ -97,6 +99,7 @@ frontend/
 - Context API for state management
 - Framer Motion for animations
 - Socket.io for real-time updates
+- chess.js-backed in-house chess integration through the backend
 - Axios for API requests
 - Jest and React Testing Library for unit tests
 - Cypress for end-to-end tests
@@ -110,6 +113,8 @@ The application uses React Context API for state management with several key con
 - `NotificationsContext`: Manages user notifications
 - `ProfileContext`: Manages user profile data
 - `SocketContext`: Manages Socket.io connections
+- `BetContext`: Tracks current bet/game settlement updates
+- `SeasonContext`: Loads current season state and season stats
 
 ### Key Components
 
@@ -131,6 +136,12 @@ The application uses React Context API for state management with several key con
 - `PlaceBetModal.js`: Modal for creating a new bet
 - `AvailableBets.js`: Shows available bets from other users
 - `YourBets.js`: Shows the user's bet history
+
+#### Chess Components
+- `ChessBoard.jsx`: Board rendering for in-house chess games
+- `ChessClock.jsx`: Clock display
+- `GamePage.jsx` / `ChessGamePage.jsx`: Game page shells
+- `BetChessGame.jsx`: Bet-connected in-house game experience
 
 #### Profile Components
 - `ProfileHeader.js`: Header for the profile page
@@ -172,6 +183,7 @@ The application uses React Context API for state management with several key con
 - Accepting bets from other users
 - Viewing bet history
 - Real-time updates when bets are accepted
+- In-house game routes for bet-connected play, currently being integrated alongside the Lichess flow
 
 ### Token System
 - Multiple token types (Player Tokens and Sweepstakes Tokens)
@@ -182,6 +194,11 @@ The application uses React Context API for state management with several key con
 - Leaderboard with player rankings
 - Notifications system
 - Profile pages with user stats
+
+### Seasons & Stats
+- Active season context
+- Season leaderboard/profile integration
+- Player stats page with summary, ratings, and history
 
 ## Testing
 

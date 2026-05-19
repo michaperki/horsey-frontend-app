@@ -1,0 +1,197 @@
+/* src/features/stats/components/StatsSummary.css */
+
+.stats-summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.summary-title {
+  font-size: var(--font-size-large);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-white);
+}
+
+.summary-section {
+  background: linear-gradient(135deg, rgba(15, 52, 92, 0.6) 0%, rgba(10, 34, 68, 0.7) 100%);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-medium);
+  color: var(--color-primary-light);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-icon {
+  font-size: 1.2rem;
+  color: var(--color-primary-light);
+}
+
+/* Balance cards */
+.balance-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.balance-stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.card-header.token {
+  color: var(--color-accent);
+}
+
+.card-header.sweepstakes {
+  color: var(--color-secondary-light);
+}
+
+.card-icon {
+  font-size: 1.2rem;
+}
+
+.card-header h4 {
+  font-size: var(--font-size-small);
+  margin: 0;
+}
+
+.balance-value {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-sm);
+  text-align: center;
+}
+
+.balance-value.token {
+  color: var(--color-accent);
+}
+
+.balance-value.sweepstakes {
+  color: var(--color-secondary-light);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.stat-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-light);
+  font-size: 1.2rem;
+}
+
+.stat-icon-wrapper.win {
+  color: var(--color-success);
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+}
+
+.stat-label {
+  font-size: var(--font-size-xsmall);
+  color: var(--color-gray-400);
+}
+
+/* Advanced stats */
+.advanced-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.advanced-stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.advanced-stat-header {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-300);
+  text-align: center;
+}
+
+.advanced-stat-value {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  text-align: center;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid var(--color-primary-light);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .balance-cards-grid,
+  .stats-grid,
+  .advanced-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

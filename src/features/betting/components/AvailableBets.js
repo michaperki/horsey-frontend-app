@@ -11,8 +11,8 @@ import { ApiError } from "../../common/components/ApiError";
 import { useApiError } from "../../common/contexts/ApiErrorContext";
 
 // Import React Icons
-import { 
-  FaSignInAlt, 
+import {
+  FaSignInAlt,
   FaInfoCircle,
   FaSortUp,
   FaSortDown,
@@ -26,7 +26,7 @@ const AvailableBets = ({ format = "1v1" }) => {
   const { tokenBalance, sweepstakesBalance, loading: tokenLoading, error: tokenError } = useToken();
   const { selectedToken } = useSelectedToken();
   const { handleApiError } = useApiError();
-  
+
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,11 +43,11 @@ const AvailableBets = ({ format = "1v1" }) => {
       setLoading(false);
       return;
     }
-    
+
     if (tokenLoading) {
       return;
     }
-    
+
     if (tokenError) {
       setError({
         code: 'DATA_ERROR',
@@ -56,7 +56,7 @@ const AvailableBets = ({ format = "1v1" }) => {
       setLoading(false);
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
@@ -66,7 +66,7 @@ const AvailableBets = ({ format = "1v1" }) => {
         showGlobalError: false,
         onError: (err) => setError(err)
       });
-      
+
       const fetchedBets = await fetchBets(selectedToken);
 
       // Filter bets based on user's balance
@@ -102,7 +102,7 @@ const AvailableBets = ({ format = "1v1" }) => {
   useEffect(() => {
     fetchAvailableBets();
     const intervalId = setInterval(fetchAvailableBets, 30000); // refresh every 30 seconds
-    
+
     return () => clearInterval(intervalId);
   }, [fetchAvailableBets]);
 
@@ -148,8 +148,8 @@ const AvailableBets = ({ format = "1v1" }) => {
     if (sortConfig.key !== columnKey) {
       return <FaSort className="sort-indicator" />;
     }
-    return sortConfig.direction === 'asc' ? 
-      <FaSortUp className="sort-indicator" /> : 
+    return sortConfig.direction === 'asc' ?
+      <FaSortUp className="sort-indicator" /> :
       <FaSortDown className="sort-indicator" />;
   };
 
@@ -179,21 +179,29 @@ const AvailableBets = ({ format = "1v1" }) => {
       });
       return;
     }
-    
+
     setActionLoading((prev) => ({ ...prev, [betId]: true }));
-    
+
     try {
       const opponentColor = determineOpponentColor(colorPreference);
-      
+
       // Use handleApiError to wrap the API call
       const acceptBetWithHandling = handleApiError(acceptBet, {
         showGlobalError: true,
-        onSuccess: () => {
+        onSuccess: (response) => {
           // Remove the accepted bet from the list
           setBets((prev) => prev.filter((bet) => bet.id !== betId));
+
+          // If we get a gameId and gameLink, navigate to the in-house chess game
+          if (response && response.gameId) {
+            // Use Navigate after a small delay to let the socket connection establish
+            setTimeout(() => {
+              window.location.href = `/chess/game/${response.gameId}`;
+            }, 500);
+          }
         }
       });
-      
+
       await acceptBetWithHandling(betId, opponentColor);
     } catch (err) {
       // Errors are handled by handleApiError
@@ -215,8 +223,8 @@ const AvailableBets = ({ format = "1v1" }) => {
   if (error) {
     return (
       <div className="bets-error-container">
-        <ApiError 
-          error={error} 
+        <ApiError
+          error={error}
           onDismiss={() => setError(null)}
           onRetry={fetchAvailableBets}
         />
@@ -237,22 +245,22 @@ const AvailableBets = ({ format = "1v1" }) => {
   // Animation variants
   const tableVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
-        staggerChildren: 0.05 
+      transition: {
+        staggerChildren: 0.05
       }
     }
   };
 
   const rowVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { type: "spring", stiffness: 100, damping: 15 }
     },
-    exit: { 
+    exit: {
       opacity: 0,
       y: -20,
       transition: { duration: 0.2 }
@@ -261,7 +269,7 @@ const AvailableBets = ({ format = "1v1" }) => {
 
   return (
     <div className="bets-table-container">
-      <motion.table 
+      <motion.table
         className="bets-table"
         variants={tableVariants}
         initial="hidden"
@@ -305,8 +313,8 @@ const AvailableBets = ({ format = "1v1" }) => {
               } = bet;
 
               return (
-                <motion.tr 
-                  key={id} 
+                <motion.tr
+                  key={id}
                   data-bet-id={id}
                   variants={rowVariants}
                   initial="hidden"

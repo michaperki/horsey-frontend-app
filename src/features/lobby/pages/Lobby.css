@@ -19,7 +19,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -131,6 +131,8 @@
   margin-right: 6px;
 }
 
+/* Match type selection removed */
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -163,7 +165,7 @@
     flex-wrap: wrap;
     gap: 5px;
   }
-  
+
   .tab-button {
     padding: 8px 12px;
   }

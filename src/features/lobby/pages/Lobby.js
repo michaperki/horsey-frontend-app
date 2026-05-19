@@ -1,4 +1,4 @@
-// src/features/lobby/pages/Lobby.js - Updated to remove greeting component
+// src/features/lobby/pages/Lobby.js - Updated to focus solely on betting matches
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -15,9 +15,9 @@ const Lobby = () => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         duration: 0.5,
         ease: "easeOut",
         when: "beforeChildren",
@@ -28,8 +28,8 @@ const Lobby = () => {
 
   const tabVariants = {
     hidden: { y: -10, opacity: 0 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 1,
       transition: { duration: 0.3, ease: "easeOut" }
     }
@@ -37,11 +37,11 @@ const Lobby = () => {
 
   const contentVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: { duration: 0.5 }
     },
-    exit: { 
+    exit: {
       opacity: 0,
       transition: { duration: 0.3 }
     }
@@ -57,8 +57,10 @@ const Lobby = () => {
     setActiveTab(tab);
   };
 
+  // No longer need match type toggle
+
   return (
-    <motion.div 
+    <motion.div
       className="lobby-container"
       variants={containerVariants}
       initial={isInitialLoad ? "hidden" : false}
@@ -74,7 +76,7 @@ const Lobby = () => {
         >
           <FaChessKnight className="tab-icon" /> 1v1 Matches
         </motion.button>
-        
+
         <motion.button
           className="tab-button disabled"
           disabled={true}
@@ -83,7 +85,7 @@ const Lobby = () => {
           <FaDice className="tab-icon" /> Sit & Go
           <span className="coming-soon-badge">Soon</span>
         </motion.button>
-        
+
         <motion.button
           className="tab-button disabled"
           disabled={true}
@@ -93,7 +95,7 @@ const Lobby = () => {
           <span className="coming-soon-badge">Soon</span>
         </motion.button>
       </div>
-      
+
       {activeTab === "1v1" && (
         <motion.div
           className="tab-content"
@@ -113,7 +115,7 @@ const Lobby = () => {
             position: 'relative',
             paddingBottom: '10px',
           }}>
-            Available Bets
+            Available Matches
             {/* Custom underline */}
             <span style={{
               content: '',
@@ -128,12 +130,12 @@ const Lobby = () => {
               display: 'block'
             }}></span>
           </h2>
-          
+
           {/* AvailableBets component */}
           <AvailableBets format="1v1" />
         </motion.div>
       )}
-      
+
       {activeTab === "sit-and-go" && (
         <motion.div
           className="feature-placeholder"
@@ -152,7 +154,7 @@ const Lobby = () => {
           </div>
         </motion.div>
       )}
-      
+
       {activeTab === "tournament" && (
         <motion.div
           className="feature-placeholder"

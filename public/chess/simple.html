@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chess Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      margin: 0;
+      padding: 20px;
+      background-image: linear-gradient(to bottom right, #2c3e50, #1a2530);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #3498db;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      font-size: 2.5rem;
+    }
+    
+    .board-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    #myBoard {
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+      border: 2px solid #34495e;
+    }
+    
+    .game-info {
+      background-color: #34495e;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s;
+    }
+    
+    .game-info:hover {
+      background-color: #3a526b;
+    }
+    
+    .player-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    
+    .clock {
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #2c3e50;
+      padding: 5px 10px;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
+    }
+    
+    .active {
+      color: #2ecc71;
+      text-shadow: 0 0 5px rgba(46, 204, 113, 0.7);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(46, 204, 113, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+      }
+    }
+    
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    #resetBtn {
+      background-color: #e74c3c;
+    }
+    
+    #resetBtn:hover {
+      background-color: #c0392b;
+    }
+    
+    #status {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 10px;
+      min-height: 27px;
+      padding: 5px 10px;
+      background-color: rgba(52, 73, 94, 0.5);
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #3498db;
+      text-decoration: none;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+    
+    .nav-link {
+      color: #3498db;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+    
+    .nav-link:hover {
+      background-color: rgba(52, 152, 219, 0.1);
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 500px) {
+      .buttons button {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chess Game</h1>
+    
+    <div class="board-container">
+      <div class="game-info">
+        <div class="player-info">
+          <div>Black: <span id="blackPlayer">Computer</span></div>
+          <div class="clock" id="blackClock">10:00</div>
+        </div>
+      </div>
+      
+      <div id="myBoard"></div>
+      
+      <div class="game-info">
+        <div class="player-info">
+          <div>White: <span id="whitePlayer">You</span></div>
+          <div class="clock active" id="whiteClock">10:00</div>
+        </div>
+        <div id="status">White to move</div>
+      </div>
+      
+      <div class="buttons">
+        <button id="startBtn">Start New Game</button>
+        <button id="resetBtn">Reset Board</button>
+        <button id="undoBtn">Undo Move</button>
+        <button id="flipBtn">Flip Board</button>
+        <button id="clearSavedBtn" style="background-color: #95a5a6;">Clear Saved Game</button>
+      </div>
+    </div>
+    
+    <a href="/" class="back-link">← Back to Main Site</a>
+    <div class="nav-links">
+      <a href="/home" class="nav-link">Home</a>
+      <a href="/lobby" class="nav-link">Lobby</a>
+      <a href="/leaderboards" class="nav-link">Leaderboards</a>
+      <a href="/store" class="nav-link">Store</a>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" referrerpolicy="no-referrer"></script>
+  
+  <script>
+    // Load game from localStorage if available
+    function loadGameFromStorage() {
+      try {
+        const savedGame = localStorage.getItem('chessgame');
+        if (savedGame) {
+          return JSON.parse(savedGame);
+        }
+      } catch (e) {
+        console.error('Error loading saved game:', e);
+      }
+      return null;
+    }
+    
+    // Save game to localStorage
+    function saveGameToStorage(gameState) {
+      try {
+        localStorage.setItem('chessgame', JSON.stringify(gameState));
+      } catch (e) {
+        console.error('Error saving game:', e);
+      }
+    }
+    
+    // Initialize the game
+    const board = Chessboard('myBoard', 'start');
+    const game = new Chess();
+    
+    // Status and clock elements
+    const statusElement = document.getElementById('status');
+    const whiteClockElement = document.getElementById('whiteClock');
+    const blackClockElement = document.getElementById('blackClock');
+    
+    // Time control variables
+    let whiteTime = 10 * 60; // 10 minutes in seconds
+    let blackTime = 10 * 60;
+    let clockInterval = null;
+    let lastMoveTime = Date.now();
+    let currentPlayer = 'w';
+    let gameActive = true;
+    
+    // Load saved game if available
+    const savedGame = loadGameFromStorage();
+    if (savedGame) {
+      try {
+        // Restore game position
+        if (savedGame.fen) {
+          game.load(savedGame.fen);
+          board.position(savedGame.fen);
+        }
+        
+        // Restore time and game state
+        if (savedGame.whiteTime) whiteTime = savedGame.whiteTime;
+        if (savedGame.blackTime) blackTime = savedGame.blackTime;
+        if (savedGame.currentPlayer) currentPlayer = savedGame.currentPlayer;
+        if (savedGame.gameActive !== undefined) gameActive = savedGame.gameActive;
+        
+        // Display a notification that game was loaded
+        const notification = document.createElement('div');
+        notification.textContent = 'Previous game loaded';
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '10px 15px';
+        notification.style.backgroundColor = '#2ecc71';
+        notification.style.color = 'white';
+        notification.style.borderRadius = '5px';
+        notification.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.2)';
+        notification.style.zIndex = '9999';
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transition = 'opacity 0.5s';
+          setTimeout(() => document.body.removeChild(notification), 500);
+        }, 3000);
+      } catch (e) {
+        console.error('Error restoring saved game:', e);
+      }
+    }
+    
+    // Format time to mm:ss
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // Update clocks display
+    function updateClocks() {
+      whiteClockElement.textContent = formatTime(whiteTime);
+      blackClockElement.textContent = formatTime(blackTime);
+      
+      // Update active class
+      if (currentPlayer === 'w') {
+        whiteClockElement.classList.add('active');
+        blackClockElement.classList.remove('active');
+      } else {
+        blackClockElement.classList.add('active');
+        whiteClockElement.classList.remove('active');
+      }
+    }
+    
+    // Start the clock
+    function startClock() {
+      if (clockInterval) return;
+      
+      lastMoveTime = Date.now();
+      clockInterval = setInterval(() => {
+        if (!gameActive) {
+          stopClock();
+          return;
+        }
+        
+        if (currentPlayer === 'w') {
+          whiteTime--;
+          if (whiteTime <= 0) {
+            whiteTime = 0;
+            handleTimeOut('w');
+          }
+        } else {
+          blackTime--;
+          if (blackTime <= 0) {
+            blackTime = 0;
+            handleTimeOut('b');
+          }
+        }
+        
+        updateClocks();
+      }, 1000);
+    }
+    
+    // Stop the clock
+    function stopClock() {
+      if (clockInterval) {
+        clearInterval(clockInterval);
+        clockInterval = null;
+      }
+    }
+    
+    // Handle timeout
+    function handleTimeOut(color) {
+      gameActive = false;
+      const winner = color === 'w' ? 'Black' : 'White';
+      statusElement.textContent = `Time out. ${winner} wins!`;
+      stopClock();
+    }
+    
+    // Update the board position
+    function updateBoard() {
+      board.position(game.fen());
+    }
+    
+    // Update game status
+    function updateStatus() {
+      let status = '';
+      
+      // Game over detection
+      if (game.isCheckmate()) {
+        const winner = game.turn() === 'w' ? 'Black' : 'White';
+        status = `Checkmate! ${winner} wins.`;
+        gameActive = false;
+      } else if (game.isDraw()) {
+        status = 'Game ends in a draw.';
+        gameActive = false;
+      } else {
+        // Game ongoing
+        status = (game.turn() === 'w' ? 'White' : 'Black') + ' to move';
+        if (game.isCheck()) {
+          status += ' (Check!)';
+        }
+      }
+      
+      statusElement.textContent = status;
+      currentPlayer = game.turn();
+      updateClocks();
+    }
+    
+    // Handle piece movement
+    function onDragStart(source, piece) {
+      // Don't allow moving pieces if game is over
+      if (!gameActive) return false;
+      
+      // Only allow the current player to move their pieces
+      if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        return false;
+      }
+    }
+    
+    function onDrop(source, target) {
+      // Try to make the move
+      const move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q' // Always promote to queen for simplicity
+      });
+      
+      // If illegal move, take piece back to source square
+      if (move === null) return 'snapback';
+      
+      // Start clock if it's not running
+      if (!clockInterval) {
+        startClock();
+      }
+      
+      // Add increment after move
+      if (currentPlayer === 'w') {
+        whiteTime += 5; // 5 second increment
+      } else {
+        blackTime += 5;
+      }
+      
+      // Update the board
+      updateBoard();
+      updateStatus();
+      
+      // Save game state to local storage
+      saveGameToStorage({
+        fen: game.fen(),
+        whiteTime: whiteTime,
+        blackTime: blackTime,
+        currentPlayer: game.turn(),
+        gameActive: gameActive,
+        lastUpdate: Date.now()
+      });
+    }
+    
+    // Update after pieces stop moving
+    function onSnapEnd() {
+      updateBoard();
+    }
+    
+    // Configure the board
+    const boardConfig = {
+      draggable: true,
+      position: 'start',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd
+    };
+    
+    // Initialize the board with config
+    board.clear();
+    board.position('start');
+    
+    // Event handlers for buttons
+    document.getElementById('startBtn').addEventListener('click', () => {
+      game.reset();
+      board.start();
+      whiteTime = 10 * 60;
+      blackTime = 10 * 60;
+      gameActive = true;
+      stopClock();
+      updateStatus();
+      
+      // Clear saved game state
+      try {
+        localStorage.removeItem('chessgame');
+      } catch (e) {
+        console.error('Error removing saved game:', e);
+      }
+    });
+    
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      game.reset();
+      board.start();
+      whiteTime = 10 * 60;
+      blackTime = 10 * 60;
+      gameActive = true;
+      stopClock();
+      updateStatus();
+      
+      // Clear saved game state
+      try {
+        localStorage.removeItem('chessgame');
+        
+        // Show reset notification
+        const notification = document.createElement('div');
+        notification.textContent = 'Game reset';
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '10px 15px';
+        notification.style.backgroundColor = '#e74c3c';
+        notification.style.color = 'white';
+        notification.style.borderRadius = '5px';
+        notification.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.2)';
+        notification.style.zIndex = '9999';
+        document.body.appendChild(notification);
+        
+        // Remove notification after 2 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transition = 'opacity 0.5s';
+          setTimeout(() => document.body.removeChild(notification), 500);
+        }, 2000);
+      } catch (e) {
+        console.error('Error removing saved game:', e);
+      }
+    });
+    
+    document.getElementById('undoBtn').addEventListener('click', () => {
+      if (!gameActive) return;
+      
+      game.undo();
+      board.position(game.fen());
+      updateStatus();
+    });
+    
+    document.getElementById('flipBtn').addEventListener('click', () => {
+      board.flip();
+    });
+    
+    document.getElementById('clearSavedBtn').addEventListener('click', () => {
+      try {
+        localStorage.removeItem('chessgame');
+        
+        // Show notification
+        const notification = document.createElement('div');
+        notification.textContent = 'Saved game cleared';
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '10px 15px';
+        notification.style.backgroundColor = '#95a5a6';
+        notification.style.color = 'white';
+        notification.style.borderRadius = '5px';
+        notification.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.2)';
+        notification.style.zIndex = '9999';
+        document.body.appendChild(notification);
+        
+        // Remove notification after 2 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transition = 'opacity 0.5s';
+          setTimeout(() => document.body.removeChild(notification), 500);
+        }, 2000);
+      } catch (e) {
+        console.error('Error removing saved game:', e);
+      }
+    });
+    
+    // Initial status update
+    updateStatus();
+    updateClocks();
+  </script>
+</body>
+</html>

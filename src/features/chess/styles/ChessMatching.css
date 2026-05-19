@@ -1,0 +1,358 @@
+/* src/features/chess/styles/ChessMatching.css */
+.chess-matching {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(0, 20, 40, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
+}
+
+.chess-matching-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chess-matching-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.chess-matching-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-find-game,
+.btn-create-game,
+.btn-submit-create,
+.btn-join-game,
+.btn-cancel-find {
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-find-game {
+  background-color: #2b6cb0;
+  color: white;
+}
+
+.btn-find-game:hover:not(:disabled) {
+  background-color: #2c5282;
+}
+
+.btn-create-game {
+  background-color: #38a169;
+  color: white;
+}
+
+.btn-create-game:hover:not(:disabled) {
+  background-color: #2f855a;
+}
+
+.btn-cancel-find {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.btn-cancel-find:hover {
+  background-color: #c53030;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chess-matching-error {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #fc8181;
+  padding: 12px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-dismiss {
+  background: none;
+  border: none;
+  color: #fc8181;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.chess-finding-game {
+  background-color: rgba(43, 108, 176, 0.2);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.finding-game-animation {
+  margin-bottom: 15px;
+}
+
+.dot-pulse {
+  position: relative;
+  left: -9999px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #60a5fa;
+  color: #60a5fa;
+  box-shadow: 9999px 0 0 -5px;
+  animation: dot-pulse 1.5s infinite linear;
+  animation-delay: 0.25s;
+  margin: 0 auto;
+}
+
+.dot-pulse::before, .dot-pulse::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #60a5fa;
+  color: #60a5fa;
+}
+
+.dot-pulse::before {
+  box-shadow: 9984px 0 0 -5px;
+  animation: dot-pulse-before 1.5s infinite linear;
+  animation-delay: 0s;
+}
+
+.dot-pulse::after {
+  box-shadow: 10014px 0 0 -5px;
+  animation: dot-pulse-after 1.5s infinite linear;
+  animation-delay: 0.5s;
+}
+
+@keyframes dot-pulse-before {
+  0% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9984px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+}
+
+@keyframes dot-pulse {
+  0% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9999px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+}
+
+@keyframes dot-pulse-after {
+  0% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 10014px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+}
+
+.chess-create-form {
+  background-color: rgba(56, 161, 105, 0.2);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #68d391;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  background-color: #2d3748;
+  color: #e2e8f0;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-submit-create {
+  background-color: #38a169;
+  color: white;
+}
+
+.btn-submit-create:hover:not(:disabled) {
+  background-color: #2f855a;
+}
+
+.available-games {
+  margin-top: 30px;
+}
+
+.available-games-title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #90cdf4;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.available-games-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background-color: #90cdf4;
+  border-radius: 3px;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.game-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: rgba(44, 82, 130, 0.4);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.game-item:hover {
+  background-color: rgba(44, 82, 130, 0.6);
+}
+
+.game-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.game-creator {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.creator-name {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.creator-rating {
+  font-size: 13px;
+  color: #a0aec0;
+}
+
+.game-time-control {
+  padding: 5px 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-weight: 500;
+  min-width: 70px;
+  text-align: center;
+}
+
+.game-color {
+  font-size: 14px;
+  color: #a0aec0;
+}
+
+.btn-join-game {
+  background-color: #ed8936;
+  color: white;
+}
+
+.btn-join-game:hover:not(:disabled) {
+  background-color: #dd6b20;
+}
+
+.no-games {
+  text-align: center;
+  padding: 30px 0;
+  color: #a0aec0;
+}
+
+.no-games p {
+  margin: 5px 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .chess-matching-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .chess-matching-actions {
+    width: 100%;
+  }
+  
+  .btn-find-game, .btn-create-game {
+    flex: 1;
+  }
+  
+  .game-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .game-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .btn-join-game {
+    width: 100%;
+  }
+}

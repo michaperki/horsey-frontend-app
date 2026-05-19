@@ -1,0 +1,37 @@
+/* Custom chess piece styles to use the local SVG files */
+.white-1e1d7 {
+  background-image: url('/pieces/pawn-w.svg');
+}
+.black-3c85d {
+  background-image: url('/pieces/pawn-b.svg');
+}
+.white-1e1d7.knight {
+  background-image: url('/pieces/knight-w.svg');
+}
+.black-3c85d.knight {
+  background-image: url('/pieces/knight-b.svg');
+}
+.white-1e1d7.bishop {
+  background-image: url('/pieces/bishop-w.svg');
+}
+.black-3c85d.bishop {
+  background-image: url('/pieces/bishop-b.svg');
+}
+.white-1e1d7.rook {
+  background-image: url('/pieces/rook-w.svg');
+}
+.black-3c85d.rook {
+  background-image: url('/pieces/rook-b.svg');
+}
+.white-1e1d7.queen {
+  background-image: url('/pieces/queen-w.svg');
+}
+.black-3c85d.queen {
+  background-image: url('/pieces/queen-b.svg');
+}
+.white-1e1d7.king {
+  background-image: url('/pieces/king-w.svg');
+}
+.black-3c85d.king {
+  background-image: url('/pieces/king-b.svg');
+}

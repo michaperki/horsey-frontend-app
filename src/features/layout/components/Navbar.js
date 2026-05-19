@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { useToken } from '../../token/contexts/TokenContext';
-import { useLichess } from '../../auth/contexts/LichessContext';
 import BalanceToggle from '../../token/components/BalanceToggle';
 import NavbarDropdown from './NavbarDropdown';
 import {
@@ -18,7 +17,8 @@ import {
   FaTimes,
   FaSignInAlt,
   FaUserPlus,
-  FaUserCircle
+  FaUserCircle,
+  FaChessKnight
 } from 'react-icons/fa';
 import { useNotifications } from '../../notifications/contexts/NotificationsContext';
 import './Navbar.css';
@@ -27,7 +27,6 @@ const Navbar = () => {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const { tokenBalance, sweepstakesBalance } = useToken();
-  const { lichessConnected, connectLichess, loading, shake } = useLichess();
   const { unreadCount } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,13 +47,9 @@ const Navbar = () => {
     navigate('/');
   };
 
-  const handleConnectLichess = async () => {
-    try {
-      await connectLichess();
-    } catch (err) {
-      setError("Failed to connect to Lichess. Please try again.");
-      setTimeout(() => setError(null), 5000);
-    }
+  // Chess link navigation
+  const handlePlayChess = () => {
+    navigate('/chess/play');
   };
 
   const closeDropdown = () => {
@@ -89,9 +84,9 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div 
-          className="navbar__hamburger" 
-          onClick={toggleMobileMenu} 
+        <div
+          className="navbar__hamburger"
+          onClick={toggleMobileMenu}
           aria-label="Toggle navigation menu"
         >
           {isMobileMenuOpen ? <FaTimes className="hamburger-icon" /> : <FaBars className="hamburger-icon" />}
@@ -116,32 +111,10 @@ const Navbar = () => {
                 <FaStore className="nav-icon" title="Store" aria-label="Store" />
                 <span className="nav-text">Store</span>
               </Link>
-              {!lichessConnected && (
-                <button
-                  onClick={handleConnectLichess}
-                  className={`navbar__connect-button ${shake ? 'shake' : ''}`}
-                  disabled={loading}
-                  aria-busy={loading}
-                  title="Connect Lichess"
-                  aria-label="Connect Lichess"
-                >
-                  {loading ? (
-                    <>
-                      <FaSpinner className="spinner" aria-label="Connecting" />
-                      <span>Connecting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <img
-                        src="/assets/lichess-icon.png"
-                        alt="Lichess Icon"
-                        className="navbar__lichess-icon"
-                      />
-                      <span>Connect Lichess</span>
-                    </>
-                  )}
-                </button>
-              )}
+              <Link to="/chess" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaChessKnight className="nav-icon" title="Chess" aria-label="Play Chess" />
+                <span className="nav-text">Chess</span>
+              </Link>
             </>
           )}
 
@@ -156,6 +129,10 @@ const Navbar = () => {
 
           {!token && (
             <>
+              <Link to="/chess" className="navbar__link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
+                <FaChessKnight className="nav-icon" title="Chess" aria-label="Play Chess" />
+                <span className="nav-text">Chess</span>
+              </Link>
               <Link to="/login" className="navbar__link auth-link" onClick={() => { closeDropdown(); setIsMobileMenuOpen(false); }}>
                 <FaSignInAlt className="nav-icon" title="Login" aria-label="Login" />
                 <span className="nav-text">Login</span>
@@ -207,9 +184,9 @@ const Navbar = () => {
               <span className="navbar__username">{user.username || 'User'}</span>
               <span className="navbar__dropdown-arrow">▼</span>
             </div>
-            
+
             {/* Use our new NavbarDropdown component */}
-            <NavbarDropdown 
+            <NavbarDropdown
               user={user}
               showDropdown={showDropdown}
               closeDropdown={closeDropdown}
